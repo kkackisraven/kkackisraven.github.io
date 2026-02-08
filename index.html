@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB Project</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* [기본 설정: 낮 모드 (서랍)] */
+        :root {
+            --bg-color: #f8f5f2;       /* 종이 질감 색상 */
+            --text-color: #2c2c2c;     /* 진한 회색 */
+            --accent-color: #5d4037;   /* 나무색 (서랍) */
+            --card-bg: #ffffff;        /* 흰색 카드 */
+            --border-color: #d7ccc8;
+            --font-main: 'Noto Sans KR', sans-serif;
+            --font-logo: 'Nanum Myeongjo', serif; /* 명조체 */
+            --shadow: 0 4px 10px rgba(0,0,0,0.05);
+            --neon-shadow: none;
+        }
+
+        /* [다락 모드 (밤)] - body에 'darak-mode' 클래스가 붙으면 발동 */
+        body.darak-mode {
+            --bg-color: #121212;       /* 완전 어두운 밤 */
+            --text-color: #e0e0e0;     /* 밝은 회색 */
+            --accent-color: #ff0055;   /* 네온 레드/핑크 */
+            --card-bg: #1e1e1e;        /* 어두운 카드 */
+            --border-color: #333;
+            --font-logo: 'Noto Sans KR', sans-serif; /* 고딕으로 변경 */
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --neon-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; /* 네온 효과 */
+        }
+
+        /* 전체 레이아웃 */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            transition: background 0.5s ease, color 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 헤더 영역 */
+        header {
+            width: 100%;
+            max-width: 600px;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: var(--font-logo);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            transition: text-shadow 0.3s ease;
+        }
+        
+        body.darak-mode .logo {
+            text-shadow: var(--neon-shadow);
+        }
+
+        /* 스위치 버튼 */
+        .switch-btn {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .switch-btn:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        body.darak-mode .switch-btn {
+            box-shadow: var(--neon-shadow);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* 작가 카드 영역 */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 0 20px;
+            padding-bottom: 100px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--accent-color);
+            transition: transform 0.2s ease, box-shadow 0.3s;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .role {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-weight: normal;
+        }
+
+        .desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-line; /* 줄바꿈 적용 */
+        }
+
+        .links a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            transition: 0.3s;
+        }
+
+        .links a:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        /* 모드별 표시 제어 */
+        .darak-only { display: none; }
+        .seorab-only { display: block; }
+
+        body.darak-mode .darak-only { display: block; animation: fadeIn 1s; }
+        body.darak-mode .seorab-only { display: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 푸터 */
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" id="logo-text">SEORAB</div>
+        <button class="switch-btn" onclick="toggleMode()" id="switch-text">
+            Light ON
+        </button>
+    </header>
+
+    <div class="container">
+
+        <div class="profile-card">
+            <div class="name">
+                화린 Hwarin
+                <span class="role">Illustrator</span>
+            </div>
+            
+            <div class="seorab-only">
+                <p class="desc">
+                    따뜻한 색감으로 일상을 그려내는 작가입니다.
+                    동화 삽화 및 표지 일러스트 작업을 주로 합니다.
+                </p>
+                <div class="links">
+                    <a href="#">ArtStation</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+
+            <div class="darak-only">
+                <p class="desc" style="color:#ff8a80;">
+                    ※ R-18 Caution ※
+                    심연을 그립니다. 열람 시 주의를 요합니다.
+                </p>
+                <div class="links">
+                    <a href="#" style="background:#330000; color:#ff0055;">Pixiv (R-18)</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <div class="name">
+                크렌 Kren
+                <span class="role">Cartoonist</span>
+            </div>
+            
+            <div class="seorab-only">
+                <p class="desc">
+                    독창적인 세계관의 SF/판타지 웹툰을 연재합니다.
+                    메카닉 디자인과 연출에 강점이 있습니다.
+                </p>
+                <div class="links">
+                    <a href="#">Portfolio</a>
+                    <a href="#">Blog</a>
+                </div>
+            </div>
+
+            <div class="darak-only">
+                <p class="desc" style="color:#ff8a80;">
+                    ※ R-18 Caution ※
+                    기계와 육체의 결합, 그로테스크.
+                </p>
+                <div class="links">
+                    <a href="#" style="background:#330000; color:#ff0055;">X (Twitter) Media</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <div class="name">
+                까마구 Kamagu
+                <span class="role">Goods Maker</span>
+            </div>
+            
+            <div class="seorab-only">
+                <p class="desc">
+                    귀여운 캐릭터 굿즈를 기획하고 제작합니다.
+                    스티커, 키링, 문구류 통판 진행 중.
+                </p>
+                <div class="links">
+                    <a href="#">Store</a>
+                    <a href="#">Twitter</a>
+                </div>
+            </div>
+
+            <div class="darak-only">
+                <p class="desc" style="color:#ff8a80;">
+                    ※ R-18 Caution ※
+                    어른들을 위한 장난감과 굿즈.
+                </p>
+                <div class="links">
+                    <a href="#" style="background:#330000; color:#ff0055;">Secret Shop</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        © 2026 Team SEORAB. All rights reserved.
+    </footer>
+
+    <script>
+        function toggleMode() {
+            const body = document.body;
+            const logo = document.getElementById('logo-text');
+            const btn = document.getElementById('switch-text');
+
+            // 클래스 토글 (낮/밤 전환)
+            body.classList.toggle('darak-mode');
+
+            // 텍스트 및 효과 변경
+            if (body.classList.contains('darak-mode')) {
+                // 다락 모드 진입 시
+                logo.innerText = "DARAK";
+                btn.innerText = "🔞 OFF";
+                alert("경고: 이곳은 미성년자가 출입할 수 없는 '다락'입니다.\n(실제 사이트에서는 성인인증 절차를 권장합니다)");
+            } else {
+                // 서랍 모드 복귀 시
+                logo.innerText = "SEORAB";
+                btn.innerText = "💡 Light ON";
+            }
+        }
+    </script>
+</body>
+</html>
