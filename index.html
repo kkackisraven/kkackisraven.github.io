@@ -4,170 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEORAB Project</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
     <style>
-        /* [기본 설정: 낮 모드 (서랍)] */
+        /* [기본 설정: 낮 (서랍)] */
         :root {
-            --bg-color: #f8f5f2;       /* 종이 질감 색상 */
-            --text-color: #2c2c2c;     /* 진한 회색 */
-            --accent-color: #5d4037;   /* 나무색 (서랍) */
-            --card-bg: #ffffff;        /* 흰색 카드 */
-            --border-color: #d7ccc8;
-            --font-main: 'Noto Sans KR', sans-serif;
-            --font-logo: 'Nanum Myeongjo', serif; /* 명조체 */
-            --shadow: 0 4px 10px rgba(0,0,0,0.05);
-            --neon-shadow: none;
+            --bg-color: #f0f0f0;
+            --text-color: #111;
+            --accent-color: #333;
+            --hover-reveal-bg: #fff;
+            --font-main: 'Pretendard', sans-serif;
+            --font-serif: 'Playfair Display', serif; /* 영문 포인트 폰트 */
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* [다락 모드 (밤)] - body에 'darak-mode' 클래스가 붙으면 발동 */
+        /* [다락 모드: 밤] */
         body.darak-mode {
-            --bg-color: #121212;       /* 완전 어두운 밤 */
-            --text-color: #e0e0e0;     /* 밝은 회색 */
-            --accent-color: #ff0055;   /* 네온 레드/핑크 */
-            --card-bg: #1e1e1e;        /* 어두운 카드 */
-            --border-color: #333;
-            --font-logo: 'Noto Sans KR', sans-serif; /* 고딕으로 변경 */
-            --shadow: 0 4px 15px rgba(0,0,0,0.5);
-            --neon-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; /* 네온 효과 */
+            --bg-color: #0d0d0d;
+            --text-color: #666; /* 기본은 어둡게 */
+            --accent-color: #ff0055; /* 포인트는 강렬하게 */
+            --hover-reveal-bg: #222;
         }
 
-        /* 전체 레이아웃 */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: var(--font-main);
             margin: 0;
             padding: 0;
-            transition: background 0.5s ease, color 0.5s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            transition: var(--transition);
+            overflow-x: hidden; /* 가로 스크롤 방지 */
         }
 
-        /* 헤더 영역 */
+        /* 상단 헤더 */
         header {
+            position: fixed;
+            top: 0;
             width: 100%;
-            max-width: 600px;
-            padding: 40px 20px;
+            padding: 30px 50px;
+            box-sizing: border-box;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 40px;
+            z-index: 100;
+            mix-blend-mode: difference; /* 배경색에 따라 글씨색 자동 반전 효과 */
+            color: #fff; 
         }
 
         .logo {
-            font-family: var(--font-logo);
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent-color);
-            transition: text-shadow 0.3s ease;
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .switch-btn {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: var(--transition);
         }
         
-        body.darak-mode .logo {
-            text-shadow: var(--neon-shadow);
-        }
-
-        /* 스위치 버튼 */
-        .switch-btn {
-            background: transparent;
-            border: 2px solid var(--accent-color);
-            color: var(--accent-color);
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
         .switch-btn:hover {
-            background: var(--accent-color);
-            color: var(--bg-color);
+            background: #fff;
+            color: #000;
         }
 
-        body.darak-mode .switch-btn {
-            box-shadow: var(--neon-shadow);
-            border-color: var(--accent-color);
-            color: var(--accent-color);
+        /* 메인 리스트 영역 */
+        main {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 5vw;
         }
 
-        /* 작가 카드 영역 */
-        .container {
-            width: 100%;
-            max-width: 600px;
-            padding: 0 20px;
-            padding-bottom: 100px;
+        .artist-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .profile-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            border-left: 6px solid var(--accent-color);
-            transition: transform 0.2s ease, box-shadow 0.3s;
-        }
-
-        .profile-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .artist-item {
+            position: relative;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+            padding: 3vh 0;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
         }
 
-        .role {
-            font-size: 0.9rem;
-            opacity: 0.7;
-            font-weight: normal;
+        .artist-item:first-child {
+            border-top: 1px solid rgba(128, 128, 128, 0.3);
         }
 
-        .desc {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            white-space: pre-line; /* 줄바꿈 적용 */
+        /* 텍스트 스타일 */
+        .artist-name {
+            font-size: 4vw; /* 화면 크기에 비례해 커짐 */
+            font-weight: 300;
+            text-transform: uppercase;
+            font-family: var(--font-serif);
+            transition: var(--transition);
         }
 
-        .links a {
-            display: inline-block;
-            text-decoration: none;
-            background-color: var(--border-color);
-            color: var(--text-color);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            margin-right: 8px;
-            transition: 0.3s;
+        .artist-role {
+            font-size: 1rem;
+            opacity: 0.5;
+            font-weight: 400;
         }
 
-        .links a:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
+        /* 호버 효과 (핵심) */
+        .artist-item:hover .artist-name {
+            padding-left: 20px; /* 오른쪽으로 살짝 이동 */
+            color: var(--accent-color); /* 강조색 */
+            font-weight: 400;
+        }
+        
+        body.darak-mode .artist-item:hover .artist-name {
+            text-shadow: 0 0 10px var(--accent-color); /* 네온 효과 */
         }
 
-        /* 모드별 표시 제어 */
-        .darak-only { display: none; }
-        .seorab-only { display: block; }
-
-        body.darak-mode .darak-only { display: block; animation: fadeIn 1s; }
-        body.darak-mode .seorab-only { display: none; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* 이미지가 뜨는 영역 (플로팅 이미지) */
+        .hover-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 400px;
+            height: 500px;
+            background-color: var(--hover-reveal-bg);
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            pointer-events: none; /* 마우스가 이미지에 걸리지 않게 */
+            z-index: -1; /* 글씨 뒤에 배치 */
+            transition: opacity 0.3s ease, transform 0.5s ease;
+            filter: grayscale(100%); /* 기본은 흑백 */
         }
 
-        /* 푸터 */
-        footer {
-            margin-top: auto;
-            padding: 20px;
+        /* 리스트에 마우스 올리면 이미지가 나타남 */
+        .artist-item:hover + .hover-image,
+        .artist-item:focus-within + .hover-image { 
+            /* 자바스크립트로 제어하는 게 더 자연스럽지만 CSS로 약식 구현 */
+        }
+
+        /* 꼬리말 */
+        .footer-text {
+            position: fixed;
+            bottom: 30px;
+            left: 50px;
             font-size: 0.8rem;
             opacity: 0.5;
         }
@@ -177,123 +170,96 @@
 <body>
 
     <header>
-        <div class="logo" id="logo-text">SEORAB</div>
-        <button class="switch-btn" onclick="toggleMode()" id="switch-text">
-            Light ON
-        </button>
+        <div class="logo" id="logoText">SEORAB</div>
+        <button class="switch-btn" onclick="toggleMode()" id="switchBtn">DAY MODE</button>
     </header>
 
-    <div class="container">
-
-        <div class="profile-card">
-            <div class="name">
-                화린 Hwarin
-                <span class="role">Illustrator</span>
-            </div>
+    <main>
+        <ul class="artist-list">
             
-            <div class="seorab-only">
-                <p class="desc">
-                    따뜻한 색감으로 일상을 그려내는 작가입니다.
-                    동화 삽화 및 표지 일러스트 작업을 주로 합니다.
-                </p>
-                <div class="links">
-                    <a href="#">ArtStation</a>
-                    <a href="#">Instagram</a>
-                </div>
-            </div>
-
-            <div class="darak-only">
-                <p class="desc" style="color:#ff8a80;">
-                    ※ R-18 Caution ※
-                    심연을 그립니다. 열람 시 주의를 요합니다.
-                </p>
-                <div class="links">
-                    <a href="#" style="background:#330000; color:#ff0055;">Pixiv (R-18)</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-card">
-            <div class="name">
-                크렌 Kren
-                <span class="role">Cartoonist</span>
-            </div>
+            <li class="artist-item" onmouseenter="changeImage('img-hwarin')" onmouseleave="hideImage()">
+                <span class="artist-name">Hwarin</span>
+                <span class="artist-role">Illustrator / Art Director</span>
+            </li>
             
-            <div class="seorab-only">
-                <p class="desc">
-                    독창적인 세계관의 SF/판타지 웹툰을 연재합니다.
-                    메카닉 디자인과 연출에 강점이 있습니다.
-                </p>
-                <div class="links">
-                    <a href="#">Portfolio</a>
-                    <a href="#">Blog</a>
-                </div>
-            </div>
-
-            <div class="darak-only">
-                <p class="desc" style="color:#ff8a80;">
-                    ※ R-18 Caution ※
-                    기계와 육체의 결합, 그로테스크.
-                </p>
-                <div class="links">
-                    <a href="#" style="background:#330000; color:#ff0055;">X (Twitter) Media</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-card">
-            <div class="name">
-                까마구 Kamagu
-                <span class="role">Goods Maker</span>
-            </div>
+            <li class="artist-item" onmouseenter="changeImage('img-kren')" onmouseleave="hideImage()">
+                <span class="artist-name">Kren</span>
+                <span class="artist-role">Webtoon Artist</span>
+            </li>
             
-            <div class="seorab-only">
-                <p class="desc">
-                    귀여운 캐릭터 굿즈를 기획하고 제작합니다.
-                    스티커, 키링, 문구류 통판 진행 중.
-                </p>
-                <div class="links">
-                    <a href="#">Store</a>
-                    <a href="#">Twitter</a>
-                </div>
-            </div>
+            <li class="artist-item" onmouseenter="changeImage('img-kamagu')" onmouseleave="hideImage()">
+                <span class="artist-name">Kamagu</span>
+                <span class="artist-role">Merchandise Maker</span>
+            </li>
 
-            <div class="darak-only">
-                <p class="desc" style="color:#ff8a80;">
-                    ※ R-18 Caution ※
-                    어른들을 위한 장난감과 굿즈.
-                </p>
-                <div class="links">
-                    <a href="#" style="background:#330000; color:#ff0055;">Secret Shop</a>
-                </div>
-            </div>
-        </div>
+             <li class="artist-item" onclick="location.href='mailto:example@gmail.com'">
+                <span class="artist-name">Contact</span>
+                <span class="artist-role">Email Us</span>
+            </li>
 
+        </ul>
+
+        <div id="preview-img" class="hover-image"></div>
+
+    </main>
+
+    <div class="footer-text">
+        © 2026 Seorab Project.
     </div>
 
-    <footer>
-        © 2026 Team SEORAB. All rights reserved.
-    </footer>
-
     <script>
+        // 이미지 소스 설정 (여기를 수정해서 작가님들 그림을 넣으세요)
+        const images = {
+            'seorab': { // [양지 모드 이미지]
+                'img-hwarin': 'https://images.unsplash.com/photo-1515405295579-ba7f9f92f413?q=80&w=1000',
+                'img-kren': 'https://images.unsplash.com/photo-1519638399535-1b036603ac77?q=80&w=1000',
+                'img-kamagu': 'https://images.unsplash.com/photo-1490915785914-0af2806c22b6?q=80&w=1000'
+            },
+            'darak': { // [음지 모드 이미지 - 경고 그림 등]
+                'img-hwarin': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000', // 좀 더 어둡거나 추상적인
+                'img-kren': 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000',
+                'img-kamagu': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000'
+            }
+        };
+
+        const previewBox = document.getElementById('preview-img');
+        let currentMode = 'seorab'; // 현재 모드 상태
+
+        // 마우스 올렸을 때 이미지 변경 함수
+        function changeImage(key) {
+            const url = images[currentMode][key];
+            if(url) {
+                previewBox.style.backgroundImage = `url(${url})`;
+                previewBox.style.opacity = '1';
+                previewBox.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+        }
+
+        // 마우스 뗐을 때
+        function hideImage() {
+            previewBox.style.opacity = '0';
+            previewBox.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        }
+
+        // 모드 전환 함수
         function toggleMode() {
             const body = document.body;
-            const logo = document.getElementById('logo-text');
-            const btn = document.getElementById('switch-text');
+            const logo = document.getElementById('logoText');
+            const btn = document.getElementById('switchBtn');
 
-            // 클래스 토글 (낮/밤 전환)
             body.classList.toggle('darak-mode');
 
-            // 텍스트 및 효과 변경
             if (body.classList.contains('darak-mode')) {
-                // 다락 모드 진입 시
+                currentMode = 'darak';
                 logo.innerText = "DARAK";
-                btn.innerText = "🔞 OFF";
-                alert("경고: 이곳은 미성년자가 출입할 수 없는 '다락'입니다.\n(실제 사이트에서는 성인인증 절차를 권장합니다)");
+                btn.innerText = "NIGHT MODE";
+                // 다락 모드일 땐 이미지가 컬러풀하게 보이도록 필터 제거
+                previewBox.style.filter = "none"; 
             } else {
-                // 서랍 모드 복귀 시
+                currentMode = 'seorab';
                 logo.innerText = "SEORAB";
-                btn.innerText = "💡 Light ON";
+                btn.innerText = "DAY MODE";
+                previewBox.style.filter = "grayscale(100%)";
             }
         }
     </script>
