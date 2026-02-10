@@ -96,4 +96,81 @@
             width: 200px;
             height: 80px;
             background: #eee;
-            transform: translateZ(15px); /* 두께만큼
+            transform: translateZ(15px); /* 두께만큼 위로 */
+        }
+        /* 서랍 옆면 (열렸을 때 보이는 부분) */
+        .d-face-side {
+            position: absolute;
+            width: 15px; /* 두께 */
+            height: 80px; /* 깊이 */
+            background: #ccc;
+            right: 0;
+            transform: rotateY(90deg);
+            transform-origin: right;
+        }
+
+        /* 손잡이 */
+        .handle {
+            position: absolute;
+            width: 60px;
+            height: 8px;
+            background: #silver;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+
+        /* === 4. 호버 애니메이션 (핵심) === */
+        /* 마우스를 올리면 Y축(깊이 방향)으로 튀어나옴 */
+        .drawer-layer:hover {
+            /* 기존 위치(translateZ)는 유지하면서 + Y축 이동 추가 */
+            /* !important는 기존 transform을 덮어쓰기 위해 사용 */
+        }
+        
+        .d1:hover { transform: translateZ(220px) translateY(50px) !important; }
+        .d2:hover { transform: translateZ(130px) translateY(50px) !important; }
+        .d3:hover { transform: translateZ(40px) translateY(50px) !important; }
+
+        /* 열렸을 때 옆면 색상 살짝 어둡게 (그림자 효과) */
+        .drawer-layer:hover .d-face-side {
+            background: #bbb;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="scene">
+        <div class="cabinet">
+            <div class="face top"></div>
+            <div class="face left"></div>
+            <div class="face right"></div>
+        </div>
+
+        <div class="drawer-layer d1" onclick="location.href='main.html'">
+            <div class="d-face-top"></div> <div class="d-face-front"> <div class="handle"></div>
+            </div>
+            <div class="d-face-side"></div> </div>
+
+        <div class="drawer-layer d2">
+            <div class="d-face-top"></div>
+            <div class="d-face-front">
+                <div class="handle"></div>
+            </div>
+            <div class="d-face-side"></div>
+        </div>
+
+        <div class="drawer-layer d3">
+            <div class="d-face-top"></div>
+            <div class="d-face-front">
+                <div class="handle"></div>
+            </div>
+            <div class="d-face-side"></div>
+        </div>
+    </div>
+
+</body>
+</html>
