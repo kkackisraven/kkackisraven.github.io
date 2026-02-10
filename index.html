@@ -6,185 +6,101 @@
     <title>SEORAB Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     
-    <style>
-        :root {
-            --bg-day: #f4f1ea; /* 낮 벽지 색 */
-            --bg-night: #1a1a1a; /* 밤 벽지 색 */
-            --drawer-color: #5d4037;
-            --lamp-light: rgba(255, 220, 100, 0.4); /* 램프 불빛 */
-            --neon-color: #ff0055; /* 야광 낙서 색 */
-        }
+   <style>
+    :root {
+        --bg-day: #f4f1ea;
+        --bg-night: #1a1a1a;
+        --drawer-color: #333; /* 서랍장 색 */
+        --drawer-front: #fff; /* 서랍 앞판 색 */
+        --lamp-light: rgba(255, 220, 100, 0.4);
+        --neon-color: #ff0055;
+    }
 
-        body {
-            margin: 0;
-            height: 100vh;
-            background-color: var(--bg-day);
-            transition: background-color 0.8s ease; /* 서서히 어두워짐 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
+    /* ... (body, room, hidden-graffiti, lamp 스타일은 기존과 동일하므로 생략) ... */
 
-        /* [밤 모드 상태] */
-        body.dark-mode {
-            background-color: var(--bg-night);
-        }
+    /* === 책상 & 서랍장 === */
+    .desk-area {
+        position: absolute;
+        bottom: 10%; /* 위치 약간 조정 */
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+        /* [핵심 1] 3D 원근감 추가 (숫자가 작을수록 왜곡이 심해짐) */
+        perspective: 800px; 
+    }
 
-        /* === 1. 방 전체 컨테이너 === */
-        .room {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            /* border: 1px solid #ccc; 가이드라인 (나중에 삭제) */
-        }
+    /* 서랍장 몸통 */
+    .cabinet {
+        width: 200px;
+        height: 250px;
+        background: var(--drawer-color);
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border-radius: 4px;
+        /* 몸통 자체를 약간 기울여서 입체감 주기 */
+        transform: rotateX(5deg);
+        box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+        transform-style: preserve-3d; /* 자식 요소들의 3D 효과 유지 */
+    }
 
-        /* === 2. 벽의 기믹 (야광 낙서) === */
-        .hidden-graffiti {
-            position: absolute;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Black Han Sans', sans-serif;
-            font-size: 5rem;
-            color: #333; /* 낮에는 벽지랑 비슷한 색이거나 안보임 */
-            opacity: 0; /* 평소엔 안보임 */
-            transition: opacity 0.5s, text-shadow 0.5s;
-            cursor: pointer;
-            z-index: 0; /* 가구 뒤에 있음 */
-            text-decoration: none;
-        }
+    /* 서랍 칸 (공통) */
+    .drawer {
+        flex: 1;
+        background: var(--drawer-front);
+        margin: 5px 0;
+        border-radius: 2px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+        /* 부드러운 움직임 설정 */
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        border-bottom: 2px solid #ddd; /* 입체감용 테두리 */
+    }
 
-        /* 밤이 되면 나타남 */
-        body.dark-mode .hidden-graffiti {
-            opacity: 1;
-            color: #fff;
-            text-shadow: 
-                0 0 10px var(--neon-color),
-                0 0 20px var(--neon-color),
-                0 0 40px var(--neon-color);
-            animation: flicker 2s infinite alternate; /* 깜빡이는 효과 */
-        }
+    /* 손잡이 (가상 요소로 구현) */
+    .drawer::after {
+        content: '';
+        position: absolute;
+        width: 40px;
+        height: 8px;
+        background: #ccc;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    }
 
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.5; }
-        }
+    /* [핵심 2] 첫 번째 서랍 호버 효과 (입체 열림) */
+    .drawer.first:hover {
+        background: #fff; /* 색상 유지 */
+        /* translateZ(30px): 앞으로 30px 튀어나옴
+           rotateX(-15deg): 아래로 15도 기울어짐 (열리는 각도)
+        */
+        transform: translateZ(30px) rotateX(-15deg);
+        
+        /* 열렸을 때 그림자를 진하게 해서 붕 뜬 느낌 강조 */
+        box-shadow: 
+            0 15px 20px rgba(0,0,0,0.15), /* 바닥 그림자 */
+            inset 0 -2px 5px rgba(0,0,0,0.1); /* 내부 그림자 */
+    }
+    
+    /* 나머지 서랍들은 밋밋하게 */
+    .drawer:not(.first) {
+        pointer-events: none; /* 클릭 안 되게 */
+        background: #eee;
+        color: #999;
+    }
 
-        /* === 3. 책상 & 가구 (중앙 배치) === */
-        .desk-area {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            height: 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 10;
-        }
+    /* ... (나머지 lamp, 이스터에그 스타일은 동일) ... */
 
-        /* 로고/서랍장 (이미지로 대체 가능) */
-        .cabinet {
-            width: 200px;
-            height: 250px;
-            background: #333; /* 로고 색 */
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        /* 서랍 칸들 */
-        .drawer {
-            flex: 1;
-            background: #fff;
-            margin: 5px 0;
-            border-radius: 2px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none; /* 링크 밑줄 제거 */
-        }
-
-        /* 첫 번째 서랍 호버 효과 */
-        .drawer.first:hover {
-            transform: translateX(-20px); /* 왼쪽으로 쑥 나옴 */
-            background: #eee;
-        }
-
-        /* === 4. 스탠드 조명 (스위치 역할) === */
-        .lamp-container {
-            position: absolute;
-            top: -60px; /* 서랍장 위에 */
-            right: -50px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .lamp-head {
-            width: 80px;
-            height: 40px;
-            background: #222;
-            border-radius: 40px 40px 0 0;
-            position: relative;
-            z-index: 20;
-        }
-
-        /* 불빛 효과 (원뿔형) */
-        .light-beam {
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 100px solid transparent;
-            border-right: 100px solid transparent;
-            border-bottom: 300px solid var(--lamp-light);
-            opacity: 1;
-            transition: opacity 0.3s;
-            pointer-events: none; /* 클릭 방해 안하게 */
-            z-index: 15; /* 서랍장 위에 빛이 비침 */
-        }
-
-        /* 불 껐을 때 빛 사라짐 */
-        body.dark-mode .light-beam {
-            opacity: 0;
-        }
-
-        /* === 5. 이스터에그 (크리스마스 트리 등) === */
-        .event-object {
-            position: absolute;
-            bottom: 0;
-            left: -120px; /* 책상 옆 */
-            font-size: 4rem;
-            display: none; /* 평소엔 숨김 */
-        }
-
-        /* 툴팁 (안내 문구) */
-        .tooltip {
-            position: absolute;
-            top: -40px;
-            background: #333;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .lamp-container:hover .tooltip { opacity: 1; }
-
-    </style>
+</style>
 </head>
 <body>
 
