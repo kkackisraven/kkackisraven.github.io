@@ -2,273 +2,98 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    
+    <title>Isometric 3D Drawer</title>
     <style>
-        :root {
-            --bg-day: #f4f1ea;       /* 낮 벽지 색 */
-            --bg-night: #1a1a1a;     /* 밤 벽지 색 */
-            --drawer-color: #333;    /* 서랍장 몸통 색 */
-            --drawer-front: #fff;    /* 서랍 앞판 색 */
-            --lamp-light: rgba(255, 220, 100, 0.4); /* 조명 빛 색 */
-            --neon-color: #ff0055;   /* 야광 낙서 색 */
-        }
-
         body {
-            margin: 0;
-            height: 100vh;
-            background-color: var(--bg-day);
-            transition: background-color 0.8s ease;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
             overflow: hidden;
-            font-family: 'Noto Sans KR', sans-serif;
         }
 
-        /* [밤 모드 상태] */
-        body.dark-mode {
-            background-color: var(--bg-night);
-        }
-
-        /* === 1. 방 전체 컨테이너 === */
-        .room {
-            position: relative;
-            width: 800px;
-            height: 600px;
-        }
-
-        /* === 2. 벽의 기믹 (야광 낙서) === */
-        .hidden-graffiti {
-            position: absolute;
-            top: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Black Han Sans', sans-serif;
-            font-size: 5rem;
-            color: #333; 
-            opacity: 0; 
-            transition: opacity 0.5s, text-shadow 0.5s;
-            cursor: pointer;
-            z-index: 0; 
-            text-decoration: none;
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        /* 밤이 되면 나타남 */
-        body.dark-mode .hidden-graffiti {
-            opacity: 1;
-            color: #fff;
-            text-shadow: 
-                0 0 10px var(--neon-color),
-                0 0 20px var(--neon-color),
-                0 0 40px var(--neon-color);
-            animation: flicker 2s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.5; }
-        }
-
-        /* === 3. 책상 & 서랍장 (3D 효과 적용) === */
-        .desk-area {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 10;
-            /* [3D 핵심] 원근감 부여 */
-            perspective: 800px; 
-        }
-
-        /* 서랍장 몸통 */
-        .cabinet {
+        /* === 1. 이소메트릭(사선) 시점 세팅 === */
+        .scene {
             width: 200px;
-            height: 250px;
-            background: var(--drawer-color);
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            border-radius: 4px;
-            /* 몸통을 살짝 기울임 */
-            transform: rotateX(5deg);
-            box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+            height: 300px;
+            /* 위에서 60도, 옆으로 45도 비틀어서 사선 뷰를 만듦 */
+            transform: rotateX(60deg) rotateZ(-45deg);
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+
+        /* === 2. 서랍장 본체 (껍데기) === */
+        .cabinet {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             transform-style: preserve-3d;
         }
 
-        /* 서랍 칸 (공통) */
-        .drawer {
-            flex: 1;
-            background: var(--drawer-front);
-            margin: 5px 0;
-            border-radius: 2px;
+        /* 껍데기의 각 면 (종이접기) */
+        .face {
+            position: absolute;
+            background: #333; /* 서랍장 몸통 색 */
+            border: 1px solid #222;
+        }
+
+        /* 윗면 */
+        .face.top {
+            width: 200px;
+            height: 200px;
+            background: #444;
+            transform: translateZ(300px); /* 높이 */
+        }
+        /* 옆면 (오른쪽) */
+        .face.right {
+            width: 300px; /* 높이 */
+            height: 200px; /* 깊이 */
+            background: #2a2a2a;
+            transform: rotateY(90deg) translateZ(100px) rotateX(90deg);
+            transform-origin: right top;
+        }
+        /* 옆면 (왼쪽) */
+        .face.left {
+            width: 200px;
+            height: 300px;
+            background: #2a2a2a;
+            transform: rotateX(-90deg) translateZ(100px);
+            transform-origin: center bottom;
+        }
+
+
+        /* === 3. 움직이는 서랍 (서랍 알맹이) === */
+        .drawer-layer {
+            position: absolute;
+            width: 200px; /* 서랍 가로 */
+            height: 80px; /* 서랍 깊이 */
+            transform-style: preserve-3d;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-            position: relative;
-            border-bottom: 2px solid #ddd;
-            /* 부드러운 움직임 */
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* 손잡이 디자인 */
-        .drawer::after {
-            content: '';
+        /* 서랍 배치 위치 (위에서부터 차례대로) */
+        .d1 { transform: translateZ(220px); }
+        .d2 { transform: translateZ(130px); }
+        .d3 { transform: translateZ(40px); }
+
+        /* 서랍 앞판 */
+        .d-face-front {
             position: absolute;
-            width: 40px;
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        /* [3D 핵심] 첫 번째 서랍 호버 시 튀어나옴 */
-        .drawer.first:hover {
-            background: #fff;
-            /* 앞으로 30px 나오고, 아래로 15도 꺾임 */
-            transform: translateZ(30px) rotateX(-15deg);
-            box-shadow: 
-                0 15px 20px rgba(0,0,0,0.15),
-                inset 0 -2px 5px rgba(0,0,0,0.1);
-        }
-        
-        /* 나머지 서랍은 클릭 방지 */
-        .drawer:not(.first) {
-            pointer-events: none;
-            background: #eee;
-            color: #999;
-        }
-
-        /* === 4. 스탠드 조명 (스위치) === */
-        .lamp-container {
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            cursor: pointer;
-            text-align: center;
-            /* 3D 공간 안에서 위치 잡기 위해 조정 */
-            transform: translateZ(0); 
-        }
-
-        .lamp-head {
-            width: 80px;
-            height: 40px;
-            background: #222;
-            border-radius: 40px 40px 0 0;
-            position: relative;
-            z-index: 20;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        }
-
-        .light-beam {
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 100px solid transparent;
-            border-right: 100px solid transparent;
-            border-bottom: 350px solid var(--lamp-light);
-            opacity: 1;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 15;
-            filter: blur(5px); /* 빛을 부드럽게 */
-        }
-
-        body.dark-mode .light-beam {
-            opacity: 0;
-        }
-
-        .tooltip {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .lamp-container:hover .tooltip { opacity: 1; }
-
-        /* === 5. 이스터에그 === */
-        .event-object {
-            position: absolute;
+            width: 200px;
+            height: 15px; /* 두께 */
+            background: #fff; /* 앞판 색상 (흰색) */
             bottom: 0;
-            left: -120px;
-            font-size: 4rem;
-            display: none;
+            transform: rotateX(-90deg);
+            transform-origin: bottom;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
-
-    </style>
-</head>
-<body>
-
-    <div class="room">
-        
-        <a href="https://twitter.com" target="_blank" class="hidden-graffiti">
-            DARAK<br>
-            <span style="font-size:1.5rem">Forbidden Archive</span>
-        </a>
-
-        <div class="desk-area">
-            
-            <div class="lamp-container" onclick="toggleLight()">
-                <div class="tooltip">Turn Off</div>
-                <div class="lamp-head"></div>
-                <div class="light-beam"></div>
-            </div>
-
-            <div class="cabinet">
-                <a href="main.html" class="drawer first">
-                    SEORAB
-                </a>
-                <div class="drawer"></div>
-                <div class="drawer"></div>
-                <div class="drawer"></div>
-            </div>
-
-        </div>
-
-        <div id="christmas-tree" class="event-object">🎄</div>
-        <div id="halloween-pumpkin" class="event-object">🎃</div>
-
-    </div>
-
-    <script>
-        function toggleLight() {
-            document.body.classList.toggle('dark-mode');
-        }
-
-        const today = new Date();
-        const month = today.getMonth() + 1;
-        const date = today.getDate();
-
-        if (month === 12 && date >= 20) {
-            document.getElementById('christmas-tree').style.display = 'block';
-        }
-        if (month === 10) {
-             document.getElementById('halloween-pumpkin').style.display = 'block';
-        }
-    </script>
-
-</body>
-</html>
+        /* 서랍 윗면 (내용물 담기는 곳) */
+        .d-face-top {
+            position: absolute;
+            width: 200px;
+            height: 80px;
+            background: #eee;
+            transform: translateZ(15px); /* 두께만큼
