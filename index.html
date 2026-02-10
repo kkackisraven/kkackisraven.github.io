@@ -2,10 +2,11 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Isometric 3D Drawer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB Studio - Real Drawing</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #fff; /* 배경색은 그림에 맞춰 흰색으로 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -14,162 +15,55 @@
             overflow: hidden;
         }
 
-        /* === 1. 이소메트릭(사선) 시점 세팅 === */
-        .scene {
-            width: 200px;
-            height: 300px;
-            /* 위에서 60도, 옆으로 45도 비틀어서 사선 뷰를 만듦 */
-            transform: rotateX(60deg) rotateZ(-45deg);
-            transform-style: preserve-3d;
-            transition: transform 0.5s;
+        /* === 책상 전체를 감싸는 컨테이너 === */
+        .desk-container {
+            position: relative;
+            width: 600px;  /* 그림 크기에 맞춰 조절 */
+            height: 600px; /* 그림 크기에 맞춰 조절 */
+            /* border: 1px solid red; 가이드라인 (나중에 삭제) */
         }
 
-        /* === 2. 서랍장 본체 (껍데기) === */
-        .cabinet {
+        /* === 1. 움직이지 않는 몸통 (배경 그림) === */
+        .desk-body {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
+            z-index: 1; /* 가장 뒤에 배치 */
+            pointer-events: none; /* 마우스가 통과하게 */
         }
 
-        /* 껍데기의 각 면 (종이접기) */
-        .face {
+        /* === 2. 움직이는 서랍 앞판 (첫 번째 칸) === */
+        /* 실제로는 a 태그(링크)로 감싸서 클릭하면 넘어가게 합니다 */
+        .drawer-front {
             position: absolute;
-            background: #333; /* 서랍장 몸통 색 */
-            border: 1px solid #222;
-        }
-
-        /* 윗면 */
-        .face.top {
-            width: 200px;
-            height: 200px;
-            background: #444;
-            transform: translateZ(300px); /* 높이 */
-        }
-        /* 옆면 (오른쪽) */
-        .face.right {
-            width: 300px; /* 높이 */
-            height: 200px; /* 깊이 */
-            background: #2a2a2a;
-            transform: rotateY(90deg) translateZ(100px) rotateX(90deg);
-            transform-origin: right top;
-        }
-        /* 옆면 (왼쪽) */
-        .face.left {
-            width: 200px;
-            height: 300px;
-            background: #2a2a2a;
-            transform: rotateX(-90deg) translateZ(100px);
-            transform-origin: center bottom;
-        }
-
-
-        /* === 3. 움직이는 서랍 (서랍 알맹이) === */
-        .drawer-layer {
-            position: absolute;
-            width: 200px; /* 서랍 가로 */
-            height: 80px; /* 서랍 깊이 */
-            transform-style: preserve-3d;
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* [중요] 제가 그림 보고 대충 맞춘 위치입니다. 실제 파일 받으면 더 정확히 맞춰야 합니다. */
+            top: 43%;  
+            left: 45%;
+            width: 32%; /* 서랍 앞판 크기 */
+            z-index: 2; /* 몸통 위에 배치 */
             cursor: pointer;
+            /* 부드러운 움직임 설정 */
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* 서랍 배치 위치 (위에서부터 차례대로) */
-        .d1 { transform: translateZ(220px); }
-        .d2 { transform: translateZ(130px); }
-        .d3 { transform: translateZ(40px); }
-
-        /* 서랍 앞판 */
-        .d-face-front {
-            position: absolute;
-            width: 200px;
-            height: 15px; /* 두께 */
-            background: #fff; /* 앞판 색상 (흰색) */
-            bottom: 0;
-            transform: rotateX(-90deg);
-            transform-origin: bottom;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
-        /* 서랍 윗면 (내용물 담기는 곳) */
-        .d-face-top {
-            position: absolute;
-            width: 200px;
-            height: 80px;
-            background: #eee;
-            transform: translateZ(15px); /* 두께만큼 위로 */
-        }
-        /* 서랍 옆면 (열렸을 때 보이는 부분) */
-        .d-face-side {
-            position: absolute;
-            width: 15px; /* 두께 */
-            height: 80px; /* 깊이 */
-            background: #ccc;
-            right: 0;
-            transform: rotateY(90deg);
-            transform-origin: right;
-        }
-
-        /* 손잡이 */
-        .handle {
-            position: absolute;
-            width: 60px;
-            height: 8px;
-            background: #silver;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-
-        /* === 4. 호버 애니메이션 (핵심) === */
-        /* 마우스를 올리면 Y축(깊이 방향)으로 튀어나옴 */
-        .drawer-layer:hover {
-            /* 기존 위치(translateZ)는 유지하면서 + Y축 이동 추가 */
-            /* !important는 기존 transform을 덮어쓰기 위해 사용 */
-        }
-        
-        .d1:hover { transform: translateZ(220px) translateY(50px) !important; }
-        .d2:hover { transform: translateZ(130px) translateY(50px) !important; }
-        .d3:hover { transform: translateZ(40px) translateY(50px) !important; }
-
-        /* 열렸을 때 옆면 색상 살짝 어둡게 (그림자 효과) */
-        .drawer-layer:hover .d-face-side {
-            background: #bbb;
+        /* === 3. 호버 애니메이션 (핵심) === */
+        /* 마우스를 올리면 서랍 그림이 사선 아래로 이동 */
+        .drawer-front:hover {
+            /* X축으로 -40px (왼쪽), Y축으로 +30px (아래) 이동 -> 결과적으로 사선 이동 */
+            transform: translate(-40px, 30px);
         }
 
     </style>
 </head>
 <body>
 
-    <div class="scene">
-        <div class="cabinet">
-            <div class="face top"></div>
-            <div class="face left"></div>
-            <div class="face right"></div>
-        </div>
-
-        <div class="drawer-layer d1" onclick="location.href='main.html'">
-            <div class="d-face-top"></div> <div class="d-face-front"> <div class="handle"></div>
-            </div>
-            <div class="d-face-side"></div> </div>
-
-        <div class="drawer-layer d2">
-            <div class="d-face-top"></div>
-            <div class="d-face-front">
-                <div class="handle"></div>
-            </div>
-            <div class="d-face-side"></div>
-        </div>
-
-        <div class="drawer-layer d3">
-            <div class="d-face-top"></div>
-            <div class="d-face-front">
-                <div class="handle"></div>
-            </div>
-            <div class="d-face-side"></div>
-        </div>
+    <div class="desk-container">
+        <img src="https://i.imgur.com/8XqY5qW.png" alt="책상 몸통" class="desk-body">
+        
+        <a href="main.html">
+            <img src="https://i.imgur.com/0yZqWqX.png" alt="서랍 앞판" class="drawer-front">
+        </a>
     </div>
 
 </body>
