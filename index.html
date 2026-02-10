@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB Studio - Real Drawing</title>
+    <title>SEORAB Project</title>
     <style>
         body {
-            background-color: #fff; /* 배경색은 그림에 맞춰 흰색으로 */
+            background-color: #f5f5f5; /* 전체 배경색 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,55 +15,138 @@
             overflow: hidden;
         }
 
-        /* === 책상 전체를 감싸는 컨테이너 === */
-        .desk-container {
+        /* === 서랍장 전체 컨테이너 === */
+        .cabinet-container {
             position: relative;
-            width: 600px;  /* 그림 크기에 맞춰 조절 */
-            height: 600px; /* 그림 크기에 맞춰 조절 */
-            /* border: 1px solid red; 가이드라인 (나중에 삭제) */
+            width: 300px;
+            height: 400px;
+            /* 3D 효과를 주되, 과하지 않게 설정 */
+            transform: scale(1.2); 
         }
 
-        /* === 1. 움직이지 않는 몸통 (배경 그림) === */
-        .desk-body {
+        /* 공통: 모든 면의 기본 설정 */
+        .face {
             position: absolute;
-            top: 0;
+        }
+
+        /* === 1. 서랍장 몸통 (뼈대) === */
+        /* 왼쪽 면 (어두운 회색) */
+        .body-left {
+            width: 100px;
+            height: 360px;
+            background: #bdc3c7; /* 그림자 진 회색 */
+            transform: skewY(30deg); /* 사선으로 비틀기 */
+            top: 50px;
             left: 0;
-            width: 100%;
-            z-index: 1; /* 가장 뒤에 배치 */
-            pointer-events: none; /* 마우스가 통과하게 */
+            z-index: 1;
         }
 
-        /* === 2. 움직이는 서랍 앞판 (첫 번째 칸) === */
-        /* 실제로는 a 태그(링크)로 감싸서 클릭하면 넘어가게 합니다 */
-        .drawer-front {
+        /* 윗면 (밝은 회색) */
+        .body-top {
+            width: 200px;
+            height: 100px;
+            background: #ecf0f1; /* 가장 밝은 색 */
+            transform: skewX(60deg) rotate(30deg); /* 윗면 모양 만들기 */
+            top: 0;
+            left: 50px;
+            z-index: 0; /* 가장 뒤로 */
+        }
+
+        /* 오른쪽 면 (배경 역할) */
+        .body-right-bg {
+            width: 200px;
+            height: 360px;
+            background: #95a5a6; /* 내부 어두운 색 */
+            transform: skewY(-30deg);
+            top: 50px;
+            left: 100px;
+            z-index: 0;
+        }
+
+        /* === 2. 서랍 칸들 === */
+        /* 서랍 공통 스타일 */
+        .drawer {
             position: absolute;
-            /* [중요] 제가 그림 보고 대충 맞춘 위치입니다. 실제 파일 받으면 더 정확히 맞춰야 합니다. */
-            top: 43%;  
-            left: 45%;
-            width: 32%; /* 서랍 앞판 크기 */
-            z-index: 2; /* 몸통 위에 배치 */
+            left: 100px;
+            width: 200px;
+            height: 80px; /* 서랍 높이 */
             cursor: pointer;
-            /* 부드러운 움직임 설정 */
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 0.3s ease-out; /* 부드러운 움직임 */
+            z-index: 10;
         }
 
-        /* === 3. 호버 애니메이션 (핵심) === */
-        /* 마우스를 올리면 서랍 그림이 사선 아래로 이동 */
-        .drawer-front:hover {
-            /* X축으로 -40px (왼쪽), Y축으로 +30px (아래) 이동 -> 결과적으로 사선 이동 */
-            transform: translate(-40px, 30px);
+        /* 서랍 앞판 (눈에 보이는 부분) */
+        .drawer-front {
+            width: 100%;
+            height: 100%;
+            background: #dfe6e9; /* 서랍 앞면 색 */
+            border: 1px solid #b2bec3; /* 테두리 */
+            transform: skewY(-30deg); /* 오른쪽 아래로 비틀기 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 서랍 윗면 (열렸을 때 보이는 부분) */
+        .drawer-top {
+            position: absolute;
+            top: -50px; /* 위치 조정 */
+            left: -29px; /* 위치 조정 */
+            width: 200px;
+            height: 58px;
+            background: #f5f6fa; /* 윗면은 밝게 */
+            transform: skewX(-60deg) rotate(-30deg) scaleY(0.86); /* 각도 맞추기 */
+            opacity: 0; /* 평소엔 안 보임 */
+            transition: opacity 0.3s;
+        }
+
+        /* 손잡이 */
+        .handle {
+            width: 60px;
+            height: 10px;
+            background: #636e72;
+            border-radius: 5px;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        /* === 서랍 위치 배치 (위에서부터) === */
+        .d1 { top: 50px; z-index: 40; } /* 1번 서랍 (맨 위) */
+        .d2 { top: 135px; z-index: 30; }
+        .d3 { top: 220px; z-index: 20; }
+        .d4 { top: 305px; z-index: 10; }
+
+        /* === [핵심] 1번 서랍 움직임 === */
+        .d1:hover {
+            /* 오른쪽(40px) 아래(25px)로 이동 -> 사선으로 열리는 효과 */
+            transform: translate(40px, 25px);
+        }
+
+        /* 열렸을 때 윗면 보이게 */
+        .d1:hover .drawer-top {
+            opacity: 1;
+        }
+        
+        /* 열렸을 때 앞판 색 살짝 밝게 (빛 받는 느낌) */
+        .d1:hover .drawer-front {
+            background: #fff;
         }
 
     </style>
 </head>
 <body>
 
-    <div class="desk-container">
-        <img src="https://i.imgur.com/8XqY5qW.png" alt="책상 몸통" class="desk-body">
+    <div class="cabinet-container">
         
-        <a href="main.html">
-            <img src="https://i.imgur.com/0yZqWqX.png" alt="서랍 앞판" class="drawer-front">
-        </a>
+        <div class="face body-top"></div> <div class="face body-left"></div> <div class="face body-right-bg"></div> <div class="drawer d1" onclick="location.href='main.html'">
+            <div class="drawer-top"></div> <div class="drawer-front">
+                <div class="handle"></div>
+            </div>
+        </div>
+
+        <div class="drawer d2"><div class="drawer-front"><div class="handle"></div></div></div>
+        <div class="drawer d3"><div class="drawer-front"><div class="handle"></div></div></div>
+        <div class="drawer d4"><div class="drawer-front"><div class="handle"></div></div></div>
+
     </div>
 
 </body>
