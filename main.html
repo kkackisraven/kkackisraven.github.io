@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB Project</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* [기본 설정: 낮 (서랍)] */
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #111;
+            --accent-color: #333;
+            --hover-reveal-bg: #fff;
+            --font-main: 'Pretendard', sans-serif;
+            --font-serif: 'Playfair Display', serif; /* 영문 포인트 폰트 */
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* [다락 모드: 밤] */
+        body.darak-mode {
+            --bg-color: #0d0d0d;
+            --text-color: #666; /* 기본은 어둡게 */
+            --accent-color: #ff0055; /* 포인트는 강렬하게 */
+            --hover-reveal-bg: #222;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            transition: var(--transition);
+            overflow-x: hidden; /* 가로 스크롤 방지 */
+        }
+
+        /* 상단 헤더 */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 30px 50px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference; /* 배경색에 따라 글씨색 자동 반전 효과 */
+            color: #fff; 
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .switch-btn {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: var(--transition);
+        }
+        
+        .switch-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        /* 메인 리스트 영역 */
+        main {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 5vw;
+        }
+
+        .artist-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .artist-item {
+            position: relative;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+            padding: 3vh 0;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .artist-item:first-child {
+            border-top: 1px solid rgba(128, 128, 128, 0.3);
+        }
+
+        /* 텍스트 스타일 */
+        .artist-name {
+            font-size: 4vw; /* 화면 크기에 비례해 커짐 */
+            font-weight: 300;
+            text-transform: uppercase;
+            font-family: var(--font-serif);
+            transition: var(--transition);
+        }
+
+        .artist-role {
+            font-size: 1rem;
+            opacity: 0.5;
+            font-weight: 400;
+        }
+
+        /* 호버 효과 (핵심) */
+        .artist-item:hover .artist-name {
+            padding-left: 20px; /* 오른쪽으로 살짝 이동 */
+            color: var(--accent-color); /* 강조색 */
+            font-weight: 400;
+        }
+        
+        body.darak-mode .artist-item:hover .artist-name {
+            text-shadow: 0 0 10px var(--accent-color); /* 네온 효과 */
+        }
+
+        /* 이미지가 뜨는 영역 (플로팅 이미지) */
+        .hover-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 400px;
+            height: 500px;
+            background-color: var(--hover-reveal-bg);
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            pointer-events: none; /* 마우스가 이미지에 걸리지 않게 */
+            z-index: -1; /* 글씨 뒤에 배치 */
+            transition: opacity 0.3s ease, transform 0.5s ease;
+            filter: grayscale(100%); /* 기본은 흑백 */
+        }
+
+        /* 리스트에 마우스 올리면 이미지가 나타남 */
+        .artist-item:hover + .hover-image,
+        .artist-item:focus-within + .hover-image { 
+            /* 자바스크립트로 제어하는 게 더 자연스럽지만 CSS로 약식 구현 */
+        }
+
+        /* 꼬리말 */
+        .footer-text {
+            position: fixed;
+            bottom: 30px;
+            left: 50px;
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" id="logoText">SEORAB</div>
+        <button class="switch-btn" onclick="toggleMode()" id="switchBtn">DAY MODE</button>
+    </header>
+
+    <main>
+        <ul class="artist-list">
+            
+            <li class="artist-item" onmouseenter="changeImage('img-hwarin')" onmouseleave="hideImage()">
+                <span class="artist-name">Hwarin</span>
+                <span class="artist-role">Illustrator / Art Director</span>
+            </li>
+            
+            <li class="artist-item" onmouseenter="changeImage('img-kren')" onmouseleave="hideImage()">
+                <span class="artist-name">Kren</span>
+                <span class="artist-role">Webtoon Artist</span>
+            </li>
+            
+            <li class="artist-item" onmouseenter="changeImage('img-kamagu')" onmouseleave="hideImage()">
+                <span class="artist-name">Kamagu</span>
+                <span class="artist-role">Merchandise Maker</span>
+            </li>
+
+             <li class="artist-item" onclick="location.href='mailto:example@gmail.com'">
+                <span class="artist-name">Contact</span>
+                <span class="artist-role">Email Us</span>
+            </li>
+
+        </ul>
+
+        <div id="preview-img" class="hover-image"></div>
+
+    </main>
+
+    <div class="footer-text">
+        © 2026 Seorab Project.
+    </div>
+
+    <script>
+        // 이미지 소스 설정 (여기를 수정해서 작가님들 그림을 넣으세요)
+        const images = {
+            'seorab': { // [양지 모드 이미지]
+                'img-hwarin': 'https://images.unsplash.com/photo-1515405295579-ba7f9f92f413?q=80&w=1000',
+                'img-kren': 'https://images.unsplash.com/photo-1519638399535-1b036603ac77?q=80&w=1000',
+                'img-kamagu': 'https://images.unsplash.com/photo-1490915785914-0af2806c22b6?q=80&w=1000'
+            },
+            'darak': { // [음지 모드 이미지 - 경고 그림 등]
+                'img-hwarin': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000', // 좀 더 어둡거나 추상적인
+                'img-kren': 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000',
+                'img-kamagu': 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000'
+            }
+        };
+
+        const previewBox = document.getElementById('preview-img');
+        let currentMode = 'seorab'; // 현재 모드 상태
+
+        // 마우스 올렸을 때 이미지 변경 함수
+        function changeImage(key) {
+            const url = images[currentMode][key];
+            if(url) {
+                previewBox.style.backgroundImage = `url(${url})`;
+                previewBox.style.opacity = '1';
+                previewBox.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+        }
+
+        // 마우스 뗐을 때
+        function hideImage() {
+            previewBox.style.opacity = '0';
+            previewBox.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        }
+
+        // 모드 전환 함수
+        function toggleMode() {
+            const body = document.body;
+            const logo = document.getElementById('logoText');
+            const btn = document.getElementById('switchBtn');
+
+            body.classList.toggle('darak-mode');
+
+            if (body.classList.contains('darak-mode')) {
+                currentMode = 'darak';
+                logo.innerText = "DARAK";
+                btn.innerText = "NIGHT MODE";
+                // 다락 모드일 땐 이미지가 컬러풀하게 보이도록 필터 제거
+                previewBox.style.filter = "none"; 
+            } else {
+                currentMode = 'seorab';
+                logo.innerText = "SEORAB";
+                btn.innerText = "DAY MODE";
+                previewBox.style.filter = "grayscale(100%)";
+            }
+        }
+    </script>
+</body>
+</html>
