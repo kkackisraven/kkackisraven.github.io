@@ -3,151 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB Project</title>
+    <title>SEORAB Project Prototype</title>
     <style>
+        /* [기본 설정] */
         body {
-            background-color: #f5f5f5; /* 전체 배경색 */
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* 레터박스 색상 */
+            overflow: hidden; /* 스크롤 방지 */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            font-family: 'Pretendard', sans-serif;
         }
 
-        /* === 서랍장 전체 컨테이너 === */
-        .cabinet-container {
+        /* [방 전체 컨테이너] - 16:9 비율 유지 */
+        .room-container {
             position: relative;
-            width: 300px;
-            height: 400px;
-            /* 3D 효과를 주되, 과하지 않게 설정 */
-            transform: scale(1.2); 
+            width: 100%;
+            max-width: 1920px; /* 적당한 최대 크기 */
+            aspect-ratio: 16 / 9;
+            background-color: #f0f0f0;
         }
 
-        /* 공통: 모든 면의 기본 설정 */
-        .face {
+        /* [모든 이미지 공통] - 겹쳐놓기 */
+        .layer {
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 이미지는 클릭 통과 (핫스팟으로 제어) */
+            transition: all 0.5s ease;
         }
 
-        /* === 1. 서랍장 몸통 (뼈대) === */
-        /* 왼쪽 면 (어두운 회색) */
-        .body-left {
-            width: 100px;
-            height: 360px;
-            background: #bdc3c7; /* 그림자 진 회색 */
-            transform: skewY(30deg); /* 사선으로 비틀기 */
-            top: 50px;
-            left: 0;
+        /* [1. 배경] */
+        .bg-main {
             z-index: 1;
         }
 
-        /* 윗면 (밝은 회색) */
-        .body-top {
-            width: 200px;
-            height: 100px;
-            background: #ecf0f1; /* 가장 밝은 색 */
-            transform: skewX(60deg) rotate(30deg); /* 윗면 모양 만들기 */
-            top: 0;
-            left: 50px;
-            z-index: 0; /* 가장 뒤로 */
+        /* [2. 가운데 캐비닛] */
+        .cabinet-center-group {
+            z-index: 5;
+        }
+        .cabinet-center-moving {
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* 오른쪽 면 (배경 역할) */
-        .body-right-bg {
-            width: 200px;
-            height: 360px;
-            background: #95a5a6; /* 내부 어두운 색 */
-            transform: skewY(-30deg);
-            top: 50px;
-            left: 100px;
-            z-index: 0;
+        /* [3. 왼쪽 서랍] */
+        .drawer-left-group {
+            z-index: 10; /* 캐비닛보다 위에 */
+        }
+        .drawer-left-moving {
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* === 2. 서랍 칸들 === */
-        /* 서랍 공통 스타일 */
-        .drawer {
+        /* [4. 스위치] */
+        .switch-group {
+            z-index: 20;
+        }
+        .switch-off-img {
+            opacity: 0; /* 평소엔 숨김 */
+        }
+
+        /* === [인터랙션 & 애니메이션] === */
+
+        /* 다크 모드 (방 어둡게) */
+        .room-container.dark-mode .bg-main,
+        .room-container.dark-mode .cabinet-center-group,
+        .room-container.dark-mode .drawer-left-group {
+            filter: brightness(0.3); /* 밝기 30%로 */
+        }
+        .room-container.dark-mode .switch-on-img { opacity: 0; }
+        .room-container.dark-mode .switch-off-img { opacity: 1; }
+
+
+        /* 왼쪽 서랍 열림 효과 */
+        /* (좌표는 그림에 맞춰 미세 조정 필요 - 현재 임의값) */
+        .drawer-left-group.open .drawer-left-moving {
+            transform: translate(-3%, 4%); /* 왼쪽 아래로 이동 */
+        }
+
+        /* 가운데 캐비닛 열림 효과 */
+        .cabinet-center-group.open .cabinet-center-moving {
+            transform: translate(0%, 5%); /* 아래로 이동 (혹은 사선) */
+        }
+
+
+        /* === [클릭 존 (Hotspots)] === */
+        /* 투명한 이미지가 전체를 덮고 있어서, 실제 클릭 위치를 잡아줘야 함 */
+        .hotspot {
             position: absolute;
-            left: 100px;
-            width: 200px;
-            height: 80px; /* 서랍 높이 */
             cursor: pointer;
-            transition: transform 0.3s ease-out; /* 부드러운 움직임 */
-            z-index: 10;
+            z-index: 100;
+            /* background: rgba(255, 0, 0, 0.3);  디버깅용 반투명 빨강 (나중에 주석 처리) */
         }
 
-        /* 서랍 앞판 (눈에 보이는 부분) */
-        .drawer-front {
-            width: 100%;
-            height: 100%;
-            background: #dfe6e9; /* 서랍 앞면 색 */
-            border: 1px solid #b2bec3; /* 테두리 */
-            transform: skewY(-30deg); /* 오른쪽 아래로 비틀기 */
-            display: flex;
-            align-items: center;
+        /* 위치 잡기 (대략적인 % 좌표) */
+        #spot-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
+        #spot-left-drawer { top: 60%; left: 35%; width: 12%; height: 15%; }
+        #spot-center-cabinet { top: 50%; left: 52%; width: 12%; height: 15%; }
+
+        /* 디버그 모드일 때만 핫스팟 보이기 */
+        body.debug .hotspot { border: 2px solid red; background: rgba(255,0,0,0.2); }
+
+
+        /* === [팝업 UI] === */
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
             justify-content: center;
+            align-items: center;
         }
+        .popup-overlay.active { display: flex; }
 
-        /* 서랍 윗면 (열렸을 때 보이는 부분) */
-        .drawer-top {
-            position: absolute;
-            top: -50px; /* 위치 조정 */
-            left: -29px; /* 위치 조정 */
-            width: 200px;
-            height: 58px;
-            background: #f5f6fa; /* 윗면은 밝게 */
-            transform: skewX(-60deg) rotate(-30deg) scaleY(0.86); /* 각도 맞추기 */
-            opacity: 0; /* 평소엔 안 보임 */
-            transition: opacity 0.3s;
+        .popup-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-
-        /* 손잡이 */
-        .handle {
-            width: 60px;
-            height: 10px;
-            background: #636e72;
-            border-radius: 5px;
-            box-shadow: 0 1px 0 rgba(255,255,255,0.5);
-        }
-
-        /* === 서랍 위치 배치 (위에서부터) === */
-        .d1 { top: 50px; z-index: 40; } /* 1번 서랍 (맨 위) */
-        .d2 { top: 135px; z-index: 30; }
-        .d3 { top: 220px; z-index: 20; }
-        .d4 { top: 305px; z-index: 10; }
-
-        /* === [핵심] 1번 서랍 움직임 === */
-        .d1:hover {
-            /* 오른쪽(40px) 아래(25px)로 이동 -> 사선으로 열리는 효과 */
-            transform: translate(40px, 25px);
-        }
-
-        /* 열렸을 때 윗면 보이게 */
-        .d1:hover .drawer-top {
-            opacity: 1;
-        }
-        
-        /* 열렸을 때 앞판 색 살짝 밝게 (빛 받는 느낌) */
-        .d1:hover .drawer-front {
-            background: #fff;
+        .popup-close {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
 
     </style>
 </head>
-<body>
-
-    <div class="cabinet-container">
+<body class=""> <div class="room-container" id="room">
         
-        <div class="face body-top"></div> <div class="face body-left"></div> <div class="face body-right-bg"></div> <div class="drawer d1" onclick="location.href='main.html'">
-            <div class="drawer-top"></div> <div class="drawer-front">
-                <div class="handle"></div>
-            </div>
+        <img src="Main.png" class="layer bg-main" alt="배경">
+
+        <div class="layer cabinet-center-group" id="cabinet-center-group">
+            <img src="center_cabinet_blank.png" class="layer" alt="캐비닛 배경">
+            <img src="center_cabinet_open.png" class="layer cabinet-center-moving" alt="캐비닛 알맹이">
         </div>
 
-        <div class="drawer d2"><div class="drawer-front"><div class="handle"></div></div></div>
-        <div class="drawer d3"><div class="drawer-front"><div class="handle"></div></div></div>
-        <div class="drawer d4"><div class="drawer-front"><div class="handle"></div></div></div>
+        <div class="layer drawer-left-group" id="drawer-left-group">
+            <img src="left_drawer_blank.png" class="layer" alt="서랍 배경">
+            <img src="left_drawer_open.png" class="layer drawer-left-moving" alt="서랍 알맹이">
+        </div>
+
+        <div class="layer switch-group">
+            <img src="Switch_on.png" class="layer switch-on-img" alt="스위치 켜짐">
+            <img src="Switch_off.png" class="layer switch-off-img" alt="스위치 꺼짐">
+        </div>
+
+        <div class="hotspot" id="spot-switch" onclick="toggleSwitch()"></div>
+        <div class="hotspot" id="spot-left-drawer" onclick="toggleLeftDrawer()"></div>
+        <div class="hotspot" id="spot-center-cabinet" onclick="toggleCenterCabinet()"></div>
 
     </div>
 
+    <div class="popup-overlay" id="popup">
+        <div class="popup-content">
+            <h2 id="popup-title">Popup Title</h2>
+            <p id="popup-text">내용이 들어갑니다.</p>
+            <button class="popup-close" onclick="closePopup()">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        // === 기능 스크립트 ===
+
+        // 1. 스위치 (다크모드)
+        let isDark = false;
+        function toggleSwitch() {
+            isDark = !isDark;
+            const room = document.getElementById('room');
+            if (isDark) {
+                room.classList.add('dark-mode');
+            } else {
+                room.classList.remove('dark-mode');
+            }
+        }
+
+        // 2. 왼쪽 서랍 열기
+        function toggleLeftDrawer() {
+            const group = document.getElementById('drawer-left-group');
+            group.classList.toggle('open');
+            
+            // 열렸으면 팝업 띄우기 (애니메이션 시간 고려해서 0.6초 뒤에)
+            if (group.classList.contains('open')) {
+                setTimeout(() => {
+                    showPopup("서랍 메뉴", "명함 | 설정 (임시 기능)");
+                }, 600);
+            }
+        }
+
+        // 3. 가운데 캐비닛 열기
+        function toggleCenterCabinet() {
+            const group = document.getElementById('cabinet-center-group');
+            group.classList.toggle('open');
+
+             // 열렸으면 작가 리스트 띄우기
+             if (group.classList.contains('open')) {
+                setTimeout(() => {
+                    showPopup("작가 아카이브", "화린, 크렌, 까마구...");
+                }, 600);
+            }
+        }
+
+        // 팝업 관련
+        function showPopup(title, text) {
+            document.getElementById('popup-title').innerText = title;
+            document.getElementById('popup-text').innerText = text;
+            document.getElementById('popup').classList.add('active');
+        }
+        function closePopup() {
+            document.getElementById('popup').classList.remove('active');
+            
+            // 팝업 닫으면 서랍들도 다시 닫아주기 (원위치)
+            document.getElementById('drawer-left-group').classList.remove('open');
+            document.getElementById('cabinet-center-group').classList.remove('open');
+        }
+
+    </script>
 </body>
 </html>
