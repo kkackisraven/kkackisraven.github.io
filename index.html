@@ -3,74 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB Project</title>
+    <title>SEORAB - FINAL ROBUST</title>
     <style>
-        /* 1. 기본 설정 (검은 배경, 스크롤 삭제) */
-        body {
-            margin: 0; padding: 0;
-            background-color: #000;
-            width: 100vw; height: 100vh;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* 1. 기본 뼈대 */
+        body { margin: 0; padding: 0; background-color: #000; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        #stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; }
 
-        /* 2. 무대 (Stage) - 16:9 비율 유지 */
-        #stage {
-            position: relative;
-            width: 100%; height: 100%;
-            max-width: 177.78vh; /* 16:9 비율 유지 */
-            aspect-ratio: 16 / 9;
-        }
-
-        /* 3. 그룹 박스 (이미지 담는 통) */
-        .group {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none; /* 클릭은 통과시키고 그림만 보여줌 */
-        }
-
-        /* === [중요] 그림 순서 (Z-Index) 정리 === */
-        .bg-base { z-index: 1; }        /* 배경 (맨 뒤) */
-        #group-drawer { z-index: 5; }   /* 왼쪽 서랍 (중간) */
-        #group-cabinet { z-index: 15; } /* 가운데 캐비닛 (서랍보다 위!) */
-        #group-switch { z-index: 20; }  /* 스위치 (맨 위) */
-
-        /* 4. 이미지 공통 설정 */
+        /* 2. 이미지 공통 (애니메이션 제거) */
         .layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain; /* 비율 유지하며 꽉 채움 */
-            display: block;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: contain; display: block;
+            pointer-events: none; /* 이미지는 클릭 무시 */
         }
 
-        /* 5. 숨김 처리 클래스 */
-        .hidden { display: none !important; }
+        /* 3. 숨김 클래스 (가장 강력하게) */
+        .d-none { display: none !important; }
 
-        /* === [6. 클릭 영역 (좌표 적용 완료)] === */
-        .click-zone {
-            position: absolute;
-            z-index: 999; /* 모든 그림보다 위에 있어야 클릭됨 */
-            cursor: pointer;
-            /* 테스트용 빨간 테두리 제거함 (투명) */
-            background-color: transparent; 
-        }
+        /* 4. ★ 레이어 순서 (Z-Index) 재정립 ★ */
+        /* 숫자가 클수록 내 눈앞에 보임 */
+        
+        /* 1층: 배경 */
+        #img-bg { z-index: 1; }
 
-        /* (1) 스위치 좌표 */
-        #zone-switch { 
-            top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; 
-        }
+        /* 2층: 닫힌 서랍들 (바닥에 깔림) */
+        #img-drawer-closed { z-index: 5; }
+        
+        /* 3층: 캐비닛 (평소엔 서랍보다 위) */
+        /* 중요: 서랍이 열리면 이놈들은 숨겨지고 cutout이 나옴 */
+        #img-cabinet-default { z-index: 10; }
+        #img-cabinet-cutout { z-index: 10; }
+        #img-cabinet-open { z-index: 10; }
+        #img-cabinet-blank { z-index: 10; }
 
-        /* (2) 가운데 캐비닛 좌표 */
-        #zone-cabinet { 
-            top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; 
-        }
+        /* 4층: 열린 서랍 (캐비닛보다 위로 올라와야 함!) */
+        #img-drawer-open { z-index: 20; }
+        #img-drawer-blank { z-index: 20; }
 
-        /* (3) 왼쪽 서랍 (폴리곤 좌표 적용!) */
+        /* 5층: 스위치 (맨 위) */
+        #img-switch-on { z-index: 100; }
+        #img-switch-off { z-index: 100; }
+
+        /* 5. 클릭 영역 (투명 버튼) */
+        .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
+
+        /* 좌표값 적용 */
+        #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
+        #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
         #zone-drawer {
             width: 100%; height: 100%; top: 0; left: 0;
-            /* 사선 모양으로 클릭 영역 잘라내기 */
             clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%);
         }
 
@@ -80,103 +60,123 @@
 
     <div id="stage">
         
-        <img src="main.png?v=release" class="layer bg-base" id="bg-img">
+        <img src="main.png?v=final3" class="layer" id="img-bg">
 
-        <div id="group-drawer" class="group">
-            <img src="left_drawer_default.png?v=release" class="layer state-closed">
-            <img src="left_drawer_blank.png?v=release" class="layer state-open hidden">
-            <img src="left_drawer_open.png?v=release" class="layer state-open hidden">
-        </div>
+        <img src="left_drawer_default.png?v=final3" class="layer" id="img-drawer-closed">
+        <img src="left_drawer_open.png?v=final3" class="layer d-none" id="img-drawer-open">
+        <img src="center_cabinet_default.png?v=final3" class="layer" id="img-cabinet-default">
+        <img src="center_cabinet_cutout.png?v=final3" class="layer d-none" id="img-cabinet-cutout">
+        <img src="center_cabinet_open.png?v=final3" class="layer d-none" id="img-cabinet-open">
+        
+        <img src="switch_on.png?v=final3" class="layer" id="img-switch-on">
+        <img src="switch_off.png?v=final3" class="layer d-none" id="img-switch-off">
 
-        <div id="group-cabinet" class="group">
-            <img src="center_cabinet_default.png?v=release" class="layer state-closed">
-            <img src="center_cabinet_blank.png?v=release" class="layer state-open hidden">
-            <img src="center_cabinet_open.png?v=release" class="layer state-open hidden">
-        </div>
 
-        <div id="group-switch" class="group">
-            <img src="switch_on.png?v=release" class="layer switch-on">
-            <img src="switch_off.png?v=release" class="layer switch-off hidden">
-        </div>
-
-        <div class="click-zone" id="zone-switch" onclick="handleSwitch()"></div>
-        <div class="click-zone" id="zone-drawer" onclick="handleDrawer()"></div>
-        <div class="click-zone" id="zone-cabinet" onclick="handleCabinet()"></div>
+        <div class="click-zone" id="zone-switch" onclick="toggleSwitch()"></div>
+        <div class="click-zone" id="zone-drawer" onclick="toggleDrawer()"></div>
+        <div class="click-zone" id="zone-cabinet" onclick="toggleCabinet()"></div>
 
     </div>
 
     <script>
-        // === 기능 스크립트 ===
+        // === [상태 관리 시스템] ===
+        // 현재 상태를 변수로 저장해두고, 이 변수에 맞춰서 그림을 그립니다.
+        // 꼬일 일이 없습니다.
         
-        // 1. 스위치 (다크모드)
-        function handleSwitch() {
-            const group = document.getElementById('group-switch');
-            const on = group.querySelector('.switch-on');
-            const off = group.querySelector('.switch-off');
-            
-            // 다크모드 적용 대상 (배경, 서랍, 캐비닛)
-            const targets = [
-                document.getElementById('bg-img'),
-                document.getElementById('group-drawer'),
-                document.getElementById('group-cabinet')
+        let state = {
+            isDark: false,      // false: 켜짐, true: 꺼짐
+            drawer: 'closed',   // 'closed' or 'open'
+            cabinet: 'closed'   // 'closed' or 'open'
+        };
+
+        // 1. 화면 그리기 함수 (무조건 얘를 통합니다)
+        function render() {
+            // [A] 스위치 처리
+            const swOn = document.getElementById('img-switch-on');
+            const swOff = document.getElementById('img-switch-off');
+            const targets = [ // 밝기 조절 대상
+                document.getElementById('img-bg'),
+                document.getElementById('img-drawer-closed'),
+                document.getElementById('img-drawer-open'),
+                document.getElementById('img-cabinet-default'),
+                document.getElementById('img-cabinet-cutout'),
+                document.getElementById('img-cabinet-open')
             ];
 
-            if (off.classList.contains('hidden')) {
-                // 끄기 (Dark Mode On)
-                off.classList.remove('hidden');
-                on.classList.add('hidden');
+            if (state.isDark) {
+                // 꺼짐 상태
+                swOn.classList.add('d-none');
+                swOff.classList.remove('d-none');
                 targets.forEach(el => el.style.filter = "brightness(0.4)");
             } else {
-                // 켜기 (Light Mode On)
-                off.classList.add('hidden');
-                on.classList.remove('hidden');
+                // 켜짐 상태
+                swOff.classList.add('d-none');
+                swOn.classList.remove('d-none');
                 targets.forEach(el => el.style.filter = "brightness(1)");
             }
-        }
 
-        // 2. 왼쪽 서랍 (다른 거 열려있으면 닫고 열기)
-        function handleDrawer() { 
-            closeAllExcept('group-drawer'); // 독점 모드 (하나만 열리게 하려면 주석 해제)
-            toggleGroup('group-drawer'); 
-        }
+            // [B] 서랍 & 캐비닛 처리 (여기가 핵심!)
+            const d_closed = document.getElementById('img-drawer-closed');
+            const d_open = document.getElementById('img-drawer-open');
+            
+            const c_default = document.getElementById('img-cabinet-default');
+            const c_cutout = document.getElementById('img-cabinet-cutout');
+            const c_open = document.getElementById('img-cabinet-open');
 
-        // 3. 가운데 캐비닛
-        function handleCabinet() { 
-            closeAllExcept('group-cabinet'); 
-            toggleGroup('group-cabinet'); 
-        }
+            // 1. 일단 다 숨깁니다. (초기화)
+            d_closed.classList.add('d-none');
+            d_open.classList.add('d-none');
+            c_default.classList.add('d-none');
+            c_cutout.classList.add('d-none');
+            c_open.classList.add('d-none');
 
-        // [공통] 열고 닫기
-        function toggleGroup(id) {
-            const group = document.getElementById(id);
-            const closed = group.querySelector('.state-closed');
-            const openImgs = group.querySelectorAll('.state-open');
-
-            if (!closed.classList.contains('hidden')) {
-                // 열기
-                closed.classList.add('hidden');
-                openImgs.forEach(img => img.classList.remove('hidden'));
+            // 2. 상태에 따라 필요한 것만 켭니다.
+            
+            // (서랍 상태 확인)
+            if (state.drawer === 'open') {
+                d_open.classList.remove('d-none'); // 서랍 열림 그림 표시
             } else {
-                // 닫기
-                closed.classList.remove('hidden');
-                openImgs.forEach(img => img.classList.add('hidden'));
+                d_closed.classList.remove('d-none'); // 서랍 닫힘 그림 표시
+            }
+
+            // (캐비닛 상태 확인)
+            if (state.cabinet === 'open') {
+                // 캐비닛이 열려있으면 -> 무조건 열린 그림
+                c_open.classList.remove('d-none');
+            } else {
+                // 캐비닛이 닫혀있으면 -> 서랍 눈치를 봐야 함
+                if (state.drawer === 'open') {
+                    // 서랍이 열려있네? -> 파낸 캐비닛(cutout) 보여줘!
+                    c_cutout.classList.remove('d-none');
+                } else {
+                    // 서랍도 닫혀있네? -> 그냥 캐비닛(default) 보여줘!
+                    c_default.classList.remove('d-none');
+                }
             }
         }
 
-        // [옵션] 다른 서랍 닫기 기능 (필요 없으면 삭제해도 됨)
-        function closeAllExcept(activeId) {
-            const ids = ['group-drawer', 'group-cabinet'];
-            ids.forEach(id => {
-                if (id === activeId) return; // 자기 자신은 패스
-                const group = document.getElementById(id);
-                const closed = group.querySelector('.state-closed');
-                const openImgs = group.querySelectorAll('.state-open');
-                
-                // 강제로 닫음
-                closed.classList.remove('hidden');
-                openImgs.forEach(img => img.classList.add('hidden'));
-            });
+        // === [클릭 이벤트 함수들] ===
+        
+        function toggleSwitch() {
+            state.isDark = !state.isDark;
+            render(); // 화면 갱신
         }
+
+        function toggleDrawer() {
+            if (state.drawer === 'closed') state.drawer = 'open';
+            else state.drawer = 'closed';
+            render(); // 화면 갱신
+        }
+
+        function toggleCabinet() {
+            if (state.cabinet === 'closed') state.cabinet = 'open';
+            else state.cabinet = 'closed';
+            render(); // 화면 갱신
+        }
+
+        // 초기 실행
+        render();
+
     </script>
 </body>
 </html>
