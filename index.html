@@ -2,229 +2,180 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>SEORAB - POLYGON EDITOR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB Project</title>
     <style>
-        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; }
-        
-        /* 정보창 */
-        #info-panel {
-            width: 350px; background: #111; color: #ccc; padding: 20px; font-family: monospace;
-            z-index: 99999; border-right: 1px solid #444; overflow-y: auto; display: flex; flex-direction: column;
+        /* 1. 기본 설정 (검은 배경, 스크롤 삭제) */
+        body {
+            margin: 0; padding: 0;
+            background-color: #000;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
-        #info-panel h3 { margin-top: 0; color: #0f0; }
-        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #555; font-size: 12px; flex-grow: 1; margin-bottom: 10px; }
-        button { width:100%; padding:15px; cursor:pointer; background:#0f0; border:none; font-weight:bold; font-size: 16px; color: black;}
 
-        /* 무대 */
-        #stage-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; padding: 20px; }
+        /* 2. 무대 (Stage) - 16:9 비율 유지 */
         #stage {
             position: relative;
-            width: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9;
-            background: #000; border: 2px solid cyan;
-            user-select: none;
+            width: 100%; height: 100%;
+            max-width: 177.78vh; /* 16:9 비율 유지 */
+            aspect-ratio: 16 / 9;
         }
 
-        /* 이미지들 */
-        .layer { 
-            position: absolute; top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            object-fit: contain; pointer-events: none; 
-            display: block !important;
+        /* 3. 그룹 박스 (이미지 담는 통) */
+        .group {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; /* 클릭은 통과시키고 그림만 보여줌 */
         }
-        .bg { z-index: 1; opacity: 1; }
-        .obj { z-index: 10; opacity: 0.6; } /* 반투명 */
 
-        /* === [1. 네모 박스 (스위치/캐비닛용)] === */
+        /* === [중요] 그림 순서 (Z-Index) 정리 === */
+        .bg-base { z-index: 1; }        /* 배경 (맨 뒤) */
+        #group-drawer { z-index: 5; }   /* 왼쪽 서랍 (중간) */
+        #group-cabinet { z-index: 15; } /* 가운데 캐비닛 (서랍보다 위!) */
+        #group-switch { z-index: 20; }  /* 스위치 (맨 위) */
+
+        /* 4. 이미지 공통 설정 */
+        .layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain; /* 비율 유지하며 꽉 채움 */
+            display: block;
+        }
+
+        /* 5. 숨김 처리 클래스 */
+        .hidden { display: none !important; }
+
+        /* === [6. 클릭 영역 (좌표 적용 완료)] === */
         .click-zone {
             position: absolute;
-            z-index: 1000;
-            background-color: rgba(255, 0, 0, 0.4);
-            border: 1px solid red;
-            cursor: move;
-            resize: both;
-            overflow: hidden;
-            min-width: 20px; min-height: 20px;
-        }
-        .click-zone::after {
-            content: attr(data-name); color: white; font-size: 10px; background: rgba(0,0,0,0.7);
-        }
-        /* 초기 위치 */
-        #zone-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
-        #zone-cabinet { top: 50%; left: 52%; width: 12%; height: 15%; }
-
-        /* === [2. 폴리곤 점 (왼쪽 서랍용)] === */
-        .poly-point {
-            position: absolute;
-            width: 20px; height: 20px;
-            background: #0f0; /* 초록색 점 */
-            border-radius: 50%;
-            border: 2px solid white;
-            z-index: 2000;
-            cursor: crosshair;
-            transform: translate(-50%, -50%); /* 점의 중심이 좌표가 되도록 */
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        .poly-point::after {
-            content: attr(data-idx); position:absolute; top:-15px; left:5px; color:#0f0; font-weight:bold; font-size:12px;
+            z-index: 999; /* 모든 그림보다 위에 있어야 클릭됨 */
+            cursor: pointer;
+            /* 테스트용 빨간 테두리 제거함 (투명) */
+            background-color: transparent; 
         }
 
-        /* 폴리곤 영역 미리보기 (SVG) */
-        svg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1500;
+        /* (1) 스위치 좌표 */
+        #zone-switch { 
+            top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; 
         }
-        polygon {
-            fill: rgba(0, 255, 0, 0.3); /* 초록색 채움 */
-            stroke: #0f0; stroke-width: 2;
+
+        /* (2) 가운데 캐비닛 좌표 */
+        #zone-cabinet { 
+            top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; 
+        }
+
+        /* (3) 왼쪽 서랍 (폴리곤 좌표 적용!) */
+        #zone-drawer {
+            width: 100%; height: 100%; top: 0; left: 0;
+            /* 사선 모양으로 클릭 영역 잘라내기 */
+            clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%);
         }
 
     </style>
 </head>
 <body>
 
-    <div id="info-panel">
-        <h3>📐 폴리곤 에디터</h3>
-        <p>
-            <strong>1. 스위치/캐비닛:</strong> 빨간 박스 드래그.<br><br>
-            <strong>2. 왼쪽 서랍:</strong> <span style="color:#0f0">초록색 점 4개</span>를 드래그해서 서랍의 <strong>네 모서리(꼭짓점)</strong>에 정확히 찍으세요.<br><br>
-            <strong>3. 완료되면:</strong> 아래 버튼 클릭!
-        </p>
-        <textarea id="result-code" readonly>준비 완료.</textarea>
-        <button onclick="updateCoords()">좌표 추출하기</button>
-    </div>
+    <div id="stage">
+        
+        <img src="main.png?v=release" class="layer bg-base" id="bg-img">
 
-    <div id="stage-container">
-        <div id="stage" id="main-stage">
-            <img src="main.png?v=final" class="layer bg">
-            <img src="left_drawer_default.png?v=final" class="layer obj">
-            <img src="center_cabinet_default.png?v=final" class="layer obj">
-            <img src="switch_on.png?v=final" class="layer obj">
-
-            <svg>
-                <polygon id="poly-preview" points="0,0 0,0 0,0 0,0"></polygon>
-            </svg>
-
-            <div class="click-zone" id="zone-switch" data-name="스위치"></div>
-            <div class="click-zone" id="zone-cabinet" data-name="가운데 캐비닛"></div>
-
-            <div class="poly-point" id="p1" data-idx="1" style="top:55%; left:30%;"></div>
-            <div class="poly-point" id="p2" data-idx="2" style="top:55%; left:40%;"></div>
-            <div class="poly-point" id="p3" data-idx="3" style="top:70%; left:40%;"></div>
-            <div class="poly-point" id="p4" data-idx="4" style="top:70%; left:30%;"></div>
+        <div id="group-drawer" class="group">
+            <img src="left_drawer_default.png?v=release" class="layer state-closed">
+            <img src="left_drawer_blank.png?v=release" class="layer state-open hidden">
+            <img src="left_drawer_open.png?v=release" class="layer state-open hidden">
         </div>
+
+        <div id="group-cabinet" class="group">
+            <img src="center_cabinet_default.png?v=release" class="layer state-closed">
+            <img src="center_cabinet_blank.png?v=release" class="layer state-open hidden">
+            <img src="center_cabinet_open.png?v=release" class="layer state-open hidden">
+        </div>
+
+        <div id="group-switch" class="group">
+            <img src="switch_on.png?v=release" class="layer switch-on">
+            <img src="switch_off.png?v=release" class="layer switch-off hidden">
+        </div>
+
+        <div class="click-zone" id="zone-switch" onclick="handleSwitch()"></div>
+        <div class="click-zone" id="zone-drawer" onclick="handleDrawer()"></div>
+        <div class="click-zone" id="zone-cabinet" onclick="handleCabinet()"></div>
+
     </div>
 
     <script>
-        const stage = document.getElementById('stage');
+        // === 기능 스크립트 ===
         
-        // === 1. 네모 박스 드래그 (기존) ===
-        const zones = document.querySelectorAll('.click-zone');
-        let activeZone = null;
-        let zX, zY, zL, zT;
-
-        zones.forEach(zone => zone.addEventListener('mousedown', startZoneDrag));
-
-        function startZoneDrag(e) {
-            if (e.target.classList.contains('poly-point')) return; // 점 클릭이면 패스
-            if (e.offsetX > e.target.clientWidth - 15 && e.offsetY > e.target.clientHeight - 15) return; // 리사이즈
-            activeZone = e.target;
-            zX = e.clientX; zY = e.clientY;
-            zL = activeZone.offsetLeft; zT = activeZone.offsetTop;
-            document.addEventListener('mousemove', moveZone);
-            document.addEventListener('mouseup', endZone);
-        }
-        function moveZone(e) {
-            if(!activeZone) return;
-            e.preventDefault();
-            const dx = e.clientX - zX; const dy = e.clientY - zY;
-            activeZone.style.left = ((zL + dx) / stage.clientWidth * 100) + "%";
-            activeZone.style.top = ((zT + dy) / stage.clientHeight * 100) + "%";
-        }
-        function endZone() {
-            activeZone = null;
-            document.removeEventListener('mousemove', moveZone);
-            document.removeEventListener('mouseup', endZone);
-        }
-
-        // === 2. 폴리곤 점 드래그 (신규) ===
-        const points = document.querySelectorAll('.poly-point');
-        const polyPreview = document.getElementById('poly-preview');
-        let activePoint = null;
-
-        points.forEach(p => p.addEventListener('mousedown', startPointDrag));
-
-        function startPointDrag(e) {
-            activePoint = e.target;
-            document.addEventListener('mousemove', movePoint);
-            document.addEventListener('mouseup', endPoint);
-        }
-
-        function movePoint(e) {
-            if(!activePoint) return;
-            e.preventDefault();
+        // 1. 스위치 (다크모드)
+        function handleSwitch() {
+            const group = document.getElementById('group-switch');
+            const on = group.querySelector('.switch-on');
+            const off = group.querySelector('.switch-off');
             
-            // 무대 기준 좌표 계산
-            const rect = stage.getBoundingClientRect();
-            let x = e.clientX - rect.left;
-            let y = e.clientY - rect.top;
+            // 다크모드 적용 대상 (배경, 서랍, 캐비닛)
+            const targets = [
+                document.getElementById('bg-img'),
+                document.getElementById('group-drawer'),
+                document.getElementById('group-cabinet')
+            ];
 
-            // %로 변환해서 저장
-            activePoint.style.left = (x / rect.width * 100) + "%";
-            activePoint.style.top = (y / rect.height * 100) + "%";
-            
-            drawPolygon(); // 선 그리기
+            if (off.classList.contains('hidden')) {
+                // 끄기 (Dark Mode On)
+                off.classList.remove('hidden');
+                on.classList.add('hidden');
+                targets.forEach(el => el.style.filter = "brightness(0.4)");
+            } else {
+                // 켜기 (Light Mode On)
+                off.classList.add('hidden');
+                on.classList.remove('hidden');
+                targets.forEach(el => el.style.filter = "brightness(1)");
+            }
         }
 
-        function endPoint() {
-            activePoint = null;
-            document.removeEventListener('mousemove', movePoint);
-            document.removeEventListener('mouseup', endPoint);
-            drawPolygon();
+        // 2. 왼쪽 서랍 (다른 거 열려있으면 닫고 열기)
+        function handleDrawer() { 
+            closeAllExcept('group-drawer'); // 독점 모드 (하나만 열리게 하려면 주석 해제)
+            toggleGroup('group-drawer'); 
         }
 
-        // SVG 그리기
-        function drawPolygon() {
-            const rect = stage.getBoundingClientRect();
-            let pts = "";
-            points.forEach(p => {
-                // % 위치를 다시 픽셀로 바꿔서 SVG에 입력 (미리보기용)
-                let x = parseFloat(p.style.left) / 100 * rect.width;
-                let y = parseFloat(p.style.top) / 100 * rect.height;
-                pts += `${x},${y} `;
-            });
-            polyPreview.setAttribute('points', pts);
+        // 3. 가운데 캐비닛
+        function handleCabinet() { 
+            closeAllExcept('group-cabinet'); 
+            toggleGroup('group-cabinet'); 
         }
 
-        // 초기 실행
-        drawPolygon();
-        window.addEventListener('resize', drawPolygon);
+        // [공통] 열고 닫기
+        function toggleGroup(id) {
+            const group = document.getElementById(id);
+            const closed = group.querySelector('.state-closed');
+            const openImgs = group.querySelectorAll('.state-open');
 
-        // === 3. 좌표 추출 (최종) ===
-        function updateCoords() {
-            let result = "/* == 복사해서 주세요 == */\n\n";
+            if (!closed.classList.contains('hidden')) {
+                // 열기
+                closed.classList.add('hidden');
+                openImgs.forEach(img => img.classList.remove('hidden'));
+            } else {
+                // 닫기
+                closed.classList.remove('hidden');
+                openImgs.forEach(img => img.classList.add('hidden'));
+            }
+        }
 
-            // 1. 네모 박스 좌표
-            zones.forEach(zone => {
-                let t = (zone.offsetTop / stage.clientHeight * 100).toFixed(2);
-                let l = (zone.offsetLeft / stage.clientWidth * 100).toFixed(2);
-                let w = (zone.offsetWidth / stage.clientWidth * 100).toFixed(2);
-                let h = (zone.offsetHeight / stage.clientHeight * 100).toFixed(2);
-                result += `#${zone.id} { top: ${t}%; left: ${l}%; width: ${w}%; height: ${h}%; }\n`;
+        // [옵션] 다른 서랍 닫기 기능 (필요 없으면 삭제해도 됨)
+        function closeAllExcept(activeId) {
+            const ids = ['group-drawer', 'group-cabinet'];
+            ids.forEach(id => {
+                if (id === activeId) return; // 자기 자신은 패스
+                const group = document.getElementById(id);
+                const closed = group.querySelector('.state-closed');
+                const openImgs = group.querySelectorAll('.state-open');
+                
+                // 강제로 닫음
+                closed.classList.remove('hidden');
+                openImgs.forEach(img => img.classList.add('hidden'));
             });
-
-            // 2. 폴리곤 좌표 (핵심)
-            let polyCoords = "";
-            points.forEach((p, index) => {
-                let x = parseFloat(p.style.left).toFixed(2);
-                let y = parseFloat(p.style.top).toFixed(2);
-                polyCoords += `${x}% ${y}%`;
-                if (index < points.length - 1) polyCoords += ", ";
-            });
-
-            result += `\n/* 왼쪽 서랍 (폴리곤) */\n#group-drawer { \n    clip-path: polygon(${polyCoords}); \n    /* 폴리곤은 전체 화면을 다 덮고 구멍만 뚫는 방식 */\n    width: 100%; height: 100%; top: 0; left: 0; pointer-events: auto; cursor: pointer;\n}`;
-
-            const textarea = document.getElementById('result-code');
-            textarea.value = result;
-            textarea.select();
         }
     </script>
 </body>
