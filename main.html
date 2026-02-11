@@ -3,81 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - LAYER TEST</title>
+    <title>SEORAB Project</title>
     <style>
-        body { background-color: #000; margin: 0; width: 100vw; height: 100vh; overflow: hidden; }
-        
-        /* 리모컨 디자인 */
-        #remote-control {
-            position: absolute; top: 10px; left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px; border-radius: 8px;
-            z-index: 99999;
-            font-family: sans-serif;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        /* [기본 설정] */
+        body {
+            margin: 0; padding: 0;
+            background-color: #000;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
-        #remote-control label { display: block; margin: 5px 0; cursor: pointer; font-size: 14px; color: black; }
-        
-        /* 무대 */
-        #stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; margin: 0 auto; border: 1px solid #333; }
-        
-        /* 이미지 */
-        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        
-        /* 그룹 */
-        .group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        
-        /* 숨김 처리 */
-        .hidden { display: none !important; }
-        
-        /* 배경용 */
-        .bg { z-index: 1; }
-        #group-center { z-index: 5; }
-        #group-left { z-index: 10; }
+
+        /* [무대] */
+        #stage {
+            position: relative;
+            width: 100%; height: 100%;
+            max-width: 177.78vh; /* 16:9 비율 유지 */
+            aspect-ratio: 16 / 9;
+        }
+
+        /* [그룹 박스] */
+        .group {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* === [그림 순서 (Z-Index)] === */
+        /* 캐비닛(15)이 서랍(5)보다 위에 있어야 "파낸 그림" 효과가 납니다 */
+        .bg-base { z-index: 1; }
+        #group-drawer { z-index: 5; }
+        #group-cabinet { z-index: 15; }
         #group-switch { z-index: 20; }
+
+        /* [이미지 공통] */
+        .layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* [숨김 처리] */
+        .hidden { display: none !important; }
+
+        /* === [클릭 영역 (좌표 적용됨)] === */
+        .click-zone {
+            position: absolute;
+            z-index: 999;
+            cursor: pointer;
+            background-color: transparent; /* 투명 */
+        }
+
+        /* (1) 스위치 좌표 */
+        #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
+
+        /* (2) 가운데 캐비닛 좌표 */
+        #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
+
+        /* (3) 왼쪽 서랍 (폴리곤) */
+        #zone-drawer {
+            width: 100%; height: 100%; top: 0; left: 0;
+            clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%);
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="remote-control">
-        <strong>범인 찾기 (체크 해제해보세요)</strong><br>
-        <label><input type="checkbox" checked onchange="toggle('group-switch')"> 4. 스위치 (맨 위)</label>
-        <label><input type="checkbox" checked onchange="toggle('group-left')"> 3. 왼쪽 서랍 (중간)</label>
-        <label><input type="checkbox" checked onchange="toggle('group-center')"> 2. 가운데 캐비닛 (중간)</label>
-        <label><input type="checkbox" checked onchange="toggle('bg-layer')"> 1. 배경 (맨 아래)</label>
-        <hr>
-        <div id="status" style="color:blue; font-size:12px;">이미지 로딩 대기중...</div>
-    </div>
-
     <div id="stage">
-        <div id="bg-layer" class="group">
-            <img src="main.png" class="layer bg" onload="log('배경 로딩됨')">
+        
+        <img src="main.png?v=final2" class="layer bg-base" id="bg-img">
+
+        <div id="group-drawer" class="group">
+            <img src="left_drawer_default.png?v=final2" class="layer state-closed">
+            <img src="left_drawer_blank.png?v=final2" class="layer state-open hidden">
+            <img src="left_drawer_open.png?v=final2" class="layer state-open hidden">
         </div>
 
-        <div id="group-left" class="group">
-            <img src="left_drawer_default.png" class="layer" onload="log('왼쪽 서랍 로딩됨')">
-        </div>
-
-        <div id="group-center" class="group">
-            <img src="center_cabinet_default.png" class="layer" onload="log('캐비닛 로딩됨')">
+        <div id="group-cabinet" class="group">
+            <img src="center_cabinet_default.png?v=final2" class="layer state-closed">
+            <img src="center_cabinet_cutout.png?v=final2" class="layer state-cutout hidden">
+            
+            <img src="center_cabinet_blank.png?v=final2" class="layer state-open hidden">
+            <img src="center_cabinet_open.png?v=final2" class="layer state-open hidden">
         </div>
 
         <div id="group-switch" class="group">
-            <img src="switch_on.png" class="layer" onload="log('스위치 로딩됨')">
+            <img src="switch_on.png?v=final2" class="layer switch-on">
+            <img src="switch_off.png?v=final2" class="layer switch-off hidden">
         </div>
+
+        <div class="click-zone" id="zone-switch" onclick="handleSwitch()"></div>
+        <div class="click-zone" id="zone-drawer" onclick="handleDrawer()"></div>
+        <div class="click-zone" id="zone-cabinet" onclick="handleCabinet()"></div>
+
     </div>
 
     <script>
-        function toggle(id) {
-            const el = document.getElementById(id);
-            if (el.style.display === 'none') {
-                el.style.display = 'block';
+        // === 기능 스크립트 ===
+        
+        // 1. 스위치 (다크모드)
+        function handleSwitch() {
+            const group = document.getElementById('group-switch');
+            const on = group.querySelector('.switch-on');
+            const off = group.querySelector('.switch-off');
+            
+            const targets = [
+                document.getElementById('bg-img'),
+                document.getElementById('group-drawer'),
+                document.getElementById('group-cabinet')
+            ];
+
+            if (off.classList.contains('hidden')) {
+                off.classList.remove('hidden'); on.classList.add('hidden');
+                targets.forEach(el => el.style.filter = "brightness(0.4)");
             } else {
-                el.style.display = 'none';
+                off.classList.add('hidden'); on.classList.remove('hidden');
+                targets.forEach(el => el.style.filter = "brightness(1)");
             }
         }
-        function log(msg) {
-            document.getElementById('status').innerText = msg;
+
+        // 2. 왼쪽 서랍 (핵심 로직: 캐비닛 그림 교체)
+        function handleDrawer() {
+            const drawerGroup = document.getElementById('group-drawer');
+            const cabinetGroup = document.getElementById('group-cabinet');
+
+            const d_closed = drawerGroup.querySelector('.state-closed');
+            const d_opens = drawerGroup.querySelectorAll('.state-open');
+
+            // 캐비닛 그림들 (기본 vs 파낸거)
+            const c_default = cabinetGroup.querySelector('.state-closed');
+            const c_cutout = cabinetGroup.querySelector('.state-cutout');
+
+            // [열기 동작]
+            if (!d_closed.classList.contains('hidden')) {
+                d_closed.classList.add('hidden');
+                d_opens.forEach(el => el.classList.remove('hidden'));
+
+                // ★ 마법: 캐비닛이 '닫힌 상태(default)'라면 -> '파낸 상태(cutout)'로 교체!
+                if (!c_default.classList.contains('hidden')) {
+                    c_default.classList.add('hidden');
+                    c_cutout.classList.remove('hidden');
+                }
+            } 
+            // [닫기 동작]
+            else {
+                d_closed.classList.remove('hidden');
+                d_opens.forEach(el => el.classList.add('hidden'));
+
+                // ★ 복구: 캐비닛이 '파낸 상태(cutout)'라면 -> 다시 '기본(default)'으로 복구!
+                if (!c_cutout.classList.contains('hidden')) {
+                    c_cutout.classList.add('hidden');
+                    c_default.classList.remove('hidden');
+                }
+            }
+        }
+
+        // 3. 가운데 캐비닛
+        function handleCabinet() { 
+            // 캐비닛 열 때는 서랍 상관없이 그냥 열기 (원하면 수정 가능)
+            toggleGroup('group-cabinet'); 
+        }
+
+        function toggleGroup(id) {
+            const group = document.getElementById(id);
+            const closed = group.querySelector('.state-closed');
+            const cutout = group.querySelector('.state-cutout'); // 혹시 켜져있을 수 있는 파낸 그림
+            const openImgs = group.querySelectorAll('.state-open');
+
+            // 닫혀 있으면 -> 연다
+            if (!closed.classList.contains('hidden') || (cutout && !cutout.classList.contains('hidden'))) {
+                closed.classList.add('hidden');
+                if(cutout) cutout.classList.add('hidden'); // 파낸 그림도 숨김
+                openImgs.forEach(img => img.classList.remove('hidden'));
+            } 
+            // 열려 있으면 -> 닫는다
+            else {
+                // 서랍 상태를 확인해야 함. 서랍이 열려있으면 '파낸 그림'으로, 아니면 '기본'으로 가야 하는데
+                // 일단 복잡하니까 기본적으로 '닫힌 그림'으로 복구
+                closed.classList.remove('hidden');
+                openImgs.forEach(img => img.classList.add('hidden'));
+                
+                // (심화) 만약 서랍이 열려있는 상태라면 바로 파낸 그림으로 바꿔주는 센스
+                const drawerOpen = !document.querySelector('#group-drawer .state-closed').classList.contains('hidden') === false;
+                if(drawerOpen && cutout) {
+                     closed.classList.add('hidden');
+                     cutout.classList.remove('hidden');
+                }
+            }
         }
     </script>
 </body>
