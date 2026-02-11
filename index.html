@@ -2,135 +2,154 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>SEORAB - EDITOR MODE</title>
+    <title>SEORAB - EDITOR MODE v2</title>
     <style>
-        body { background-color: #000; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; }
+        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; }
         
         /* 왼쪽 정보창 */
         #info-panel {
-            width: 300px; background: #222; color: #fff; padding: 20px; font-family: monospace;
-            z-index: 99999; border-right: 1px solid #444; overflow-y: auto;
+            width: 350px; background: #111; color: #ccc; padding: 20px; font-family: monospace;
+            z-index: 99999; border-right: 1px solid #444; overflow-y: auto; display: flex; flex-direction: column;
         }
         #info-panel h3 { margin-top: 0; color: yellow; }
-        textarea { width: 100%; height: 150px; background: #111; color: #0f0; border: 1px solid #444; }
+        #info-panel p { font-size: 13px; line-height: 1.5; }
+        textarea { width: 100%; height: 300px; background: #000; color: #0f0; border: 1px solid #555; font-size: 12px; flex-grow: 1; }
+        button { width:100%; padding:15px; margin-top:10px; cursor:pointer; background:yellow; border:none; font-weight:bold; font-size: 16px; color: black;}
 
         /* 무대 */
-        #stage-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; }
+        #stage-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; padding: 20px; }
         #stage {
             position: relative;
             width: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9;
-            background: #000; border: 2px solid cyan;
+            background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         /* 이미지 */
-        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        .group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .hidden { display: none !important; }
-
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0.7; }
+        
         /* [핵심] 드래그 가능한 빨간 박스 */
         .click-zone {
             position: absolute;
             z-index: 1000;
-            background-color: rgba(255, 0, 0, 0.4);
-            border: 2px solid red;
-            cursor: move; /* 이동 커서 */
-            resize: both; /* 크기 조절 가능 (오른쪽 아래 모서리 잡으세요) */
+            background-color: rgba(255, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.5);
+            cursor: move;
+            resize: both;
             overflow: hidden;
-            min-width: 20px; min-height: 20px;
+            min-width: 10px; min-height: 10px;
         }
         /* 박스 이름 표시 */
         .click-zone::after {
             content: attr(data-name);
-            color: white; font-size: 10px; padding: 2px; display: block; background: rgba(0,0,0,0.5);
+            color: white; font-size: 10px; padding: 2px; display: block; background: rgba(0,0,0,0.7); white-space: nowrap;
         }
+        /* 활성화된 박스 강조 */
+        .click-zone.active { border: 2px solid yellow; background-color: rgba(255, 255, 0, 0.3); z-index: 1001; }
 
         /* 초기 위치 (대충 잡아둠) */
         #zone-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
-        #zone-drawer { top: 60%; left: 35%; width: 12%; height: 15%; }
         #zone-cabinet { top: 50%; left: 52%; width: 12%; height: 15%; }
+        
+        /* 왼쪽 서랍 3단 분리 */
+        #zone-drawer-1 { top: 55%; left: 32%; width: 5%; height: 5%; }
+        #zone-drawer-2 { top: 60%; left: 34%; width: 5%; height: 5%; }
+        #zone-drawer-3 { top: 65%; left: 36%; width: 5%; height: 5%; }
 
     </style>
 </head>
 <body>
 
     <div id="info-panel">
-        <h3>👷 공사판 모드</h3>
-        <p>1. 빨간 박스를 드래그해서 위치를 잡으세요.<br>
-           2. 박스 오른쪽 아래 모서리를 잡고 크기를 조절하세요.<br>
-           3. 아래 코드를 복사해서 쓰세요.</p>
-        <textarea id="result-code" readonly></textarea>
-        <button onclick="updateCoords()" style="width:100%; padding:10px; margin-top:10px; cursor:pointer; background:yellow; border:none; font-weight:bold;">좌표 갱신 (누르세요)</button>
+        <h3>📐 사선 완벽 커버 버전</h3>
+        <p>
+            1. <strong>왼쪽 서랍용 박스 3개</strong>를 계단식으로 배치해서 사선을 덮으세요.<br>
+            2. 위치를 다 잡으면 아래 노란 버튼을 누르세요.<br>
+            3. 생성된 코드를 전부 복사해서 저에게 주세요.
+        </p>
+        <textarea id="result-code" readonly>아직 좌표가 계산되지 않았습니다. 위치를 잡고 아래 버튼을 누르세요.</textarea>
+        <button onclick="updateCoords()">좌표 추출하기 (Click!)</button>
     </div>
 
     <div id="stage-container">
         <div id="stage">
             <img src="main.png?v=final" class="layer">
-            <div id="group-drawer" class="group"><img src="left_drawer_default.png?v=final" class="layer"></div>
-            <div id="group-cabinet" class="group"><img src="center_cabinet_default.png?v=final" class="layer"></div>
-            <div id="group-switch" class="group"><img src="switch_on.png?v=final" class="layer"></div>
 
             <div class="click-zone" id="zone-switch" data-name="스위치"></div>
-            <div class="click-zone" id="zone-drawer" data-name="왼쪽 서랍"></div>
             <div class="click-zone" id="zone-cabinet" data-name="가운데 캐비닛"></div>
+            
+            <div class="click-zone" id="zone-drawer-1" data-name="서랍(상)"></div>
+            <div class="click-zone" id="zone-drawer-2" data-name="서랍(중)"></div>
+            <div class="click-zone" id="zone-drawer-3" data-name="서랍(하)"></div>
         </div>
     </div>
 
     <script>
-        // 드래그 앤 드롭 기능
         const zones = document.querySelectorAll('.click-zone');
         let activeItem = null;
-        let activeX = 0;
-        let activeY = 0;
+        let startX, startY, startLeft, startTop;
 
         zones.forEach(zone => {
             zone.addEventListener('mousedown', dragStart);
         });
 
         function dragStart(e) {
-            // 오른쪽 아래 리사이즈 영역 클릭 시 드래그 방지
-            if (e.offsetX > e.target.clientWidth - 20 && e.offsetY > e.target.clientHeight - 20) return;
+            // 리사이즈 핸들 클릭 시 무시
+            if (e.offsetX > e.target.clientWidth - 15 && e.offsetY > e.target.clientHeight - 15) return;
             
+            // 활성 상태 표시
+            zones.forEach(z => z.classList.remove('active'));
+            e.target.classList.add('active');
+
             activeItem = e.target;
-            activeX = e.clientX - e.target.offsetLeft;
-            activeY = e.clientY - e.target.offsetTop;
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = activeItem.offsetLeft;
+            startTop = activeItem.offsetTop;
+            
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', dragEnd);
         }
 
-        document.addEventListener('mousemove', (e) => {
+        function dragMove(e) {
             if (!activeItem) return;
             e.preventDefault();
-            let x = e.clientX - activeX;
-            let y = e.clientY - activeY;
             
-            // 퍼센트 변환을 위해 부모 크기 가져오기
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
             const parent = activeItem.parentElement;
-            let percentX = (x / parent.clientWidth) * 100;
-            let percentY = (y / parent.clientHeight) * 100;
 
-            activeItem.style.left = percentX + "%";
-            activeItem.style.top = percentY + "%";
-        });
+            // 퍼센트로 실시간 변환하여 이동
+            const newLeft = ((startLeft + dx) / parent.clientWidth) * 100;
+            const newTop = ((startTop + dy) / parent.clientHeight) * 100;
 
-        document.addEventListener('mouseup', () => {
+            activeItem.style.left = newLeft + "%";
+            activeItem.style.top = newTop + "%";
+        }
+
+        function dragEnd() {
             activeItem = null;
-            updateCoords(); // 드래그 끝나면 좌표 갱신
-        });
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+        }
 
-        // 좌표 계산해서 텍스트창에 뿌려주는 함수
+        // 좌표 추출 함수
         function updateCoords() {
             const stage = document.getElementById('stage');
-            let result = "/* 복사해서 CSS에 붙여넣으세요 */\n";
+            let result = "";
             
             zones.forEach(zone => {
-                // 현재 픽셀 위치를 %로 변환
-                let t = (zone.offsetTop / stage.clientHeight * 100).toFixed(1);
-                let l = (zone.offsetLeft / stage.clientWidth * 100).toFixed(1);
-                let w = (zone.offsetWidth / stage.clientWidth * 100).toFixed(1);
-                let h = (zone.offsetHeight / stage.clientHeight * 100).toFixed(1);
+                // 현재 픽셀 위치를 소수점 2자리 %로 정밀 변환
+                let t = (zone.offsetTop / stage.clientHeight * 100).toFixed(2);
+                let l = (zone.offsetLeft / stage.clientWidth * 100).toFixed(2);
+                let w = (zone.offsetWidth / stage.clientWidth * 100).toFixed(2);
+                let h = (zone.offsetHeight / stage.clientHeight * 100).toFixed(2);
                 
-                result += `#${zone.id} { top: ${t}%; left: ${l}%; width: ${w}%; height: ${h}%; }\n`;
+                result += `/* ${zone.getAttribute('data-name')} */\n#${zone.id} { top: ${t}%; left: ${l}%; width: ${w}%; height: ${h}%; }\n`;
             });
             
-            document.getElementById('result-code').value = result;
+            const textarea = document.getElementById('result-code');
+            textarea.value = result;
+            textarea.select(); // 전체 선택
         }
     </script>
 </body>
