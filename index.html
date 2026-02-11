@@ -2,137 +2,135 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - FINAL</title>
+    <title>SEORAB - EDITOR MODE</title>
     <style>
-        /* 1. 기본 설정 */
-        body {
-            margin: 0; padding: 0;
-            background-color: #000;
-            width: 100vw; height: 100vh;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+        body { background-color: #000; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; }
+        
+        /* 왼쪽 정보창 */
+        #info-panel {
+            width: 300px; background: #222; color: #fff; padding: 20px; font-family: monospace;
+            z-index: 99999; border-right: 1px solid #444; overflow-y: auto;
         }
+        #info-panel h3 { margin-top: 0; color: yellow; }
+        textarea { width: 100%; height: 150px; background: #111; color: #0f0; border: 1px solid #444; }
 
-        /* 2. 무대 (Stage) */
+        /* 무대 */
+        #stage-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; }
         #stage {
             position: relative;
-            width: 100%; height: 100%;
-            max-width: 177.78vh; /* 16:9 비율 유지 */
-            aspect-ratio: 16 / 9;
-            /* border: 1px solid green; <--- 이제 지웁니다 */
+            width: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9;
+            background: #000; border: 2px solid cyan;
         }
 
-        /* 3. 그룹 박스 */
-        .group {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* 4. 이미지 공통 */
-        .layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* 배경 */
-        .bg-base { z-index: 1; }
-
-        /* 5. 숨김 처리 */
+        /* 이미지 */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .hidden { display: none !important; }
 
-        /* 6. 클릭 영역 (빨간 박스) */
-        /* 위치 확인 끝나면 border: none; 으로 바꾸세요 */
+        /* [핵심] 드래그 가능한 빨간 박스 */
         .click-zone {
             position: absolute;
-            z-index: 999;
-            cursor: pointer;
-            border: 2px solid red; 
-            background-color: rgba(255, 0, 0, 0.2);
+            z-index: 1000;
+            background-color: rgba(255, 0, 0, 0.4);
+            border: 2px solid red;
+            cursor: move; /* 이동 커서 */
+            resize: both; /* 크기 조절 가능 (오른쪽 아래 모서리 잡으세요) */
+            overflow: hidden;
+            min-width: 20px; min-height: 20px;
+        }
+        /* 박스 이름 표시 */
+        .click-zone::after {
+            content: attr(data-name);
+            color: white; font-size: 10px; padding: 2px; display: block; background: rgba(0,0,0,0.5);
         }
 
-        /* 버튼 위치 */
+        /* 초기 위치 (대충 잡아둠) */
         #zone-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
-        #zone-drawer { top: 58%; left: 34%; width: 13%; height: 16%; }
-        #zone-cabinet { top: 48%; left: 51%; width: 13%; height: 16%; }
+        #zone-drawer { top: 60%; left: 35%; width: 12%; height: 15%; }
+        #zone-cabinet { top: 50%; left: 52%; width: 12%; height: 15%; }
+
     </style>
 </head>
 <body>
 
-    <div id="stage">
-        
-        <img src="main.png?v=final" class="layer bg-base" id="bg-img">
+    <div id="info-panel">
+        <h3>👷 공사판 모드</h3>
+        <p>1. 빨간 박스를 드래그해서 위치를 잡으세요.<br>
+           2. 박스 오른쪽 아래 모서리를 잡고 크기를 조절하세요.<br>
+           3. 아래 코드를 복사해서 쓰세요.</p>
+        <textarea id="result-code" readonly></textarea>
+        <button onclick="updateCoords()" style="width:100%; padding:10px; margin-top:10px; cursor:pointer; background:yellow; border:none; font-weight:bold;">좌표 갱신 (누르세요)</button>
+    </div>
 
-        <div id="group-drawer" class="group">
-            <img src="left_drawer_default.png?v=final" class="layer state-closed">
-            <img src="left_drawer_blank.png?v=final" class="layer state-open hidden">
-            <img src="left_drawer_open.png?v=final" class="layer state-open hidden">
+    <div id="stage-container">
+        <div id="stage">
+            <img src="main.png?v=final" class="layer">
+            <div id="group-drawer" class="group"><img src="left_drawer_default.png?v=final" class="layer"></div>
+            <div id="group-cabinet" class="group"><img src="center_cabinet_default.png?v=final" class="layer"></div>
+            <div id="group-switch" class="group"><img src="switch_on.png?v=final" class="layer"></div>
+
+            <div class="click-zone" id="zone-switch" data-name="스위치"></div>
+            <div class="click-zone" id="zone-drawer" data-name="왼쪽 서랍"></div>
+            <div class="click-zone" id="zone-cabinet" data-name="가운데 캐비닛"></div>
         </div>
-
-        <div id="group-cabinet" class="group">
-            <img src="center_cabinet_default.png?v=final" class="layer state-closed">
-            <img src="center_cabinet_blank.png?v=final" class="layer state-open hidden">
-            <img src="center_cabinet_open.png?v=final" class="layer state-open hidden">
-        </div>
-
-        <div id="group-switch" class="group">
-            <img src="switch_on.png?v=final" class="layer switch-on">
-            <img src="switch_off.png?v=final" class="layer switch-off hidden">
-        </div>
-
-        <div class="click-zone" id="zone-switch" onclick="handleSwitch()"></div>
-        <div class="click-zone" id="zone-drawer" onclick="handleDrawer()"></div>
-        <div class="click-zone" id="zone-cabinet" onclick="handleCabinet()"></div>
-
     </div>
 
     <script>
-        // === 기능 스크립트 ===
-        
-        // 1. 스위치
-        function handleSwitch() {
-            const group = document.getElementById('group-switch');
-            const on = group.querySelector('.switch-on');
-            const off = group.querySelector('.switch-off');
-            const targets = [
-                document.getElementById('bg-img'),
-                document.getElementById('group-drawer'),
-                document.getElementById('group-cabinet')
-            ];
+        // 드래그 앤 드롭 기능
+        const zones = document.querySelectorAll('.click-zone');
+        let activeItem = null;
+        let activeX = 0;
+        let activeY = 0;
 
-            if (off.classList.contains('hidden')) {
-                off.classList.remove('hidden');
-                on.classList.add('hidden');
-                targets.forEach(el => el.style.filter = "brightness(0.4)");
-            } else {
-                off.classList.add('hidden');
-                on.classList.remove('hidden');
-                targets.forEach(el => el.style.filter = "brightness(1)");
-            }
+        zones.forEach(zone => {
+            zone.addEventListener('mousedown', dragStart);
+        });
+
+        function dragStart(e) {
+            // 오른쪽 아래 리사이즈 영역 클릭 시 드래그 방지
+            if (e.offsetX > e.target.clientWidth - 20 && e.offsetY > e.target.clientHeight - 20) return;
+            
+            activeItem = e.target;
+            activeX = e.clientX - e.target.offsetLeft;
+            activeY = e.clientY - e.target.offsetTop;
         }
 
-        // 2. 서랍 & 캐비닛
-        function handleDrawer() { toggleGroup('group-drawer'); }
-        function handleCabinet() { toggleGroup('group-cabinet'); }
+        document.addEventListener('mousemove', (e) => {
+            if (!activeItem) return;
+            e.preventDefault();
+            let x = e.clientX - activeX;
+            let y = e.clientY - activeY;
+            
+            // 퍼센트 변환을 위해 부모 크기 가져오기
+            const parent = activeItem.parentElement;
+            let percentX = (x / parent.clientWidth) * 100;
+            let percentY = (y / parent.clientHeight) * 100;
 
-        function toggleGroup(id) {
-            const group = document.getElementById(id);
-            const closed = group.querySelector('.state-closed');
-            const openImgs = group.querySelectorAll('.state-open');
+            activeItem.style.left = percentX + "%";
+            activeItem.style.top = percentY + "%";
+        });
 
-            if (!closed.classList.contains('hidden')) {
-                closed.classList.add('hidden');
-                openImgs.forEach(img => img.classList.remove('hidden'));
-            } else {
-                closed.classList.remove('hidden');
-                openImgs.forEach(img => img.classList.add('hidden'));
-            }
+        document.addEventListener('mouseup', () => {
+            activeItem = null;
+            updateCoords(); // 드래그 끝나면 좌표 갱신
+        });
+
+        // 좌표 계산해서 텍스트창에 뿌려주는 함수
+        function updateCoords() {
+            const stage = document.getElementById('stage');
+            let result = "/* 복사해서 CSS에 붙여넣으세요 */\n";
+            
+            zones.forEach(zone => {
+                // 현재 픽셀 위치를 %로 변환
+                let t = (zone.offsetTop / stage.clientHeight * 100).toFixed(1);
+                let l = (zone.offsetLeft / stage.clientWidth * 100).toFixed(1);
+                let w = (zone.offsetWidth / stage.clientWidth * 100).toFixed(1);
+                let h = (zone.offsetHeight / stage.clientHeight * 100).toFixed(1);
+                
+                result += `#${zone.id} { top: ${t}%; left: ${l}%; width: ${w}%; height: ${h}%; }\n`;
+            });
+            
+            document.getElementById('result-code').value = result;
         }
     </script>
 </body>
