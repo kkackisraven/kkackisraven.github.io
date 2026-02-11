@@ -3,107 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERROR CHECK</title>
+    <title>SEORAB - LAYER TEST</title>
     <style>
-        body { background-color: #000; color: white; margin: 0; overflow: hidden; }
+        body { background-color: #000; margin: 0; width: 100vw; height: 100vh; overflow: hidden; }
         
-        /* 에러 메시지 창 */
-        #debug-console {
-            position: absolute; top: 0; left: 0;
-            background: rgba(255, 0, 0, 0.8);
-            color: yellow;
-            padding: 20px;
-            z-index: 9999;
-            font-size: 20px;
-            font-family: monospace;
-            max-width: 50%;
+        /* 리모컨 디자인 */
+        #remote-control {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px; border-radius: 8px;
+            z-index: 99999;
+            font-family: sans-serif;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-
-        /* 이미지 스타일 */
-        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        #remote-control label { display: block; margin: 5px 0; cursor: pointer; font-size: 14px; color: black; }
+        
+        /* 무대 */
+        #stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; margin: 0 auto; border: 1px solid #333; }
+        
+        /* 이미지 */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        
+        /* 그룹 */
+        .group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* 숨김 처리 */
         .hidden { display: none !important; }
-        .click-zone { position: absolute; z-index: 100; border: 2px solid green; background: rgba(0,255,0,0.2); cursor: pointer; }
-
-        /* 버튼 위치 */
-        #btn-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
-        #btn-left { top: 58%; left: 34%; width: 13%; height: 16%; }
-        #btn-center { top: 48%; left: 51%; width: 13%; height: 16%; }
+        
+        /* 배경용 */
+        .bg { z-index: 1; }
+        #group-center { z-index: 5; }
+        #group-left { z-index: 10; }
+        #group-switch { z-index: 20; }
     </style>
 </head>
 <body>
 
-    <div id="debug-console">문제 분석 중...<br></div>
+    <div id="remote-control">
+        <strong>범인 찾기 (체크 해제해보세요)</strong><br>
+        <label><input type="checkbox" checked onchange="toggle('group-switch')"> 4. 스위치 (맨 위)</label>
+        <label><input type="checkbox" checked onchange="toggle('group-left')"> 3. 왼쪽 서랍 (중간)</label>
+        <label><input type="checkbox" checked onchange="toggle('group-center')"> 2. 가운데 캐비닛 (중간)</label>
+        <label><input type="checkbox" checked onchange="toggle('bg-layer')"> 1. 배경 (맨 아래)</label>
+        <hr>
+        <div id="status" style="color:blue; font-size:12px;">이미지 로딩 대기중...</div>
+    </div>
 
-    <div id="stage" style="position: relative; width: 100vw; height: 100vh;">
-        
-        <img src="main.png" class="layer bg" onerror="reportError('main.png')">
-
-        <div id="group-left">
-            <img src="left_drawer_default.png" class="layer default" onerror="reportError('left_drawer_default.png')">
-            <img src="left_drawer_blank.png" class="layer blank hidden" onerror="reportError('left_drawer_blank.png')">
-            <img src="left_drawer_open.png" class="layer open hidden" onerror="reportError('left_drawer_open.png')">
+    <div id="stage">
+        <div id="bg-layer" class="group">
+            <img src="main.png" class="layer bg" onload="log('배경 로딩됨')">
         </div>
 
-        <div id="group-center">
-            <img src="center_cabinet_default.png" class="layer default" onerror="reportError('center_cabinet_default.png')">
-            <img src="center_cabinet_blank.png" class="layer blank hidden" onerror="reportError('center_cabinet_blank.png')">
-            <img src="center_cabinet_open.png" class="layer open hidden" onerror="reportError('center_cabinet_open.png')">
+        <div id="group-left" class="group">
+            <img src="left_drawer_default.png" class="layer" onload="log('왼쪽 서랍 로딩됨')">
         </div>
 
-        <div id="group-switch">
-            <img src="switch_on.png" class="layer on" onerror="reportError('switch_on.png')">
-            <img src="switch_off.png" class="layer off hidden" onerror="reportError('switch_off.png')">
+        <div id="group-center" class="group">
+            <img src="center_cabinet_default.png" class="layer" onload="log('캐비닛 로딩됨')">
         </div>
 
-        <div class="click-zone" id="btn-switch" onclick="toggle('group-switch', true)"></div>
-        <div class="click-zone" id="btn-left" onclick="toggle('group-left')"></div>
-        <div class="click-zone" id="btn-center" onclick="toggle('group-center')"></div>
-
+        <div id="group-switch" class="group">
+            <img src="switch_on.png" class="layer" onload="log('스위치 로딩됨')">
+        </div>
     </div>
 
     <script>
-        // 에러 보고 함수
-        function reportError(filename) {
-            const box = document.getElementById('debug-console');
-            box.innerHTML += `[실패] ${filename} 파일을 찾을 수 없습니다.<br>`;
-        }
-
-        // 로딩 성공 확인
-        window.onload = function() {
-            const imgs = document.querySelectorAll('img');
-            let success = 0;
-            imgs.forEach(img => {
-                if(img.naturalWidth > 0) success++;
-            });
-            const box = document.getElementById('debug-console');
-            if(success === imgs.length) {
-                box.style.background = "green";
-                box.innerHTML = "모든 파일 로딩 성공! (화면이 안 보이면 CSS 문제)";
-                // 3초 뒤 에러창 끄기
-                setTimeout(() => { box.style.display = 'none'; }, 3000);
+        function toggle(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
             } else {
-                box.innerHTML += `<br>총 ${imgs.length}개 중 ${success}개만 로딩됨.`;
+                el.style.display = 'none';
             }
         }
-
-        // 기능 함수
-        function toggle(id, isSwitch = false) {
-            const group = document.getElementById(id);
-            if(isSwitch) {
-                const on = group.querySelector('.on');
-                const off = group.querySelector('.off');
-                if(off.classList.contains('hidden')) { off.classList.remove('hidden'); on.classList.add('hidden'); }
-                else { off.classList.add('hidden'); on.classList.remove('hidden'); }
-            } else {
-                const def = group.querySelector('.default');
-                const blank = group.querySelector('.blank');
-                const open = group.querySelector('.open');
-                if(!def.classList.contains('hidden')) {
-                    def.classList.add('hidden'); blank.classList.remove('hidden'); open.classList.remove('hidden');
-                } else {
-                    def.classList.remove('hidden'); blank.classList.add('hidden'); open.classList.add('hidden');
-                }
-            }
+        function log(msg) {
+            document.getElementById('status').innerText = msg;
         }
     </script>
 </body>
