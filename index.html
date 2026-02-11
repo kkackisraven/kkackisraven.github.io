@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - FIXED</title>
+    <title>SEORAB - FINAL</title>
     <style>
-        /* 1. 배경 및 화면 설정 */
+        /* 1. 기본 설정 */
         body {
             margin: 0; padding: 0;
             background-color: #000;
@@ -20,37 +20,35 @@
             width: 100%; height: 100%;
             max-width: 177.78vh; /* 16:9 비율 유지 */
             aspect-ratio: 16 / 9;
-            /* border: 1px solid green;  <-- 디버그용 테두리 (나중에 삭제) */
+            /* border: 1px solid green; <--- 이제 지웁니다 */
         }
 
-        /* 3. 그룹 박스 (이게 없어서 그동안 클릭이 안 됐음!) */
+        /* 3. 그룹 박스 */
         .group {
             position: absolute;
             top: 0; left: 0;
-            width: 100%; height: 100%; /* 화면 꽉 차게 */
-            pointer-events: none;      /* 클릭 통과 */
+            width: 100%; height: 100%;
+            pointer-events: none;
             z-index: 10;
         }
 
-        /* 4. 이미지 공통 (화면 꽉 채우기) */
+        /* 4. 이미지 공통 */
         .layer {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: contain; /* 비율 유지 */
+            object-fit: contain;
             display: block;
         }
 
-        /* 배경은 그룹 없이 혼자니까 따로 */
+        /* 배경 */
         .bg-base { z-index: 1; }
 
         /* 5. 숨김 처리 */
         .hidden { display: none !important; }
 
-        /* 6. 다크모드 (밝기 조절) */
-        .dark-mode { filter: brightness(0.4); }
-
-        /* 7. 클릭 영역 (빨간 박스) */
+        /* 6. 클릭 영역 (빨간 박스) */
+        /* 위치 확인 끝나면 border: none; 으로 바꾸세요 */
         .click-zone {
             position: absolute;
             z-index: 999;
@@ -59,34 +57,33 @@
             background-color: rgba(255, 0, 0, 0.2);
         }
 
-        /* 버튼 위치 (필요하면 숫자 조정) */
+        /* 버튼 위치 */
         #zone-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
         #zone-drawer { top: 58%; left: 34%; width: 13%; height: 16%; }
         #zone-cabinet { top: 48%; left: 51%; width: 13%; height: 16%; }
-
     </style>
 </head>
 <body>
 
     <div id="stage">
         
-        <img src="main.png" class="layer bg-base" id="bg-img">
+        <img src="main.png?v=final" class="layer bg-base" id="bg-img">
 
         <div id="group-drawer" class="group">
-            <img src="left_drawer_default.png" class="layer state-closed">
-            <img src="left_drawer_blank.png" class="layer state-open hidden">
-            <img src="left_drawer_open.png" class="layer state-open hidden">
+            <img src="left_drawer_default.png?v=final" class="layer state-closed">
+            <img src="left_drawer_blank.png?v=final" class="layer state-open hidden">
+            <img src="left_drawer_open.png?v=final" class="layer state-open hidden">
         </div>
 
         <div id="group-cabinet" class="group">
-            <img src="center_cabinet_default.png" class="layer state-closed">
-            <img src="center_cabinet_blank.png" class="layer state-open hidden">
-            <img src="center_cabinet_open.png" class="layer state-open hidden">
+            <img src="center_cabinet_default.png?v=final" class="layer state-closed">
+            <img src="center_cabinet_blank.png?v=final" class="layer state-open hidden">
+            <img src="center_cabinet_open.png?v=final" class="layer state-open hidden">
         </div>
 
         <div id="group-switch" class="group">
-            <img src="switch_on.png" class="layer switch-on">
-            <img src="switch_off.png" class="layer switch-off hidden">
+            <img src="switch_on.png?v=final" class="layer switch-on">
+            <img src="switch_off.png?v=final" class="layer switch-off hidden">
         </div>
 
         <div class="click-zone" id="zone-switch" onclick="handleSwitch()"></div>
@@ -96,57 +93,43 @@
     </div>
 
     <script>
-        // === 기능 ===
+        // === 기능 스크립트 ===
         
-        // 1. 스위치 (다크모드)
+        // 1. 스위치
         function handleSwitch() {
             const group = document.getElementById('group-switch');
             const on = group.querySelector('.switch-on');
             const off = group.querySelector('.switch-off');
-            
-            // 다크모드 대상들 (배경, 서랍, 캐비닛)
             const targets = [
                 document.getElementById('bg-img'),
                 document.getElementById('group-drawer'),
                 document.getElementById('group-cabinet')
             ];
 
-            // 켜져있으면 -> 끈다 (Dark Mode)
             if (off.classList.contains('hidden')) {
                 off.classList.remove('hidden');
                 on.classList.add('hidden');
-                // 대상들 어둡게
                 targets.forEach(el => el.style.filter = "brightness(0.4)");
-            } 
-            // 꺼져있으면 -> 켠다 (Light Mode)
-            else {
+            } else {
                 off.classList.add('hidden');
                 on.classList.remove('hidden');
-                // 대상들 밝게
                 targets.forEach(el => el.style.filter = "brightness(1)");
             }
         }
 
-        // 2. 왼쪽 서랍
+        // 2. 서랍 & 캐비닛
         function handleDrawer() { toggleGroup('group-drawer'); }
-
-        // 3. 가운데 캐비닛
         function handleCabinet() { toggleGroup('group-cabinet'); }
 
-        // [공통] 열고 닫기
         function toggleGroup(id) {
             const group = document.getElementById(id);
             const closed = group.querySelector('.state-closed');
-            const blank = group.querySelector('.state-open'); // blank와 open 둘 다 가져와야 함
             const openImgs = group.querySelectorAll('.state-open');
 
-            // 닫혀 있으면 -> 연다
             if (!closed.classList.contains('hidden')) {
                 closed.classList.add('hidden');
                 openImgs.forEach(img => img.classList.remove('hidden'));
-            } 
-            // 열려 있으면 -> 닫는다
-            else {
+            } else {
                 closed.classList.remove('hidden');
                 openImgs.forEach(img => img.classList.add('hidden'));
             }
