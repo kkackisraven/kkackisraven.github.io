@@ -3,92 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - Final Fix</title>
+    <title>SEORAB - DEBUG</title>
     <style>
-        /* 1. 배경을 검게 하고 스크롤 없애기 */
+        /* === 1. 화면 설정 === */
         body {
             background-color: #000;
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden; /* 스크롤바 강제 삭제 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* 2. 그림을 담을 액자 (이 안에서만 놉니다) */
+        /* === 2. 액자 (Stage) === */
         #stage {
             position: relative;
-            /* 16:9 비율 고정 (이미지 비율) */
             aspect-ratio: 16 / 9;
-            
-            /* 화면에 꽉 차게 하되 비율 깨지면 여백 남김 */
             width: 100%;
             max-height: 100vh;
-            
-            /* 디버깅용: 초록색 테두리가 보이면 레이아웃은 성공 */
+            /* 테두리: 초록색 */
             border: 2px solid #00ff00; 
             box-sizing: border-box;
         }
 
-        /* 3. 모든 이미지 공통 설정 (무조건 액자 크기에 맞춤) */
+        /* === 3. 그룹 (Group) - 여기가 문제였을 수 있음 === */
+        /* 그룹 div도 화면에 꽉 차게 강제함 */
+        .group {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* === 4. 이미지 (Layer) === */
         .layer {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* 비율 유지하며 액자에 꽉 채움 */
-            pointer-events: none; /* 클릭 통과 */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain; /* 비율 유지하며 꽉 채움 */
             display: block;
         }
 
-        /* 4. 상태 관리 (숨김/보임) */
-        .hidden {
-            display: none !important;
-        }
+        /* 숨김 처리 */
+        .hidden { display: none !important; }
 
-        /* 5. 빨간 클릭 버튼 (위치 확인용) */
+        /* === 5. 클릭 영역 (빨간 박스) === */
         .click-zone {
             position: absolute;
             z-index: 999;
             cursor: pointer;
-            border: 2px solid red; /* 빨간 테두리 */
-            background-color: rgba(255, 0, 0, 0.3); /* 빨간색 칠하기 */
+            border: 2px solid red;
+            background-color: rgba(255, 0, 0, 0.3);
         }
 
-        /* === [중요] 버튼 위치 좌표 (0~100%) === 
-           빨간 박스가 엉뚱한 데 있으면 여기 숫자만 고치세요.
-        */
+        /* 버튼 위치 수정 (필요시 숫자 조정) */
         #btn-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
         #btn-left { top: 58%; left: 34%; width: 13%; height: 16%; }
         #btn-center { top: 48%; left: 51%; width: 13%; height: 16%; }
 
+        /* === 6. 에러 로그창 (화면 왼쪽 위에 뜸) === */
+        #error-log {
+            position: absolute;
+            top: 0; left: 0;
+            background: rgba(0,0,0,0.8);
+            color: yellow;
+            padding: 10px;
+            font-family: monospace;
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
 
+    <div id="error-log">로딩 상태 확인 중...<br></div>
+
     <div id="stage">
 
-        <img src="Main.png" class="layer">
+        <img src="Main.png" class="layer" onerror="logError('Main.png')">
 
-        <div id="group-left">
-            <img src="left_drawer_default.png" class="layer default">
-            <img src="left_drawer_blank.png" class="layer blank hidden">
-            <img src="left_drawer_open.png" class="layer open hidden">
+        <div id="group-left" class="group">
+            <img src="left_drawer_default.png" class="layer default" onerror="logError('left_drawer_default.png')">
+            <img src="left_drawer_blank.png" class="layer blank hidden" onerror="logError('left_drawer_blank.png')">
+            <img src="left_drawer_open.png" class="layer open hidden" onerror="logError('left_drawer_open.png')">
         </div>
 
-        <div id="group-center">
-            <img src="center_cabinet_default.png" class="layer default">
-            <img src="center_cabinet_blank.png" class="layer blank hidden">
-            <img src="center_cabinet_open.png" class="layer open hidden">
+        <div id="group-center" class="group">
+            <img src="center_cabinet_default.png" class="layer default" onerror="logError('center_cabinet_default.png')">
+            <img src="center_cabinet_blank.png" class="layer blank hidden" onerror="logError('center_cabinet_blank.png')">
+            <img src="center_cabinet_open.png" class="layer open hidden" onerror="logError('center_cabinet_open.png')">
         </div>
 
-        <div id="group-switch">
-            <img src="Switch_on.png" class="layer on">
-            <img src="Switch_off.png" class="layer off hidden">
+        <div id="group-switch" class="group">
+            <img src="Switch_on.png" class="layer on" onerror="logError('Switch_on.png')">
+            <img src="Switch_off.png" class="layer off hidden" onerror="logError('Switch_off.png')">
         </div>
 
         <div class="click-zone" id="btn-switch" onclick="clickSwitch()"></div>
@@ -98,51 +106,58 @@
     </div>
 
     <script>
-        // === 기능 스크립트 ===
+        // === 에러 진단 스크립트 ===
+        function logError(fileName) {
+            const log = document.getElementById('error-log');
+            log.innerHTML += `<span style="color:red">[실패] ${fileName} 못 찾음!</span><br>`;
+        }
+        
+        window.onload = function() {
+            const imgs = document.querySelectorAll('img');
+            let successCount = 0;
+            imgs.forEach(img => {
+                if(img.complete && img.naturalHeight !== 0) successCount++;
+            });
+            const log = document.getElementById('error-log');
+            log.innerHTML += `<span style="color:#0f0">[완료] 로딩 성공: ${successCount}개</span><br>`;
+            
+            // 모든 이미지가 로딩 성공하면 에러창 숨김
+            if(successCount === imgs.length) {
+                log.style.display = 'none';
+            }
+        }
 
-        // 1. 스위치
+        // === 기능 스크립트 ===
         function clickSwitch() {
             const group = document.getElementById('group-switch');
             const on = group.querySelector('.on');
             const off = group.querySelector('.off');
             
-            // 토글 (켜져있으면 끄고, 꺼져있으면 켬)
             if (off.classList.contains('hidden')) {
                 off.classList.remove('hidden');
                 on.classList.add('hidden');
-                document.body.style.filter = "brightness(0.5)"; // 화면 어둡게
+                document.body.style.filter = "brightness(0.5)";
             } else {
                 off.classList.add('hidden');
                 on.classList.remove('hidden');
-                document.body.style.filter = "brightness(1)"; // 화면 밝게
+                document.body.style.filter = "brightness(1)";
             }
         }
 
-        // 2. 왼쪽 서랍
-        function clickLeft() {
-            toggleGroup('group-left');
-        }
+        function clickLeft() { toggleGroup('group-left'); }
+        function clickCenter() { toggleGroup('group-center'); }
 
-        // 3. 가운데 캐비닛
-        function clickCenter() {
-            toggleGroup('group-center');
-        }
-
-        // [공통] 열고 닫기 함수
         function toggleGroup(id) {
             const group = document.getElementById(id);
             const def = group.querySelector('.default');
             const blank = group.querySelector('.blank');
             const open = group.querySelector('.open');
 
-            // 닫혀있으면 -> 연다
             if (!def.classList.contains('hidden')) {
                 def.classList.add('hidden');
                 blank.classList.remove('hidden');
                 open.classList.remove('hidden');
-            } 
-            // 열려있으면 -> 닫는다
-            else {
+            } else {
                 def.classList.remove('hidden');
                 blank.classList.add('hidden');
                 open.classList.add('hidden');
