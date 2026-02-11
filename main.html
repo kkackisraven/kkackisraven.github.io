@@ -3,131 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - FIXED</title>
+    <title>SEORAB - LAYER TEST</title>
     <style>
-        /* 1. 기본 설정 */
-        body {
-            background-color: #000;
-            margin: 0; padding: 0;
-            width: 100vw; height: 100vh;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+        body { background-color: #000; margin: 0; width: 100vw; height: 100vh; overflow: hidden; }
+        
+        /* 리모컨 디자인 */
+        #remote-control {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px; border-radius: 8px;
+            z-index: 99999;
+            font-family: sans-serif;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-
-        /* 2. 무대 (Stage) */
-        #stage {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 177.78vh; /* 16:9 비율 유지 */
-            aspect-ratio: 16 / 9;
-            border: 1px solid #333; /* 외곽선 살짝 */
-        }
-
-        /* === [핵심 수정 사항] === */
-        /* 그룹 박스들도 화면에 꽉 차게 강제함 (이게 없어서 안 보였음) */
-        .group {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* 3. 이미지 공통 */
-        .layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain; /* 비율 유지하며 꽉 채움 */
-            display: block;
-        }
-
-        /* 배경은 그룹 없이 혼자 있으니까 따로 설정 */
-        .bg {
-            z-index: 1;
-        }
-
-        /* 4. 숨김 처리 */
+        #remote-control label { display: block; margin: 5px 0; cursor: pointer; font-size: 14px; color: black; }
+        
+        /* 무대 */
+        #stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; margin: 0 auto; border: 1px solid #333; }
+        
+        /* 이미지 */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        
+        /* 그룹 */
+        .group { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* 숨김 처리 */
         .hidden { display: none !important; }
-
-        /* 5. 클릭 영역 (빨간 박스) */
-        .click-zone {
-            position: absolute;
-            z-index: 999;
-            cursor: pointer;
-            border: 2px solid red; /* 위치 확인용 빨간 줄 */
-            background-color: rgba(255, 0, 0, 0.2);
-        }
-
-        /* 버튼 위치 좌표 */
-        #btn-switch { top: 35%; left: 45%; width: 5%; height: 8%; }
-        #btn-left { top: 58%; left: 34%; width: 13%; height: 16%; }
-        #btn-center { top: 48%; left: 51%; width: 13%; height: 16%; }
-
+        
+        /* 배경용 */
+        .bg { z-index: 1; }
+        #group-center { z-index: 5; }
+        #group-left { z-index: 10; }
+        #group-switch { z-index: 20; }
     </style>
 </head>
 <body>
 
-    <div id="stage">
+    <div id="remote-control">
+        <strong>범인 찾기 (체크 해제해보세요)</strong><br>
+        <label><input type="checkbox" checked onchange="toggle('group-switch')"> 4. 스위치 (맨 위)</label>
+        <label><input type="checkbox" checked onchange="toggle('group-left')"> 3. 왼쪽 서랍 (중간)</label>
+        <label><input type="checkbox" checked onchange="toggle('group-center')"> 2. 가운데 캐비닛 (중간)</label>
+        <label><input type="checkbox" checked onchange="toggle('bg-layer')"> 1. 배경 (맨 아래)</label>
+        <hr>
+        <div id="status" style="color:blue; font-size:12px;">이미지 로딩 대기중...</div>
+    </div>
 
-        <img src="main.png" class="layer bg">
+    <div id="stage">
+        <div id="bg-layer" class="group">
+            <img src="main.png" class="layer bg" onload="log('배경 로딩됨')">
+        </div>
 
         <div id="group-left" class="group">
-            <img src="left_drawer_default.png" class="layer default">
-            <img src="left_drawer_blank.png" class="layer blank hidden">
-            <img src="left_drawer_open.png" class="layer open hidden">
+            <img src="left_drawer_default.png" class="layer" onload="log('왼쪽 서랍 로딩됨')">
         </div>
 
         <div id="group-center" class="group">
-            <img src="center_cabinet_default.png" class="layer default">
-            <img src="center_cabinet_blank.png" class="layer blank hidden">
-            <img src="center_cabinet_open.png" class="layer open hidden">
+            <img src="center_cabinet_default.png" class="layer" onload="log('캐비닛 로딩됨')">
         </div>
 
         <div id="group-switch" class="group">
-            <img src="switch_on.png" class="layer on">
-            <img src="switch_off.png" class="layer off hidden">
+            <img src="switch_on.png" class="layer" onload="log('스위치 로딩됨')">
         </div>
-
-        <div class="click-zone" id="btn-switch" onclick="clickSwitch()"></div>
-        <div class="click-zone" id="btn-left" onclick="clickLeft()"></div>
-        <div class="click-zone" id="btn-center" onclick="clickCenter()"></div>
-
     </div>
 
     <script>
-        // === 기능 스크립트 ===
-
-        function clickSwitch() {
-            const group = document.getElementById('group-switch');
-            const on = group.querySelector('.on');
-            const off = group.querySelector('.off');
-            const bg = document.querySelector('.bg');
-            
-            if (off.classList.contains('hidden')) {
-                off.classList.remove('hidden'); on.classList.add('hidden');
-                bg.style.filter = "brightness(0.4)";
+        function toggle(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
             } else {
-                off.classList.add('hidden'); on.classList.remove('hidden');
-                bg.style.filter = "brightness(1)";
+                el.style.display = 'none';
             }
         }
-
-        function clickLeft() { toggleGroup('group-left'); }
-        function clickCenter() { toggleGroup('group-center'); }
-
-        function toggleGroup(id) {
-            const group = document.getElementById(id);
-            const def = group.querySelector('.default');
-            const blank = group.querySelector('.blank');
-            const open = group.querySelector('.open');
-
-            if (!def.classList.contains('hidden')) {
-                def.classList.add('hidden'); blank.classList.remove('hidden'); open.classList.remove('hidden');
-            } else {
-                def.classList.remove('hidden'); blank.classList.add('hidden'); open.classList.add('hidden');
-            }
+        function log(msg) {
+            document.getElementById('status').innerText = msg;
         }
     </script>
 </body>
