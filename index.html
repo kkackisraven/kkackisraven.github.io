@@ -3,36 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - ABSOLUTE FINAL</title>
+    <title>SEORAB - FINAL TRANSPARENT</title>
     <style>
-        /* 1. 기본 셋팅 */
-        body { margin: 0; padding: 0; background-color: #000; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        #stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; }
+        /* 1. 웹페이지 배경 (무대 밖) - 검은색 */
+        body { margin: 0; padding: 0; background-color: #111; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        
+        /* 2. 무대 (종이 역할) ★ 핵심 ★ */
+        #stage { 
+            position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
+            
+            /* 이미지가 투명해도 여기서 흰색을 깔아주므로 밝게 보입니다! */
+            background-color: #ffffff; 
+        }
 
-        /* 2. 이미지 공통 */
+        /* 3. 이미지 공통 */
         .layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: contain; display: block; pointer-events: none;
         }
 
-        /* 3. 숨김 클래스 (가장 강력하게) */
+        /* 4. 숨김 클래스 */
         .d-none { display: none !important; }
 
-        /* 4. ★ Z-INDEX (계층 순서) ★ */
-        /* 숫자가 클수록 내 눈앞에 보임 */
+        /* 5. ★ 레이어 순서 (Z-Index) ★ */
+        #bg { z-index: 1; } 
+        #drawer-closed { z-index: 5; }
+        #drawer-open { z-index: 10; } 
         
-        #bg { z-index: 1; } /* 배경: 1층 */
+        /* 캐비닛이 서랍보다 위에 있어야 '파낸 그림' 효과가 먹힘 */
+        #cabinet-default { z-index: 20; }
+        #cabinet-cutout { z-index: 20; }
+        #cabinet-open { z-index: 20; }
 
-        /* 서랍: 10층 */
-        #drawer-closed, #drawer-open { z-index: 10; }
+        #switch-on { z-index: 100; }
+        #switch-off { z-index: 100; }
 
-        /* 캐비닛: 20층 (서랍보다 위에 있어야 '파낸 그림'이 먹힘) */
-        #cabinet-default, #cabinet-cutout, #cabinet-open { z-index: 20; }
-
-        /* 스위치: 100층 (맨 위) */
-        #switch-on, #switch-off { z-index: 100; }
-
-        /* 5. 클릭 영역 */
+        /* 6. 클릭 영역 */
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
         
         /* 좌표 */
@@ -48,115 +54,96 @@
 
     <div id="stage">
         
-        <img src="main.png?v=real_final" class="layer" id="bg">
+        <img src="main.png?v=trans" class="layer" id="bg">
 
-        <img src="left_drawer_default.png?v=real_final" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=real_final" class="layer d-none" id="drawer-open">
+        <img src="left_drawer_default.png?v=trans" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png?v=trans" class="layer d-none" id="drawer-open">
 
-        <img src="center_cabinet_default.png?v=real_final" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=real_final" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=real_final" class="layer d-none" id="cabinet-open">
+        <img src="center_cabinet_default.png?v=trans" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png?v=trans" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png?v=trans" class="layer d-none" id="cabinet-open">
 
-        <img src="switch_on.png?v=real_final" class="layer" id="switch-on">
-        <img src="switch_off.png?v=real_final" class="layer d-none" id="switch-off">
+        <img src="switch_on.png?v=trans" class="layer" id="switch-on">
+        <img src="switch_off.png?v=trans" class="layer d-none" id="switch-off">
 
-        <div class="click-zone" id="zone-switch" onclick="onClickSwitch()"></div>
-        <div class="click-zone" id="zone-drawer" onclick="onClickDrawer()"></div>
-        <div class="click-zone" id="zone-cabinet" onclick="onClickCabinet()"></div>
+        <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
+        <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
+        <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
 
     </div>
 
     <script>
-        // === [상태 저장소] ===
-        let state = {
-            dark: false,    // true면 불 꺼짐
-            drawer: false,  // true면 서랍 열림
-            cabinet: false  // true면 캐비닛 열림
-        };
+        let isDark = false;
+        let isDrawerOpen = false;
+        let isCabinetOpen = false;
 
-        // === [핵심] 화면 그리기 함수 (updateView) ===
-        // 이 함수가 호출되면, 현재 상태(state)를 보고 그림을 처음부터 다시 세팅합니다.
-        // 꼬일 틈을 안 줍니다.
-        function updateView() {
-            // 1. 모든 그림 요소 가져오기
-            const bg = document.getElementById('bg');
-            
+        function clickSwitch() {
+            isDark = !isDark;
+            const on = document.getElementById('switch-on');
+            const off = document.getElementById('switch-off');
+            const stage = document.getElementById('stage'); // 무대 전체
+
+            if (isDark) {
+                on.classList.add('d-none');
+                off.classList.remove('d-none');
+                // 다크모드: 무대 전체 밝기를 줄임 (흰색 종이도 어두워짐)
+                stage.style.filter = "brightness(0.4)";
+            } else {
+                off.classList.add('d-none');
+                on.classList.remove('d-none');
+                stage.style.filter = "brightness(1)";
+            }
+        }
+
+        function clickDrawer() {
+            isDrawerOpen = !isDrawerOpen;
             const d_closed = document.getElementById('drawer-closed');
             const d_open = document.getElementById('drawer-open');
-            
+            const c_default = document.getElementById('cabinet-default');
+            const c_cutout = document.getElementById('cabinet-cutout');
+
+            if (isDrawerOpen) {
+                // 서랍 열기
+                d_closed.classList.add('d-none');
+                d_open.classList.remove('d-none');
+                
+                // 캐비닛 교체 (기본 -> 파낸거)
+                if (!isCabinetOpen) {
+                    c_default.classList.add('d-none');
+                    c_cutout.classList.remove('d-none');
+                }
+            } else {
+                // 서랍 닫기
+                d_open.classList.add('d-none');
+                d_closed.classList.remove('d-none');
+
+                // 캐비닛 복구 (파낸거 -> 기본)
+                if (!isCabinetOpen) {
+                    c_cutout.classList.add('d-none');
+                    c_default.classList.remove('d-none');
+                }
+            }
+        }
+
+        function clickCabinet() {
+            isCabinetOpen = !isCabinetOpen;
             const c_default = document.getElementById('cabinet-default');
             const c_cutout = document.getElementById('cabinet-cutout');
             const c_open = document.getElementById('cabinet-open');
-            
-            const s_on = document.getElementById('switch-on');
-            const s_off = document.getElementById('switch-off');
 
-            // 2. 일단 싹 다 숨기기 (배경 제외) - 초기화
-            d_closed.classList.add('d-none'); d_open.classList.add('d-none');
-            c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
-            s_on.classList.add('d-none'); s_off.classList.add('d-none');
-
-            // 3. 상태에 따라 하나씩 켜기
-
-            // [서랍 결정]
-            if (state.drawer) {
-                d_open.classList.remove('d-none'); // 열림
+            if (isCabinetOpen) {
+                c_default.classList.add('d-none');
+                c_cutout.classList.add('d-none');
+                c_open.classList.remove('d-none');
             } else {
-                d_closed.classList.remove('d-none'); // 닫힘
-            }
-
-            // [캐비닛 결정] - 여기가 제일 중요 (겹침 해결)
-            if (state.cabinet) {
-                c_open.classList.remove('d-none'); // 캐비닛 열림 (최우선)
-            } else {
-                // 캐비닛 닫힘. 근데 서랍 상태를 봐야 함.
-                if (state.drawer) {
-                    c_cutout.classList.remove('d-none'); // 서랍 열려있으면 파낸거
+                c_open.classList.add('d-none');
+                if (isDrawerOpen) {
+                    c_cutout.classList.remove('d-none');
                 } else {
-                    c_default.classList.remove('d-none'); // 둘 다 닫혀있으면 기본
+                    c_default.classList.remove('d-none');
                 }
             }
-
-            // [스위치 결정]
-            if (state.dark) {
-                s_off.classList.remove('d-none'); // 꺼진 스위치
-            } else {
-                s_on.classList.remove('d-none'); // 켜진 스위치
-            }
-
-            // [밝기 필터 적용]
-            // 현재 화면에 보이는 모든 layer들을 잡아서 필터 적용
-            const allLayers = document.querySelectorAll('.layer');
-            allLayers.forEach(layer => {
-                if (state.dark) {
-                    layer.style.filter = "brightness(0.4)";
-                } else {
-                    layer.style.filter = "brightness(1)";
-                }
-            });
         }
-
-        // === [클릭 핸들러] ===
-        // 클릭하면 상태(state)만 바꾸고, 그림은 updateView()에게 맡깁니다.
-
-        function onClickSwitch() {
-            state.dark = !state.dark; // 반대로 토글
-            updateView();
-        }
-
-        function onClickDrawer() {
-            state.drawer = !state.drawer; // 반대로 토글
-            updateView();
-        }
-
-        function onClickCabinet() {
-            state.cabinet = !state.cabinet; // 반대로 토글
-            updateView();
-        }
-
-        // 페이지 로딩되자마자 한 번 그리기
-        updateView();
-
     </script>
 </body>
 </html>
