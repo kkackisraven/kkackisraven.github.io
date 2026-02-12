@@ -2,159 +2,80 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - FINAL FIXED</title>
+    <title>SEORAB - DIAGNOSTIC TOOL</title>
     <style>
-        /* 1. 기본 설정 */
-        body { margin: 0; padding: 0; background-color: #111; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        
-        /* 2. 무대 (흰색 종이 역할) */
-        #stage { 
-            position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
-            background-color: #ffffff; /* 투명 이미지 뒤에 흰색 깔아줌 */
+        body { 
+            background-color: #333; 
+            color: white; 
+            font-family: sans-serif; 
+            padding: 20px;
         }
-
-        /* 3. 이미지 공통 */
-        .layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: contain; display: block; pointer-events: none;
+        h1 { color: yellow; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3열로 배치 */
+            gap: 20px;
         }
-
-        /* 4. 숨김 클래스 */
-        .d-none { display: none !important; }
-
-        /* 5. ★ 레이어 순서 (Z-Index) 중요 ★ */
-        
-        /* 1층: 배경 */
-        #bg { z-index: 1; } 
-
-        /* 2층: 왼쪽 서랍 */
-        #drawer-closed { z-index: 5; }  /* 본체 */
-        #drawer-open { z-index: 6; }    /* 열린 알맹이 (본체 위에 얹음) */
-
-        /* 3층: 가운데 캐비닛 (서랍보다 위에 있어야 파낸 효과 가능) */
-        #cabinet-default { z-index: 10; } /* 본체 */
-        #cabinet-cutout { z-index: 10; }  /* 파낸 본체 (교체용) */
-        #cabinet-open { z-index: 11; }    /* 열린 문짝 (본체 위에 얹음) */
-
-        /* 4층: 스위치 (맨 위) */
-        #switch-on { z-index: 100; }
-        #switch-off { z-index: 100; }
-
-        /* 6. 클릭 영역 */
-        .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
-        
-        /* 좌표 */
-        #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
-        #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
-        #zone-drawer {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%);
+        .item {
+            background-color: #00FF00; /* ★ 핵심: 형광 초록색 배경 */
+            border: 2px solid white;
+            padding: 10px;
+            text-align: center;
         }
+        .item img {
+            width: 100%;
+            height: auto;
+            border: 2px solid red; /* 이미지 영역 빨간 테두리 */
+            display: block;
+        }
+        .error { color: #ff5555; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="stage">
+    <h1>🩺 서랍 프로젝트 진단 키트</h1>
+    <p>아래 그림들의 <strong>[배경색(형광 초록)]</strong>이 보여야 정상입니다.</p>
+    <p>만약 그림 안쪽이 <strong>흰색이나 검은색으로 꽉 차서 초록색이 안 보이면</strong> -> <span class="error">투명 배경이 아님 (범인!)</span></p>
+
+    <div class="grid">
         
-        <img src="main.png?v=fixed" class="layer" id="bg">
+        <div class="item">
+            <h3>1. 배경 (main.png)</h3>
+            <img src="main.png?v=test" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+            <div style="display:none; color:red;">[로드 실패] 파일명 확인!</div>
+        </div>
 
-        <img src="left_drawer_default.png?v=fixed" class="layer" id="drawer-closed"> <img src="left_drawer_open.png?v=fixed" class="layer d-none" id="drawer-open"> <img src="center_cabinet_default.png?v=fixed" class="layer" id="cabinet-default"> <img src="center_cabinet_cutout.png?v=fixed" class="layer d-none" id="cabinet-cutout"> <img src="center_cabinet_open.png?v=fixed" class="layer d-none" id="cabinet-open"> <img src="switch_on.png?v=fixed" class="layer" id="switch-on">
-        <img src="switch_off.png?v=fixed" class="layer d-none" id="switch-off">
+        <div class="item">
+            <h3>2. 왼쪽 서랍 본체 (Default)</h3>
+            <img src="left_drawer_default.png?v=test">
+        </div>
 
-        <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
-        <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
-        <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
+        <div class="item">
+            <h3>3. 왼쪽 서랍 내용물 (Open)</h3>
+            <img src="left_drawer_open.png?v=test">
+        </div>
+
+        <div class="item">
+            <h3>4. 캐비닛 본체 (Default)</h3>
+            <img src="center_cabinet_default.png?v=test">
+        </div>
+
+        <div class="item">
+            <h3>5. 파낸 캐비닛 (Cutout)</h3>
+            <img src="center_cabinet_cutout.png?v=test">
+        </div>
+
+        <div class="item">
+            <h3>6. 스위치 ON</h3>
+            <img src="switch_on.png?v=test">
+        </div>
+
+         <div class="item">
+            <h3>7. 스위치 OFF</h3>
+            <img src="switch_off.png?v=test">
+        </div>
 
     </div>
 
-    <script>
-        let isDark = false;
-        let isDrawerOpen = false;
-        let isCabinetOpen = false;
-
-        function clickSwitch() {
-            isDark = !isDark;
-            const on = document.getElementById('switch-on');
-            const off = document.getElementById('switch-off');
-            const stage = document.getElementById('stage');
-
-            if (isDark) {
-                on.classList.add('d-none');
-                off.classList.remove('d-none');
-                stage.style.filter = "brightness(0.4)";
-            } else {
-                off.classList.add('d-none');
-                on.classList.remove('d-none');
-                stage.style.filter = "brightness(1)";
-            }
-        }
-
-        // ★ 왼쪽 서랍 클릭
-        function clickDrawer() {
-            if (isDrawerOpen) {
-                // 이미 열려있으면 -> 닫는다
-                isDrawerOpen = false;
-            } else {
-                // 닫혀있으면 -> 연다
-                isDrawerOpen = true;
-                isCabinetOpen = false; // ★ 오른쪽(캐비닛)은 강제로 닫음 (동시 열림 방지)
-            }
-            updateFurniture(); // 화면 갱신
-        }
-
-        // ★ 가운데 캐비닛 클릭
-        function clickCabinet() {
-            if (isCabinetOpen) {
-                // 이미 열려있으면 -> 닫는다
-                isCabinetOpen = false;
-            } else {
-                // 닫혀있으면 -> 연다
-                isCabinetOpen = true;
-                isDrawerOpen = false; // ★ 왼쪽(서랍)은 강제로 닫음 (동시 열림 방지)
-            }
-            updateFurniture(); // 화면 갱신
-        }
-
-        // [화면 그리기 함수] - 상태에 따라 그림을 켰다 껐다 함
-        function updateFurniture() {
-            const d_closed = document.getElementById('drawer-closed'); // 왼쪽 본체
-            const d_open = document.getElementById('drawer-open');     // 왼쪽 알맹이
-            
-            const c_default = document.getElementById('cabinet-default'); // 가운데 본체
-            const c_cutout = document.getElementById('cabinet-cutout');   // 가운데 파낸 본체
-            const c_open = document.getElementById('cabinet-open');       // 가운데 문짝
-
-            // 1. 왼쪽 서랍 처리
-            if (isDrawerOpen) {
-                d_closed.classList.remove('d-none'); // 본체 유지! (사라짐 방지)
-                d_open.classList.remove('d-none');   // 알맹이 보임
-            } else {
-                d_closed.classList.remove('d-none'); // 본체 유지!
-                d_open.classList.add('d-none');      // 알맹이 숨김
-            }
-
-            // 2. 가운데 캐비닛 처리
-            // 일단 다 숨기고 시작 (상태에 맞는 본체 하나만 켜기 위해)
-            c_default.classList.add('d-none');
-            c_cutout.classList.add('d-none');
-            c_open.classList.add('d-none');
-
-            if (isCabinetOpen) {
-                // 오른쪽이 열렸을 때
-                c_default.classList.remove('d-none'); // 본체 보임
-                c_open.classList.remove('d-none');    // 문짝 보임
-            } else {
-                // 오른쪽이 닫혔을 때 (왼쪽 눈치를 봐야 함)
-                if (isDrawerOpen) {
-                    // 왼쪽이 열려있으면 -> 파낸 본체(Cutout) 사용!
-                    c_cutout.classList.remove('d-none');
-                } else {
-                    // 왼쪽도 닫혀있으면 -> 그냥 본체(Default) 사용!
-                    c_default.classList.remove('d-none');
-                }
-            }
-        }
-    </script>
 </body>
 </html>
