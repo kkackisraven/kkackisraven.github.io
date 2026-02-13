@@ -12,7 +12,7 @@
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
 
         /* =========================================
-           [PC 세상] (기존 코드 유지)
+           [PC 세상]
            ========================================= */
         #pc-stage { 
             position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
@@ -20,38 +20,34 @@
             display: block; 
         }
 
-        /* PC Z-INDEX */
         #bg { z-index: 1; } 
         #drawer-closed { z-index: 5; } #drawer-open { z-index: 6; } 
         #cabinet-default { z-index: 10; } #cabinet-cutout { z-index: 10; } #cabinet-open { z-index: 11; }
         #switch-on, #switch-off { z-index: 100; }
         
-        /* PC 좌표 */
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
         #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
-        #zone-box { width: 100%; height: 100%; top:0; left:0; /* PC용 박스 좌표는 아직 없어서 일단 둠 */ } 
+        #zone-box { width: 15%; height: 25%; top: 50%; right: 0; /* PC용 박스 임시 좌표 (오른쪽 중간쯤) */ }
 
 
         /* =========================================
-           [모바일 세상] (방금 따온 좌표 적용!)
+           [모바일 세상]
            ========================================= */
         #mobile-stage {
             position: relative; width: 100%; height: 100%; 
-            max-height: 100vh; aspect-ratio: 9 / 19.5; /* 아이폰 비율 */
+            max-height: 100vh; aspect-ratio: 9 / 19.5;
             background-color: #ffffff;
             display: none; 
         }
 
-        /* 모바일 이미지 공통 */
         .m-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: contain; display: block; pointer-events: none;
         }
 
-        /* 모바일 레이어 순서 (PC와 동일 로직) */
         #m-bg { z-index: 1; }
-        #m-poster, #m-schedule, #m-box { z-index: 2; } /* 바닥에 붙은 물건들 */
+        #m-poster, #m-schedule, #m-box { z-index: 2; }
         
         #m-drawer-default { z-index: 5; }
         #m-drawer-open { z-index: 6; }
@@ -62,36 +58,16 @@
 
         #m-switch-on, #m-switch-off { z-index: 100; }
 
-        /* ★★★ [모바일 좌표] (PM님이 주신 코드) ★★★ */
-        #zone-m-switch {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%);
-        }
-        #zone-m-drawer {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%);
-        }
-        #zone-m-cabinet {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%);
-        }
-        #zone-m-poster {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(6.82% 20.14%, 23.97% 35.59%, 49.58% 36.15%, 33.44% 16.23%);
-        }
-        #zone-m-schedule {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%);
-        }
-        #zone-m-box {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%);
-        }
+        /* 모바일 좌표 */
+        #zone-m-switch { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%); }
+        #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
+        #zone-m-cabinet { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%); }
+        #zone-m-poster { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(6.82% 20.14%, 23.97% 35.59%, 49.58% 36.15%, 33.44% 16.23%); }
+        #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
+        #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%); }
 
 
-        /* =========================================
-           [반응형 스위치] (768px 이하 모바일 전환)
-           ========================================= */
+        /* 반응형 */
         @media (max-width: 768px) {
             #pc-stage { display: none !important; }
             #mobile-stage { display: block !important; }
@@ -102,45 +78,46 @@
 <body>
 
     <div id="pc-stage">
-        <img src="main.png?v=final" class="layer" id="bg">
+        <img src="main.png?v=fix" class="layer" id="bg">
         
-        <img src="left_drawer_default.png?v=final" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=final" class="layer d-none" id="drawer-open">
+        <img src="left_drawer_default.png?v=fix" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png?v=fix" class="layer d-none" id="drawer-open">
 
-        <img src="center_cabinet_default.png?v=final" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=final" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=final" class="layer d-none" id="cabinet-open">
+        <img src="center_cabinet_default.png?v=fix" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png?v=fix" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png?v=fix" class="layer d-none" id="cabinet-open">
 
-        <img src="switch_on.png?v=final" class="layer" id="switch-on">
-        <img src="switch_off.png?v=final" class="layer d-none" id="switch-off">
+        <img src="switch_on.png?v=fix" class="layer" id="switch-on">
+        <img src="switch_off.png?v=fix" class="layer d-none" id="switch-off">
 
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
         <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
+        <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
     </div>
 
 
     <div id="mobile-stage">
-        <img src="m_bg.png?v=final" class="m-layer" id="m-bg">
+        <img src="m_bg.png?v=fix" class="m-layer" id="m-bg">
         
-        <img src="m_poster.png?v=final" class="m-layer" id="m-poster">
-        <img src="m_schedule.png?v=final" class="m-layer" id="m-schedule">
-        <img src="m_box.png?v=final" class="m-layer" id="m-box">
+        <img src="m_poster.png?v=fix" class="m-layer" id="m-poster">
+        <img src="m_schedule.png?v=fix" class="m-layer" id="m-schedule">
+        
+        <img src="m_box.png?v=fix" class="m-layer d-none" id="m-box">
 
-        <img src="m_drawer_default.png?v=final" class="m-layer" id="m-drawer-default">
-        <img src="m_drawer_open.png?v=final" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_drawer_default.png?v=fix" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png?v=fix" class="m-layer d-none" id="m-drawer-open">
 
-        <img src="m_cabinet_default.png?v=final" class="m-layer" id="m-cabinet-default">
-        <img src="m_cabinet_cutout.png?v=final" class="m-layer d-none" id="m-cabinet-cutout">
-        <img src="m_cabinet_open.png?v=final" class="m-layer d-none" id="m-cabinet-open">
+        <img src="m_cabinet_default.png?v=fix" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png?v=fix" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png?v=fix" class="m-layer d-none" id="m-cabinet-open">
 
-        <img src="m_switch_on.png?v=final" class="m-layer" id="m-switch-on">
-        <img src="m_switch_off.png?v=final" class="m-layer d-none" id="m-switch-off">
+        <img src="m_switch_on.png?v=fix" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png?v=fix" class="m-layer d-none" id="m-switch-off">
 
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
         <div class="click-zone" id="zone-m-cabinet" onclick="clickCabinet()"></div>
-        
         <div class="click-zone" id="zone-m-poster" onclick="clickPoster()"></div>
         <div class="click-zone" id="zone-m-schedule" onclick="clickSchedule()"></div>
         <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
@@ -149,51 +126,34 @@
 
     <script>
         // === [통합 로직] ===
-        // PC와 모바일이 '상태(State)'를 공유합니다.
-        
         let state = {
             dark: false,
             drawer: false,
             cabinet: false
         };
 
-        // 1. 스위치 클릭
-        function clickSwitch() {
-            state.dark = !state.dark;
-            updateView();
-        }
+        function clickSwitch() { state.dark = !state.dark; updateView(); }
 
-        // 2. 서랍 클릭
         function clickDrawer() {
             if (state.drawer) state.drawer = false;
             else { state.drawer = true; state.cabinet = false; }
             updateView();
         }
 
-        // 3. 캐비닛 클릭
         function clickCabinet() {
             if (state.cabinet) state.cabinet = false;
             else { state.cabinet = true; state.drawer = false; }
             updateView();
         }
 
-        // 4. 링크 이동 함수들 (나중에 주소 채워넣으세요)
-        function clickPoster() {
-            alert("행사 포스터입니다. (나중에 링크 연결)");
-        }
-        function clickSchedule() {
-            alert("일정표 페이지로 이동합니다. (나중에 링크 연결)");
-        }
-        function clickBox() {
-            // 새 창으로 윗치폼 열기 예시
-            // window.open('https://witchform.com/....');
-            alert("통신판매(윗치폼) 페이지로 이동합니다.");
-        }
+        // 링크 이동 (나중에 주소 수정)
+        function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
+        function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
+        function clickBox() { alert("통신판매 페이지로 이동합니다."); }
 
-
-        // ★★★ [화면 그리기 (PC + 모바일 동시 적용)] ★★★
+        // ★★★ [화면 그리기] ★★★
         function updateView() {
-            // [PC 요소 가져오기]
+            // [PC 요소]
             const pc_stage = document.getElementById('pc-stage');
             const d_open = document.getElementById('drawer-open');
             const c_default = document.getElementById('cabinet-default');
@@ -202,7 +162,7 @@
             const s_on = document.getElementById('switch-on');
             const s_off = document.getElementById('switch-off');
 
-            // [모바일 요소 가져오기]
+            // [Mobile 요소]
             const mobile_stage = document.getElementById('mobile-stage');
             const m_d_open = document.getElementById('m-drawer-open');
             const m_c_default = document.getElementById('m-cabinet-default');
@@ -211,8 +171,7 @@
             const m_s_on = document.getElementById('m-switch-on');
             const m_s_off = document.getElementById('m-switch-off');
 
-
-            // 1. 다크모드 처리
+            // 1. 다크모드
             if (state.dark) {
                 // PC
                 s_on.classList.add('d-none'); s_off.classList.remove('d-none');
@@ -225,44 +184,37 @@
                 s_off.classList.add('d-none'); s_on.classList.remove('d-none');
                 pc_stage.style.filter = "brightness(1)";
                 // Mobile
-                m_off.classList.add('d-none'); m_on.classList.remove('d-none'); // (수정: 변수명 맞춤)
                 m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
                 mobile_stage.style.filter = "brightness(1)";
             }
 
-
-            // 2. 왼쪽 서랍 처리 (Overlay 방식: 본체는 놔두고 알맹이만)
+            // 2. 왼쪽 서랍
             if (state.drawer) {
-                d_open.classList.remove('d-none');   // PC
-                m_d_open.classList.remove('d-none'); // Mobile
+                d_open.classList.remove('d-none');
+                m_d_open.classList.remove('d-none');
             } else {
-                d_open.classList.add('d-none');      // PC
-                m_d_open.classList.add('d-none');    // Mobile
+                d_open.classList.add('d-none');
+                m_d_open.classList.add('d-none');
             }
 
-
-            // 3. 캐비닛 처리 (3단 변신: Default / Cutout / Open)
-            // 일단 다 숨김
+            // 3. 캐비닛
             c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
             m_c_default.classList.add('d-none'); m_c_cutout.classList.add('d-none'); m_c_open.classList.add('d-none');
 
             if (state.cabinet) {
-                // 열림
-                c_default.classList.remove('d-none'); c_open.classList.remove('d-none'); // PC
-                m_c_default.classList.remove('d-none'); m_c_open.classList.remove('d-none'); // Mobile
+                c_default.classList.remove('d-none'); c_open.classList.remove('d-none');
+                m_c_default.classList.remove('d-none'); m_c_open.classList.remove('d-none');
             } else {
-                // 닫힘 (서랍 눈치 보기)
                 if (state.drawer) {
-                    c_cutout.classList.remove('d-none');   // PC 파낸거
-                    m_c_cutout.classList.remove('d-none'); // Mobile 파낸거
+                    c_cutout.classList.remove('d-none');
+                    m_c_cutout.classList.remove('d-none');
                 } else {
-                    c_default.classList.remove('d-none');   // PC 기본
-                    m_c_default.classList.remove('d-none'); // Mobile 기본
+                    c_default.classList.remove('d-none');
+                    m_c_default.classList.remove('d-none');
                 }
             }
         }
         
-        // 초기 실행
         updateView();
 
     </script>
