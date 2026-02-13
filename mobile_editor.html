@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB - MOBILE EDITOR</title>
+    <style>
+        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; }
+        
+        /* 왼쪽 정보창 */
+        #info-panel {
+            width: 350px; background: #111; color: #ccc; padding: 20px; font-family: monospace;
+            z-index: 99999; border-right: 1px solid #444; overflow-y: auto; display: flex; flex-direction: column;
+        }
+        #info-panel h3 { margin-top: 0; color: cyan; }
+        textarea { width: 100%; height: 300px; background: #000; color: #0f0; border: 1px solid #555; font-size: 12px; flex-grow: 1; margin-bottom: 10px; }
+        button { width:100%; padding:15px; cursor:pointer; background:cyan; border:none; font-weight:bold; font-size: 16px; color: black;}
+
+        /* 무대 (모바일 비율) */
+        #stage-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; padding: 20px; }
+        
+        #mobile-stage {
+            position: relative;
+            height: 90vh; /* 화면 높이의 90% */
+            aspect-ratio: 9 / 19.5; /* 아이폰 비율 */
+            background-color: #fff; 
+            border: 5px solid yellow; /* 모바일 화면 경계선 */
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* 이미지 공통 */
+        .m-layer { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            object-fit: contain; pointer-events: none; opacity: 0.5; /* 위치 잡기 편하게 반투명 */
+        }
+        
+        /* 배경은 선명하게 */
+        #m-bg { opacity: 1; z-index: 1; }
+        
+        /* 가구들 (위치 잡을 대상) */
+        .furniture { z-index: 10; opacity: 0.8; }
+
+        /* 드래그 박스 */
+        .click-zone {
+            position: absolute;
+            z-index: 1000;
+            background-color: rgba(255, 0, 0, 0.3);
+            border: 2px solid red;
+            cursor: move;
+            resize: both;
+            overflow: hidden;
+            min-width: 20px; min-height: 20px;
+        }
+        .click-zone::after {
+            content: attr(data-name);
+            color: white; font-size: 12px; font-weight:bold;
+            padding: 2px; display: block; background: rgba(0,0,0,0.7); 
+            white-space: nowrap;
+        }
+        .click-zone.active { border: 2px solid cyan; background-color: rgba(0, 255, 255, 0.3); z-index: 1001; }
+
+        /* 초기 위치 (대충 뿌려둠) */
+        #zone-switch { top: 10%; left: 10%; width: 15%; height: 5%; }
+        #zone-drawer { top: 20%; left: 10%; width: 30%; height: 20%; }
+        #zone-cabinet { top: 20%; left: 50%; width: 30%; height: 20%; }
+        #zone-poster { top: 50%; left: 10%; width: 30%; height: 20%; }
+        #zone-schedule { top: 50%; left: 50%; width: 30%; height: 20%; }
+
+    </style>
+</head>
+<body>
+
+    <div id="info-panel">
+        <h3>📱 모바일 공사판</h3>
+        <p>
+            1. <strong>빨간 박스</strong>를 드래그해서 각 가구 위치에 맞추세요.<br>
+            2. 박스 오른쪽 아래를 잡으면 <strong>크기 조절</strong>도 됩니다.<br>
+            3. 다 맞추면 아래 버튼 클릭!
+        </p>
+        <textarea id="result-code" readonly>위치를 잡고 버튼을 누르세요.</textarea>
+        <button onclick="updateCoords()">좌표 추출하기</button>
+    </div>
+
+    <div id="stage-container">
+        <div id="mobile-stage">
+            <img src="m_bg.png?v=edit" class="m-layer" id="m-bg">
+
+            <img src="m_switch_on.png?v=edit" class="m-layer furniture">
+            <img src="m_drawer_default.png?v=edit" class="m-layer furniture">
+            <img src="m_cabinet_default.png?v=edit" class="m-layer furniture">
+            <img src="m_poster.png?v=edit" class="m-layer furniture">
+            <img src="m_schedule.png?v=edit" class="m-layer furniture">
+            
+            <div class="click-zone" id="zone-switch" data-name="스위치"></div>
+            <div class="click-zone" id="zone-drawer" data-name="왼쪽 서랍"></div>
+            <div class="click-zone" id="zone-cabinet" data-name="오른쪽 캐비닛"></div>
+            <div class="click-zone" id="zone-poster" data-name="포스터"></div>
+            <div class="click-zone" id="zone-schedule" data-name="일정표"></div>
+        </div>
+    </div>
+
+    <script>
+        const zones = document.querySelectorAll('.click-zone');
+        let activeItem = null;
+        let startX, startY, startLeft, startTop;
+
+        zones.forEach(zone => {
+            zone.addEventListener('mousedown', dragStart);
+            // 모바일 터치 지원 (폰으로 위치 잡을 수도 있으니까)
+            zone.addEventListener('touchstart', dragStart, {passive: false});
+        });
+
+        function dragStart(e) {
+            if (e.type === 'mousedown' && e.offsetX > e.target.clientWidth - 15 && e.offsetY > e.target.clientHeight - 15) return;
+            
+            const evt = e.type === 'touchstart' ? e.touches[0] : e;
+            
+            zones.forEach(z => z.classList.remove('active'));
+            e.target.classList.add('active');
+            activeItem = e.target;
+            startX = evt.clientX;
+            startY = evt.clientY;
+            startLeft = activeItem.offsetLeft;
+            startTop = activeItem.offsetTop;
+            
+            if (e.type === 'touchstart') {
+                document.addEventListener('touchmove', dragMove, {passive: false});
+                document.addEventListener('touchend', dragEnd);
+            } else {
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+            }
+        }
+
+        function dragMove(e) {
+            if (!activeItem) return;
+            if (e.preventDefault) e.preventDefault();
+            
+            const evt = e.type === 'touchmove' ? e.touches[0] : e;
+            const dx = evt.clientX - startX;
+            const dy = evt.clientY - startY;
+            const parent = activeItem.parentElement;
+
+            const newLeft = ((startLeft + dx) / parent.clientWidth) * 100;
+            const newTop = ((startTop + dy) / parent.clientHeight) * 100;
+
+            activeItem.style.left = newLeft + "%";
+            activeItem.style.top = newTop + "%";
+        }
+
+        function dragEnd() {
+            activeItem = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchmove', dragMove);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+        function updateCoords() {
+            const stage = document.getElementById('mobile-stage');
+            let result = "/* 모바일 좌표 (복사해서 주세요) */\n";
+            
+            zones.forEach(zone => {
+                let t = (zone.offsetTop / stage.clientHeight * 100).toFixed(2);
+                let l = (zone.offsetLeft / stage.clientWidth * 100).toFixed(2);
+                let w = (zone.offsetWidth / stage.clientWidth * 100).toFixed(2);
+                let h = (zone.offsetHeight / stage.clientHeight * 100).toFixed(2);
+                
+                // 모바일용 ID에는 'm-' 접두사를 붙여서 구분할 겁니다
+                result += `#mobile-${zone.id.replace('zone-', '')} { top: ${t}%; left: ${l}%; width: ${w}%; height: ${h}%; }\n`;
+            });
+            
+            const textarea = document.getElementById('result-code');
+            textarea.value = result;
+            textarea.select();
+        }
+    </script>
+</body>
+</html>
