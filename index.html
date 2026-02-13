@@ -28,17 +28,26 @@
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
         #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
-        #zone-box { width: 15%; height: 25%; top: 50%; right: 0; /* PC용 박스 임시 좌표 (오른쪽 중간쯤) */ }
+        #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
 
 
         /* =========================================
-           [모바일 세상]
+           [모바일 세상] (★ 비율 고정 패치 적용됨 ★)
            ========================================= */
         #mobile-stage {
-            position: relative; width: 100%; height: 100%; 
-            max-height: 100vh; aspect-ratio: 9 / 19.5;
+            position: relative;
             background-color: #ffffff;
             display: none; 
+            
+            /* ★ 쌈뽕한 기능 (비율 유지 마법) ★ */
+            /* 1. 가로가 좁으면 가로에 맞추고, 세로가 좁으면 세로에 맞춰라 */
+            /* 9 / 19.5 = 0.4615... (아이폰 비율) */
+            
+            width: min(100vw, calc(100dvh * (9 / 19.5)));
+            height: min(100dvh, calc(100vw * (19.5 / 9)));
+
+            /* 그림자 효과 (여백 생길 때 예뻐보임) */
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
         .m-layer {
@@ -78,17 +87,17 @@
 <body>
 
     <div id="pc-stage">
-        <img src="main.png?v=fix" class="layer" id="bg">
+        <img src="main.png?v=fix2" class="layer" id="bg">
         
-        <img src="left_drawer_default.png?v=fix" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=fix" class="layer d-none" id="drawer-open">
+        <img src="left_drawer_default.png?v=fix2" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png?v=fix2" class="layer d-none" id="drawer-open">
 
-        <img src="center_cabinet_default.png?v=fix" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=fix" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=fix" class="layer d-none" id="cabinet-open">
+        <img src="center_cabinet_default.png?v=fix2" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png?v=fix2" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png?v=fix2" class="layer d-none" id="cabinet-open">
 
-        <img src="switch_on.png?v=fix" class="layer" id="switch-on">
-        <img src="switch_off.png?v=fix" class="layer d-none" id="switch-off">
+        <img src="switch_on.png?v=fix2" class="layer" id="switch-on">
+        <img src="switch_off.png?v=fix2" class="layer d-none" id="switch-off">
 
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
@@ -98,22 +107,22 @@
 
 
     <div id="mobile-stage">
-        <img src="m_bg.png?v=fix" class="m-layer" id="m-bg">
+        <img src="m_bg.png?v=fix2" class="m-layer" id="m-bg">
         
-        <img src="m_poster.png?v=fix" class="m-layer" id="m-poster">
-        <img src="m_schedule.png?v=fix" class="m-layer" id="m-schedule">
+        <img src="m_poster.png?v=fix2" class="m-layer" id="m-poster">
+        <img src="m_schedule.png?v=fix2" class="m-layer" id="m-schedule">
         
-        <img src="m_box.png?v=fix" class="m-layer d-none" id="m-box">
+        <img src="m_box.png?v=fix2" class="m-layer d-none" id="m-box">
 
-        <img src="m_drawer_default.png?v=fix" class="m-layer" id="m-drawer-default">
-        <img src="m_drawer_open.png?v=fix" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_drawer_default.png?v=fix2" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png?v=fix2" class="m-layer d-none" id="m-drawer-open">
 
-        <img src="m_cabinet_default.png?v=fix" class="m-layer" id="m-cabinet-default">
-        <img src="m_cabinet_cutout.png?v=fix" class="m-layer d-none" id="m-cabinet-cutout">
-        <img src="m_cabinet_open.png?v=fix" class="m-layer d-none" id="m-cabinet-open">
+        <img src="m_cabinet_default.png?v=fix2" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png?v=fix2" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png?v=fix2" class="m-layer d-none" id="m-cabinet-open">
 
-        <img src="m_switch_on.png?v=fix" class="m-layer" id="m-switch-on">
-        <img src="m_switch_off.png?v=fix" class="m-layer d-none" id="m-switch-off">
+        <img src="m_switch_on.png?v=fix2" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png?v=fix2" class="m-layer d-none" id="m-switch-off">
 
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
@@ -125,7 +134,7 @@
 
 
     <script>
-        // === [통합 로직] ===
+        // === [통합 로직 (변수명 오타 수정 완료)] ===
         let state = {
             dark: false,
             drawer: false,
@@ -146,7 +155,7 @@
             updateView();
         }
 
-        // 링크 이동 (나중에 주소 수정)
+        // 링크 이동
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
         function clickBox() { alert("통신판매 페이지로 이동합니다."); }
