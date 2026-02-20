@@ -3,205 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - POLYGON MAKER</title>
+    <title>SEORAB - MOBILE DARK EDITOR</title>
     <style>
         body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: sans-serif; }
         
-        /* 왼쪽 컨트롤 패널 */
-        #panel {
-            width: 300px; background: #111; color: #eee; padding: 20px; border-right: 1px solid #444;
-            display: flex; flex-direction: column; gap: 10px; z-index: 100;
-        }
+        #panel { width: 300px; background: #111; color: #eee; padding: 20px; border-right: 1px solid #444; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
         h3 { margin: 0 0 10px 0; color: cyan; }
-        .btn-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px; }
         button { padding: 10px; cursor: pointer; border: 1px solid #555; background: #333; color: white; text-align: left; }
-        button:hover { background: #444; }
-        button.active { background: cyan; color: black; font-weight: bold; border-color: cyan; }
-        
-        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #555; font-size: 11px; margin-top: auto; }
+        button.active { background: cyan; color: black; font-weight: bold; border-color: cyan; pointer-events: none;}
+        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #555; font-size: 12px; margin-top: auto; }
 
-        /* 오른쪽 무대 */
-        #stage-wrap { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; position: relative; }
+        #stage-wrap { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; position: relative; padding: 20px;}
         
         #mobile-stage {
             position: relative;
             height: 90vh; 
             aspect-ratio: 9 / 19.5; /* 아이폰 비율 */
-            background-color: #fff; 
+            background-color: #000; 
             box-shadow: 0 0 20px black;
-            cursor: crosshair; /* 십자선 커서 */
+            cursor: crosshair; 
             user-select: none;
         }
 
-        /* 이미지 */
-        .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        #m-bg { opacity: 1; }
-        /* 위치 참고용 가구들 (반투명) */
-        .furniture { opacity: 0.6; }
-
-        /* 클릭 포인트 (점) */
-        .dot {
-            position: absolute; width: 6px; height: 6px; background: red; border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 9999; border: 1px solid white;
-        }
-
-        /* 완성된 영역 (폴리곤) */
-        .polygon-zone {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(255, 0, 0, 0.4); /* 반투명 빨강 */
-            border: 1px solid rgba(255, 0, 0, 0.8);
-            pointer-events: none;
-        }
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .dot { position: absolute; width: 6px; height: 6px; background: red; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 9999; border: 1px solid white; }
+        .polygon-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 255, 255, 0.4); border: 1px solid rgba(0, 255, 255, 0.8); pointer-events: none; }
     </style>
 </head>
 <body>
-
     <div id="panel">
-        <h3>📍 꼭짓점 찍기 도구</h3>
-        <p>대상을 선택하고, 화면에서 <strong>꼭짓점 4개</strong>를 클릭하세요.</p>
-        
-        <div class="btn-group">
-            <button onclick="selectTarget('switch', this)">1. 스위치 (Switch)</button>
-            <button onclick="selectTarget('drawer', this)">2. 왼쪽 서랍 (Left Drawer)</button>
-            <button onclick="selectTarget('cabinet', this)">3. 오른쪽 캐비닛 (Cabinet)</button>
-            <button onclick="selectTarget('poster', this)">4. 포스터 (Poster)</button>
-            <button onclick="selectTarget('schedule', this)">5. 일정표 (Schedule)</button>
-            <button onclick="selectTarget('box', this)">6. 택배박스 (Box)</button>
-        </div>
-
-        <button onclick="resetCurrent()" style="background: #552222;">↺ 다시 찍기 (Reset)</button>
-        <button onclick="generateCode()" style="background: #225522; margin-top:10px;">💾 코드 생성 (Generate)</button>
-        
-        <textarea id="output" readonly>좌표를 다 찍고 [코드 생성]을 누르세요.</textarea>
+        <h3>📍 모바일 야광 스티커 에디터</h3>
+        <p>화면에 보이는 <strong>m_dark_main.png</strong>에서 야광 스티커의 <strong>꼭짓점 4개</strong>를 순서대로 클릭하세요.</p>
+        <button class="active">모바일 야광 스티커</button>
+        <button onclick="resetCurrent()" style="background: #552222; margin-top: 20px;">↺ 다시 찍기</button>
+        <button onclick="generateCode()" style="background: #225522; margin-top:10px;">💾 코드 생성</button>
+        <textarea id="output" readonly>좌표 4개를 다 찍고 [코드 생성]을 누르세요.</textarea>
     </div>
 
     <div id="stage-wrap">
         <div id="mobile-stage" onclick="handleStageClick(event)">
-            <img src="m_bg.png" class="m-layer" id="m-bg">
-            <img src="m_switch_on.png" class="m-layer furniture">
-            <img src="m_drawer_default.png" class="m-layer furniture">
-            <img src="m_cabinet_default.png" class="m-layer furniture">
-            <img src="m_poster.png" class="m-layer furniture">
-            <img src="m_schedule.png" class="m-layer furniture">
-            
+            <img src="m_dark_main.png" class="layer" id="bg">
             <div id="polygon-layer"></div>
         </div>
     </div>
 
     <script>
-        let currentTarget = null;
         let points = [];
-        let allPolygons = {}; // 결과 저장소
-
-        // 1. 대상 선택
-        function selectTarget(name, btn) {
-            // 버튼 스타일 초기화
-            document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            currentTarget = name;
-            points = []; // 점 초기화
-            updateDots(); // 화면 점 지우기
-        }
-
-        // 2. 화면 클릭 (점 찍기)
         function handleStageClick(e) {
-            if (!currentTarget) {
-                alert("왼쪽에서 먼저 [대상]을 선택해주세요!");
-                return;
-            }
-            if (points.length >= 4) {
-                alert("이미 4개를 다 찍었습니다. 다시 하려면 [다시 찍기]를 누르세요.");
-                return;
-            }
-
+            if (points.length >= 4) { alert("이미 4개를 다 찍었습니다!"); return; }
             const stage = document.getElementById('mobile-stage');
             const rect = stage.getBoundingClientRect();
-
-            // 클릭한 위치 (픽셀)
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // 백분율(%)로 변환 ★핵심★
-            const perX = ((x / rect.width) * 100).toFixed(2);
-            const perY = ((y / rect.height) * 100).toFixed(2);
-
+            const perX = (((e.clientX - rect.left) / rect.width) * 100).toFixed(2);
+            const perY = (((e.clientY - rect.top) / rect.height) * 100).toFixed(2);
             points.push({ x: perX, y: perY });
-            
-            // 점 표시
             updateDots();
-
-            // 4개 다 찍었으면? -> 폴리곤 미리보기 생성
-            if (points.length === 4) {
-                savePolygon();
-            }
+            if (points.length === 4) savePolygon();
         }
-
-        // 3. 점 그리기
         function updateDots() {
-            // 기존 점 삭제
             document.querySelectorAll('.dot').forEach(d => d.remove());
-            
             const stage = document.getElementById('mobile-stage');
             points.forEach(p => {
                 const dot = document.createElement('div');
-                dot.className = 'dot';
-                dot.style.left = p.x + '%';
-                dot.style.top = p.y + '%';
+                dot.className = 'dot'; dot.style.left = p.x + '%'; dot.style.top = p.y + '%';
                 stage.appendChild(dot);
             });
         }
-
-        // 4. 폴리곤 저장 및 미리보기
         function savePolygon() {
-            // clip-path: polygon(x1 y1, x2 y2, x3 y3, x4 y4);
             const polyStr = `polygon(${points[0].x}% ${points[0].y}%, ${points[1].x}% ${points[1].y}%, ${points[2].x}% ${points[2].y}%, ${points[3].x}% ${points[3].y}%)`;
-            
-            allPolygons[currentTarget] = polyStr;
-
-            // 화면에 빨간 영역 그리기 (기존꺼 지우고)
-            const oldZone = document.getElementById(`poly-${currentTarget}`);
-            if (oldZone) oldZone.remove();
-
             const zone = document.createElement('div');
-            zone.id = `poly-${currentTarget}`;
-            zone.className = 'polygon-zone';
-            zone.style.clipPath = polyStr;
-            // 라벨
-            zone.innerHTML = `<span style="background:black; color:white; font-size:10px;">${currentTarget}</span>`;
-            
+            zone.id = `poly-sticker`; zone.className = 'polygon-zone'; zone.style.clipPath = polyStr;
+            zone.innerHTML = `<span style="background:black; color:cyan; font-size:12px; font-weight:bold;">모바일 스티커</span>`;
             document.getElementById('polygon-layer').appendChild(zone);
         }
-
-        // 5. 다시 찍기
         function resetCurrent() {
-            if (!currentTarget) return;
-            points = [];
-            updateDots();
-            delete allPolygons[currentTarget];
-            const oldZone = document.getElementById(`poly-${currentTarget}`);
+            points = []; updateDots();
+            const oldZone = document.getElementById(`poly-sticker`);
             if (oldZone) oldZone.remove();
         }
-
-        // 6. 최종 코드 생성
         function generateCode() {
-            let css = "/* 모바일 꼭짓점 좌표 */\n";
-            
-            // 순서대로 출력
-            const order = ['switch', 'drawer', 'cabinet', 'poster', 'schedule', 'box'];
-            
-            order.forEach(key => {
-                if (allPolygons[key]) {
-                    css += `#zone-m-${key} {\n`;
-                    css += `    width: 100%; height: 100%; top: 0; left: 0;\n`;
-                    css += `    clip-path: ${allPolygons[key]};\n`;
-                    css += `}\n`;
-                }
-            });
-
-            const txt = document.getElementById('output');
-            txt.value = css;
-            txt.select();
+            if(points.length < 4) return alert("아직 꼭짓점 4개를 다 안 찍으셨어요!");
+            const polyStr = `polygon(${points[0].x}% ${points[0].y}%, ${points[1].x}% ${points[1].y}%, ${points[2].x}% ${points[2].y}%, ${points[3].x}% ${points[3].y}%)`;
+            document.getElementById('output').value = `/* 모바일 야광 스티커 좌표 */\n#zone-m-sticker {\n    width: 100%; height: 100%; top: 0; left: 0;\n    clip-path: ${polyStr};\n    z-index: 999;\n}`;
         }
     </script>
 </body>
