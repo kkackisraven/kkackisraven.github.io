@@ -12,29 +12,15 @@
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
 
         /* =========================================
-           [팝업창 디자인 (비밀의 문)]
+           [팝업창 디자인]
            ========================================= */
-        #secret-popup {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.85); z-index: 99999; 
-            display: flex; justify-content: center; align-items: center;
-        }
-        .popup-content {
-            background: #1a1a1a; border: 2px solid #ff4444; padding: 40px 30px;
-            text-align: center; color: white; border-radius: 10px; max-width: 400px;
-            box-shadow: 0 0 30px rgba(255, 68, 68, 0.4);
-        }
+        #secret-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
+        .popup-content { background: #1a1a1a; border: 2px solid #ff4444; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; max-width: 400px; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
         .popup-content h2 { color: #ff4444; margin-top: 0; margin-bottom: 20px; }
         .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; font-weight: bold;}
-        .btn-sns {
-            display: inline-block; background: #ff4444; color: white; padding: 12px 25px;
-            text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s;
-        }
+        .btn-sns { display: inline-block; background: #ff4444; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; }
         .btn-sns:hover { background: #ff6666; }
-        .btn-close {
-            display: block; margin: 20px auto 0; background: none; color: #888;
-            border: none; text-decoration: underline; cursor: pointer; font-size: 14px;
-        }
+        .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; font-size: 14px; }
         .btn-close:hover { color: white; }
 
 
@@ -44,16 +30,24 @@
         #pc-stage { 
             position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
             background-color: #ffffff; display: block; 
-            /* ★ 배경색이 부드럽게 바뀌는 애니메이션 추가 */
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease; /* 방 불 꺼지는 속도 (빠르게) */
         }
 
         #bg { z-index: 1; } 
         #drawer-closed { z-index: 5; } #drawer-open { z-index: 6; } 
         #cabinet-default { z-index: 10; } #cabinet-cutout { z-index: 10; } #cabinet-open { z-index: 11; }
         
-        /* 다크모드 전용 배경 */
         #dark-bg { z-index: 50; } 
+
+        /* ★ 새로 추가된 야광 스티커 시각 효과 ★ */
+        #dark-sticker-img {
+            z-index: 51; /* 어둠 배경보다 위 */
+            opacity: 0; /* 평소엔 완전 투명(안 보임) */
+            transition: opacity 1.5s ease-in-out; /* 1.5초 동안 아주 스르르륵 나타남 */
+        }
+        #dark-sticker-img.glow-on {
+            opacity: 1; /* 불 꺼지면 선명해짐! */
+        }
 
         #switch-on, #switch-off { z-index: 100; } 
         
@@ -63,31 +57,19 @@
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
         #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
 
-        /* PC 야광 스티커 좌표 */
-        #zone-sticker {
-            width: 100%; height: 100%; top: 0; left: 0;
-            clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%);
-            z-index: 999;
-        }
-
+        /* PC 야광 스티커 클릭 구역 */
+        #zone-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%); z-index: 999; }
 
         /* =========================================
            [모바일 세상]
            ========================================= */
-        #mobile-stage {
-            position: relative; background-color: #ffffff; display: none; 
-            width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9)));
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: filter 0.3s ease;
-        }
+        #mobile-stage { position: relative; background-color: #ffffff; display: none; width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: filter 0.3s ease; }
         .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
-        #m-bg { z-index: 1; }
-        #m-poster, #m-schedule, #m-box { z-index: 2; }
+        #m-bg { z-index: 1; } #m-poster, #m-schedule, #m-box { z-index: 2; }
         #m-drawer-default { z-index: 5; } #m-drawer-open { z-index: 6; }
         #m-cabinet-default { z-index: 10; } #m-cabinet-cutout { z-index: 10; } #m-cabinet-open { z-index: 11; }
         #m-switch-on, #m-switch-off { z-index: 100; }
 
-        /* 모바일 좌표 */
         #zone-m-switch { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%); }
         #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
         #zone-m-cabinet { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%); }
@@ -95,11 +77,7 @@
         #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
         #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%); }
 
-        @media (max-width: 768px) {
-            #pc-stage { display: none !important; }
-            #mobile-stage { display: block !important; }
-        }
-
+        @media (max-width: 768px) { #pc-stage { display: none !important; } #mobile-stage { display: block !important; } }
     </style>
 </head>
 <body>
@@ -107,29 +85,28 @@
     <div id="secret-popup" class="d-none">
         <div class="popup-content">
             <h2>⚠️ 열 람 주 의 ⚠️</h2>
-            <p>
-                R-18 이상 전용 작품관.<br>입장에 주의 요망
-            </p>
+            <p>R-18 이상 전용 작품관.<br>입장에 주의 요망</p>
             <a href="https://twitter.com/" target="_blank" class="btn-sns">다락 SNS로 이동하기</a>
             <button onclick="closePopup()" class="btn-close">닫기</button>
         </div>
     </div>
 
-
     <div id="pc-stage">
-        <img src="main.png?v=darkupdate2" class="layer" id="bg">
+        <img src="main.png?v=glow" class="layer" id="bg">
         
-        <img src="left_drawer_default.png?v=darkupdate2" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=darkupdate2" class="layer d-none" id="drawer-open">
+        <img src="left_drawer_default.png?v=glow" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png?v=glow" class="layer d-none" id="drawer-open">
 
-        <img src="center_cabinet_default.png?v=darkupdate2" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=darkupdate2" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=darkupdate2" class="layer d-none" id="cabinet-open">
+        <img src="center_cabinet_default.png?v=glow" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png?v=glow" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png?v=glow" class="layer d-none" id="cabinet-open">
 
-        <img src="dark_main.png?v=darkupdate2" class="layer d-none" id="dark-bg">
+        <img src="dark_main.png?v=glow" class="layer d-none" id="dark-bg">
+        
+        <img src="dark_sticker.png?v=glow" class="layer" id="dark-sticker-img">
 
-        <img src="switch_on.png?v=darkupdate2" class="layer" id="switch-on">
-        <img src="switch_off.png?v=darkupdate2" class="layer d-none" id="switch-off">
+        <img src="switch_on.png?v=glow" class="layer" id="switch-on">
+        <img src="switch_off.png?v=glow" class="layer d-none" id="switch-off">
 
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
@@ -139,22 +116,18 @@
         <div class="click-zone d-none" id="zone-sticker" onclick="clickSticker()"></div>
     </div>
 
-
     <div id="mobile-stage">
-        <img src="m_bg.png?v=darkupdate2" class="m-layer" id="m-bg">
-        <img src="m_poster.png?v=darkupdate2" class="m-layer" id="m-poster">
-        <img src="m_schedule.png?v=darkupdate2" class="m-layer" id="m-schedule">
-        <img src="m_box.png?v=darkupdate2" class="m-layer d-none" id="m-box">
-
-        <img src="m_drawer_default.png?v=darkupdate2" class="m-layer" id="m-drawer-default">
-        <img src="m_drawer_open.png?v=darkupdate2" class="m-layer d-none" id="m-drawer-open">
-
-        <img src="m_cabinet_default.png?v=darkupdate2" class="m-layer" id="m-cabinet-default">
-        <img src="m_cabinet_cutout.png?v=darkupdate2" class="m-layer d-none" id="m-cabinet-cutout">
-        <img src="m_cabinet_open.png?v=darkupdate2" class="m-layer d-none" id="m-cabinet-open">
-
-        <img src="m_switch_on.png?v=darkupdate2" class="m-layer" id="m-switch-on">
-        <img src="m_switch_off.png?v=darkupdate2" class="m-layer d-none" id="m-switch-off">
+        <img src="m_bg.png?v=glow" class="m-layer" id="m-bg">
+        <img src="m_poster.png?v=glow" class="m-layer" id="m-poster">
+        <img src="m_schedule.png?v=glow" class="m-layer" id="m-schedule">
+        <img src="m_box.png?v=glow" class="m-layer d-none" id="m-box">
+        <img src="m_drawer_default.png?v=glow" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png?v=glow" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_cabinet_default.png?v=glow" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png?v=glow" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png?v=glow" class="m-layer d-none" id="m-cabinet-open">
+        <img src="m_switch_on.png?v=glow" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png?v=glow" class="m-layer d-none" id="m-switch-off">
 
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
@@ -166,16 +139,9 @@
 
 
     <script>
-        let state = {
-            dark: false,
-            drawer: false,
-            cabinet: false
-        };
+        let state = { dark: false, drawer: false, cabinet: false };
 
-        function clickSwitch() { 
-            state.dark = !state.dark; 
-            updateView(); 
-        }
+        function clickSwitch() { state.dark = !state.dark; updateView(); }
 
         function clickDrawer() {
             if (state.dark) return; 
@@ -191,13 +157,8 @@
             updateView();
         }
 
-        function clickSticker() {
-            document.getElementById('secret-popup').classList.remove('d-none');
-        }
-        function closePopup() {
-            document.getElementById('secret-popup').classList.add('d-none');
-        }
-
+        function clickSticker() { document.getElementById('secret-popup').classList.remove('d-none'); }
+        function closePopup() { document.getElementById('secret-popup').classList.add('d-none'); }
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
         function clickBox() { alert("통신판매 페이지로 이동합니다."); }
@@ -212,7 +173,8 @@
             const s_off = document.getElementById('switch-off');
             
             const dark_bg = document.getElementById('dark-bg');
-            const zone_sticker = document.getElementById('zone-sticker');
+            const dark_sticker_img = document.getElementById('dark-sticker-img'); // 야광 이미지
+            const zone_sticker = document.getElementById('zone-sticker'); // 클릭 영역
 
             const mobile_stage = document.getElementById('mobile-stage');
             const m_d_open = document.getElementById('m-drawer-open');
@@ -222,14 +184,15 @@
             const m_s_on = document.getElementById('m-switch-on');
             const m_s_off = document.getElementById('m-switch-off');
 
-            // 1. 다크모드
             if (state.dark) {
                 // PC 
                 s_on.classList.add('d-none'); s_off.classList.remove('d-none');
-                dark_bg.classList.remove('d-none'); 
-                zone_sticker.classList.remove('d-none'); 
-                // ★ 이 코드가 핵심입니다! 하얀 도화지를 어두운 톤(#444)으로 바꿔줍니다.
+                dark_bg.classList.remove('d-none'); // 배경은 즉시 어두워짐
+                zone_sticker.classList.remove('d-none'); // 클릭 구역 활성화
                 pc_stage.style.backgroundColor = "#444444"; 
+                
+                // ★ 야광 스티커 스르륵 나타나기 발동!
+                dark_sticker_img.classList.add('glow-on'); 
                 
                 // Mobile 
                 m_s_on.classList.add('d-none'); m_s_off.classList.remove('d-none');
@@ -239,24 +202,22 @@
                 s_off.classList.add('d-none'); s_on.classList.remove('d-none');
                 dark_bg.classList.add('d-none'); 
                 zone_sticker.classList.add('d-none'); 
-                // ★ 불을 켜면 다시 하얀 도화지로 돌아옵니다.
                 pc_stage.style.backgroundColor = "#ffffff"; 
+                
+                // ★ 야광 스티커 다시 투명해짐
+                dark_sticker_img.classList.remove('glow-on'); 
                 
                 // Mobile
                 m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
                 mobile_stage.style.filter = "brightness(1)";
             }
 
-            // 2. 왼쪽 서랍
             if (state.drawer) {
-                d_open.classList.remove('d-none');
-                m_d_open.classList.remove('d-none');
+                d_open.classList.remove('d-none'); m_d_open.classList.remove('d-none');
             } else {
-                d_open.classList.add('d-none');
-                m_d_open.classList.add('d-none');
+                d_open.classList.add('d-none'); m_d_open.classList.add('d-none');
             }
 
-            // 3. 캐비닛
             c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
             m_c_default.classList.add('d-none'); m_c_cutout.classList.add('d-none'); m_c_open.classList.add('d-none');
 
@@ -265,11 +226,9 @@
                 m_c_default.classList.remove('d-none'); m_c_open.classList.remove('d-none');
             } else {
                 if (state.drawer) {
-                    c_cutout.classList.remove('d-none');
-                    m_c_cutout.classList.remove('d-none');
+                    c_cutout.classList.remove('d-none'); m_c_cutout.classList.remove('d-none');
                 } else {
-                    c_default.classList.remove('d-none');
-                    m_c_default.classList.remove('d-none');
+                    c_default.classList.remove('d-none'); m_c_default.classList.remove('d-none');
                 }
             }
         }
