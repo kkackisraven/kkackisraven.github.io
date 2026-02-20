@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB - TOOLTIP EDITOR</title>
+    <style>
+        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: 'Malgun Gothic', sans-serif; }
+        
+        #panel { width: 320px; background: #111; color: #eee; padding: 20px; border-right: 1px solid #444; display: flex; flex-direction: column; gap: 10px; z-index: 100; overflow-y: auto; }
+        h3 { margin: 0 0 10px 0; color: #ffcc00; }
+        
+        .mode-btns { display: flex; gap: 5px; margin-bottom: 10px; }
+        .mode-btns button { flex: 1; padding: 10px; background: #444; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .mode-btns button.active { background: #ffcc00; color: black; }
+
+        textarea { width: 100%; height: 250px; background: #000; color: #0f0; border: 1px solid #555; font-size: 11px; margin-top: auto; white-space: pre; overflow-x: auto; }
+
+        #stage-wrap { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; position: relative; padding: 20px; }
+        
+        /* PC 무대 */
+        #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; box-shadow: 0 0 20px black; cursor: crosshair; user-select: none; overflow: hidden; }
+        
+        /* 모바일 무대 */
+        #mobile-stage { position: relative; height: 90vh; aspect-ratio: 9 / 19.5; background-color: #ffffff; box-shadow: 0 0 20px black; cursor: crosshair; user-select: none; display: none; overflow: hidden; }
+
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        
+        /* 실제 툴팁과 똑같은 디자인 적용 */
+        .help-tooltip {
+            position: absolute; transform: translate(-50%, -50%);
+            background: rgba(30, 30, 30, 0.9); border: 2px solid #aaa; color: #fff;
+            padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
+            white-space: nowrap; pointer-events: none; /* 클릭 방해 안 하게 */
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .help-tooltip span { display: block; font-size: 11px; color: #ffcc00; margin-top: 4px; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+    <div id="panel">
+        <h3>💡 도움말 툴팁 에디터</h3>
+        
+        <div class="mode-btns">
+            <button id="btn-pc" class="active" onclick="switchMode('PC')">💻 PC 화면</button>
+            <button id="btn-mobile" onclick="switchMode('MOBILE')">📱 모바일 화면</button>
+        </div>
+
+        <p style="font-size: 12px; color: #ccc; line-height: 1.5;">
+            1. 화면에서 툴팁을 띄울 위치를 <b>클릭</b>하세요.<br>
+            2. <b>제목</b>(예: 💡 스위치)을 입력하세요.<br>
+            3. <b>설명</b>(예: 배경이 전환됩니다)을 입력하세요.<br>
+            4. 다 찍고 아래 <b>[코드 생성]</b> 버튼을 누르세요.
+        </p>
+
+        <button onclick="undoLast()" style="background: #554422;">⏪ 마지막 툴팁 지우기</button>
+        <button onclick="resetCurrent()" style="background: #552222;">🗑️ 현재 화면 모두 지우기</button>
+        <button onclick="generateCode()" style="background: #225522; margin-top:20px; padding: 15px; font-size: 14px;">💾 HTML 코드 생성</button>
+        
+        <textarea id="output" readonly>클릭해서 툴팁을 추가하고 코드를 생성하세요.</textarea>
+    </div>
+
+    <div id="stage-wrap">
+        <div id="pc-stage" onclick="handleStageClick(event, 'pc-stage')">
+            <img src="main.png" class="layer">
+            <div id="tooltip-layer-pc" class="layer"></div>
+        </div>
+
+        <div id="mobile-stage" onclick="handleStageClick(event, 'mobile-stage')">
+            <img src="m_bg.png" class="layer">
+            <div id="tooltip-layer-mobile" class="layer"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'PC';
+        let tooltips = { PC: [], MOBILE: [] };
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-pc').classList.toggle('active', mode === 'PC');
+            document.getElementById('btn-mobile').classList.toggle('active', mode === 'MOBILE');
+            
+            document.getElementById('pc-stage').style.display = mode === 'PC' ? 'block' : 'none';
+            document.getElementById('mobile-stage').style.display = mode === 'MOBILE' ? 'block' : 'none';
+        }
+
+        function handleStageClick(e, stageId) {
+            const stage = document.getElementById(stageId);
+            const rect = stage.getBoundingClientRect();
+            
+            // X, Y 좌표를 %로 계산
+            const perX = (((e.clientX - rect.left) / rect.width) * 100).toFixed(2);
+            const perY = (((e.clientY - rect.top) / rect.height) * 100).toFixed(2);
+
+            // 1. 제목 입력받기
+            const title = prompt("툴팁 제목을 입력하세요.\n(예: 💡 스위치, 🚪 캐비닛)");
+            if (!title) return; // 취소 누르면 중단
+
+            // 2. 설명 입력받기
+            const desc = prompt(`[${title}] 의 설명을 입력하세요.\n(예: 배경이 전환됩니다)`);
+            if (desc === null) return; // 취소 누르면 중단
+
+            // 데이터 저장
+            tooltips[currentMode].push({ x: perX, y: perY, title: title, desc: desc });
+            
+            // 화면에 렌더링
+            renderTooltips();
+        }
+
+        function renderTooltips() {
+            const layerId = currentMode === 'PC' ? 'tooltip-layer-pc' : 'tooltip-layer-mobile';
+            const layer = document.getElementById(layerId);
+            layer.innerHTML = ''; // 초기화
+
+            tooltips[currentMode].forEach(tip => {
+                const el = document.createElement('div');
+                el.className = 'help-tooltip';
+                el.style.left = tip.x + '%';
+                el.style.top = tip.y + '%';
+                el.innerHTML = `${tip.title}<span>${tip.desc}</span>`;
+                layer.appendChild(el);
+            });
+        }
+
+        function undoLast() {
+            tooltips[currentMode].pop();
+            renderTooltips();
+        }
+
+        function resetCurrent() {
+            if(confirm("정말 현재 화면의 툴팁을 다 지우시겠습니까?")) {
+                tooltips[currentMode] = [];
+                renderTooltips();
+            }
+        }
+
+        function generateCode() {
+            let html = "\n";
+            tooltips.PC.forEach(tip => {
+                html += `<div class="help-tooltip" style="top: ${tip.y}%; left: ${tip.x}%;">`;
+                html += `${tip.title}<span>${tip.desc}</span></div>\n`;
+            });
+
+            html += "\n\n\n";
+            tooltips.MOBILE.forEach(tip => {
+                html += `<div class="help-tooltip" style="top: ${tip.y}%; left: ${tip.x}%;">`;
+                html += `${tip.title}<span>${tip.desc}</span></div>\n`;
+            });
+
+            const txt = document.getElementById('output');
+            txt.value = html;
+            txt.select(); // 자동 전체 선택
+        }
+    </script>
+</body>
+</html>
