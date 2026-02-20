@@ -16,7 +16,7 @@
            ========================================= */
         #secret-popup {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.85); z-index: 99999; /* 화면 제일 위에 띄움 */
+            background: rgba(0,0,0,0.85); z-index: 99999; 
             display: flex; justify-content: center; align-items: center;
         }
         .popup-content {
@@ -25,7 +25,7 @@
             box-shadow: 0 0 30px rgba(255, 68, 68, 0.4);
         }
         .popup-content h2 { color: #ff4444; margin-top: 0; margin-bottom: 20px; }
-        .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; }
+        .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; font-weight: bold;}
         .btn-sns {
             display: inline-block; background: #ff4444; color: white; padding: 12px 25px;
             text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s;
@@ -44,16 +44,18 @@
         #pc-stage { 
             position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
             background-color: #ffffff; display: block; 
+            /* ★ 배경색이 부드럽게 바뀌는 애니메이션 추가 */
+            transition: background-color 0.3s ease;
         }
 
         #bg { z-index: 1; } 
         #drawer-closed { z-index: 5; } #drawer-open { z-index: 6; } 
         #cabinet-default { z-index: 10; } #cabinet-cutout { z-index: 10; } #cabinet-open { z-index: 11; }
         
-        /* ★ 다크모드 전용 배경 (50층에 둬서 기존 가구를 다 덮어버림) */
+        /* 다크모드 전용 배경 */
         #dark-bg { z-index: 50; } 
 
-        #switch-on, #switch-off { z-index: 100; } /* 스위치는 제일 위에 */
+        #switch-on, #switch-off { z-index: 100; } 
         
         /* PC 좌표 */
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
@@ -61,21 +63,22 @@
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
         #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
 
-        /* ★ PC 야광 스티커 좌표 */
+        /* PC 야광 스티커 좌표 */
         #zone-sticker {
             width: 100%; height: 100%; top: 0; left: 0;
             clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%);
-            z-index: 999; /* 클릭 잘 되게 최상단 배치 */
+            z-index: 999;
         }
 
 
         /* =========================================
-           [모바일 세상] (기존 유지 - 비율 고정 패치 포함)
+           [모바일 세상]
            ========================================= */
         #mobile-stage {
             position: relative; background-color: #ffffff; display: none; 
             width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9)));
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: filter 0.3s ease;
         }
         .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         #m-bg { z-index: 1; }
@@ -103,10 +106,9 @@
 
     <div id="secret-popup" class="d-none">
         <div class="popup-content">
-            <h2>⚠️ 입 장 주 의 ⚠️</h2>
+            <h2>⚠️ 열 람 주 의 ⚠️</h2>
             <p>
-                이곳은 18세 이상의 작품 등 민감한 내용을 다루고 있습니다.<br>
-                미성년자의 열람을 금하며, 입장에 주의를 요합니다.
+                R-18 이상 전용 작품관.<br>입장에 주의 요망
             </p>
             <a href="https://twitter.com/" target="_blank" class="btn-sns">다락 SNS로 이동하기</a>
             <button onclick="closePopup()" class="btn-close">닫기</button>
@@ -115,19 +117,19 @@
 
 
     <div id="pc-stage">
-        <img src="main.png?v=darkupdate" class="layer" id="bg">
+        <img src="main.png?v=darkupdate2" class="layer" id="bg">
         
-        <img src="left_drawer_default.png?v=darkupdate" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=darkupdate" class="layer d-none" id="drawer-open">
+        <img src="left_drawer_default.png?v=darkupdate2" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png?v=darkupdate2" class="layer d-none" id="drawer-open">
 
-        <img src="center_cabinet_default.png?v=darkupdate" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=darkupdate" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=darkupdate" class="layer d-none" id="cabinet-open">
+        <img src="center_cabinet_default.png?v=darkupdate2" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png?v=darkupdate2" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png?v=darkupdate2" class="layer d-none" id="cabinet-open">
 
-        <img src="dark_main.png?v=darkupdate" class="layer d-none" id="dark-bg">
+        <img src="dark_main.png?v=darkupdate2" class="layer d-none" id="dark-bg">
 
-        <img src="switch_on.png?v=darkupdate" class="layer" id="switch-on">
-        <img src="switch_off.png?v=darkupdate" class="layer d-none" id="switch-off">
+        <img src="switch_on.png?v=darkupdate2" class="layer" id="switch-on">
+        <img src="switch_off.png?v=darkupdate2" class="layer d-none" id="switch-off">
 
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
@@ -139,20 +141,20 @@
 
 
     <div id="mobile-stage">
-        <img src="m_bg.png?v=darkupdate" class="m-layer" id="m-bg">
-        <img src="m_poster.png?v=darkupdate" class="m-layer" id="m-poster">
-        <img src="m_schedule.png?v=darkupdate" class="m-layer" id="m-schedule">
-        <img src="m_box.png?v=darkupdate" class="m-layer d-none" id="m-box">
+        <img src="m_bg.png?v=darkupdate2" class="m-layer" id="m-bg">
+        <img src="m_poster.png?v=darkupdate2" class="m-layer" id="m-poster">
+        <img src="m_schedule.png?v=darkupdate2" class="m-layer" id="m-schedule">
+        <img src="m_box.png?v=darkupdate2" class="m-layer d-none" id="m-box">
 
-        <img src="m_drawer_default.png?v=darkupdate" class="m-layer" id="m-drawer-default">
-        <img src="m_drawer_open.png?v=darkupdate" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_drawer_default.png?v=darkupdate2" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png?v=darkupdate2" class="m-layer d-none" id="m-drawer-open">
 
-        <img src="m_cabinet_default.png?v=darkupdate" class="m-layer" id="m-cabinet-default">
-        <img src="m_cabinet_cutout.png?v=darkupdate" class="m-layer d-none" id="m-cabinet-cutout">
-        <img src="m_cabinet_open.png?v=darkupdate" class="m-layer d-none" id="m-cabinet-open">
+        <img src="m_cabinet_default.png?v=darkupdate2" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png?v=darkupdate2" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png?v=darkupdate2" class="m-layer d-none" id="m-cabinet-open">
 
-        <img src="m_switch_on.png?v=darkupdate" class="m-layer" id="m-switch-on">
-        <img src="m_switch_off.png?v=darkupdate" class="m-layer d-none" id="m-switch-off">
+        <img src="m_switch_on.png?v=darkupdate2" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png?v=darkupdate2" class="m-layer d-none" id="m-switch-off">
 
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
@@ -164,7 +166,6 @@
 
 
     <script>
-        // === [통합 로직] ===
         let state = {
             dark: false,
             drawer: false,
@@ -176,24 +177,20 @@
             updateView(); 
         }
 
-        // ★ 불 꺼졌을 때는 작동 금지!
         function clickDrawer() {
-            if (state.dark) return; // 다크모드면 아무 일도 안 함
-            
+            if (state.dark) return; 
             if (state.drawer) state.drawer = false;
             else { state.drawer = true; state.cabinet = false; }
             updateView();
         }
 
         function clickCabinet() {
-            if (state.dark) return; // 다크모드면 아무 일도 안 함
-
+            if (state.dark) return; 
             if (state.cabinet) state.cabinet = false;
             else { state.cabinet = true; state.drawer = false; }
             updateView();
         }
 
-        // 야광 스티커 및 팝업 제어
         function clickSticker() {
             document.getElementById('secret-popup').classList.remove('d-none');
         }
@@ -201,14 +198,11 @@
             document.getElementById('secret-popup').classList.add('d-none');
         }
 
-        // 링크 이동 (나중에 주소 수정)
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
         function clickBox() { alert("통신판매 페이지로 이동합니다."); }
 
-        // ★★★ [화면 그리기] ★★★
         function updateView() {
-            // [PC 요소]
             const pc_stage = document.getElementById('pc-stage');
             const d_open = document.getElementById('drawer-open');
             const c_default = document.getElementById('cabinet-default');
@@ -220,7 +214,6 @@
             const dark_bg = document.getElementById('dark-bg');
             const zone_sticker = document.getElementById('zone-sticker');
 
-            // [Mobile 요소]
             const mobile_stage = document.getElementById('mobile-stage');
             const m_d_open = document.getElementById('m-drawer-open');
             const m_c_default = document.getElementById('m-cabinet-default');
@@ -231,19 +224,23 @@
 
             // 1. 다크모드
             if (state.dark) {
-                // PC (이미지 교체 및 스티커 활성화)
+                // PC 
                 s_on.classList.add('d-none'); s_off.classList.remove('d-none');
-                dark_bg.classList.remove('d-none'); // 새로 그린 어둠 배경 보임!
-                zone_sticker.classList.remove('d-none'); // 스티커 클릭 가능!
+                dark_bg.classList.remove('d-none'); 
+                zone_sticker.classList.remove('d-none'); 
+                // ★ 이 코드가 핵심입니다! 하얀 도화지를 어두운 톤(#444)으로 바꿔줍니다.
+                pc_stage.style.backgroundColor = "#444444"; 
                 
-                // Mobile (모바일은 아직 이미지가 없어서 기존 필터 유지)
+                // Mobile 
                 m_s_on.classList.add('d-none'); m_s_off.classList.remove('d-none');
                 mobile_stage.style.filter = "brightness(0.4)";
             } else {
-                // PC (원상복구)
+                // PC 
                 s_off.classList.add('d-none'); s_on.classList.remove('d-none');
-                dark_bg.classList.add('d-none'); // 어둠 배경 숨김
-                zone_sticker.classList.add('d-none'); // 스티커 클릭 불가
+                dark_bg.classList.add('d-none'); 
+                zone_sticker.classList.add('d-none'); 
+                // ★ 불을 켜면 다시 하얀 도화지로 돌아옵니다.
+                pc_stage.style.backgroundColor = "#ffffff"; 
                 
                 // Mobile
                 m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
