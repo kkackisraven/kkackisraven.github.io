@@ -111,14 +111,30 @@
         </div>
     </div>
 
-    <div id="cog-popup" class="d-none popup-overlay">
+    div id="cog-popup" class="d-none popup-overlay">
         <div class="popup-content">
             <h2>⚙️ 시 스 템 설 정</h2>
-            <p>
-                버전: v1.0.0 (Beta)<br>
-                언어: 한국어 (Korean)<br>
-                업데이트 날짜: 2026.02.20
-            </p>
+            
+            <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin-top: 0; font-weight: normal; font-size: 14px;">
+                    <b>버전:</b> v1.0.0 (Beta)<br>
+                    <b>업데이트:</b> 2026.02.20
+                </p>
+                
+                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+                
+                <div style="margin-bottom: 5px;">
+                    <b>🌐 언어 설정 (Language)</b>
+                </div>
+                <select id="lang-select" style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #666; border-radius: 5px; font-family: 'Malgun Gothic', sans-serif; cursor: pointer;">
+                    <option value="ko">한국어 (Korean)</option>
+                    <option value="en">English (준비중)</option>
+                    <option value="ja">日本語 (준비중)</option>
+                </select>
+            </div>
+
+            <button onclick="clickHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
+            
             <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
         </div>
     </div>
@@ -300,6 +316,15 @@
         }
         
         updateView();
+
+        // 도움말 버튼 눌렀을 때 실행될 함수
+        function clickHelp() {
+            // 일단 팝업은 닫고
+            closePopup('cog-popup');
+            
+            // 여기에 나중에 "도움말 오버레이"를 띄우는 기능을 넣을 겁니다!
+            alert("도움말 기능이 실행됩니다! (어디를 누를 수 있는지 깜빡거리는 힌트 등 준비 중)");
+        }
 
     </script>
 </body>
