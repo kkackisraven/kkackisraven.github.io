@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEORAB</title>
     <style>
-        /* 1. 기본 설정 (다크모드 시 레터박스 색상 전환) */
+        /* 1. 기본 설정 */
         body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.3s ease; }
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         .d-none { display: none !important; }
@@ -21,7 +21,6 @@
         .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; font-size: 14px; }
         .btn-close:hover { color: white; }
 
-        /* 개별 팝업 포인트 컬러 */
         #secret-popup .popup-content { border-color: #ff4444; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
         #secret-popup h2 { color: #ff4444; }
         .btn-sns { display: inline-block; background: #ff4444; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; }
@@ -29,9 +28,37 @@
 
         #card-popup .popup-content { border-color: #44aa44; box-shadow: 0 0 30px rgba(68, 170, 68, 0.4); }
         #card-popup h2 { color: #44aa44; }
-
         #cog-popup .popup-content { border-color: #aaaaaa; box-shadow: 0 0 30px rgba(170, 170, 170, 0.4); }
         #cog-popup h2 { color: #aaaaaa; }
+
+        /* =========================================
+           [★ 게임 도움말 (튜토리얼) UI 디자인 ★]
+           ========================================= */
+        .help-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 5000; }
+        
+        /* 툴팁 애니메이션 (숨쉬듯 반짝임) */
+        @keyframes pulse-tooltip {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
+        .help-tooltip {
+            position: absolute; transform: translate(-50%, -50%);
+            background: rgba(30, 30, 30, 0.9); border: 2px solid #aaa; color: #fff;
+            padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
+            white-space: nowrap; pointer-events: auto; cursor: default;
+            animation: pulse-tooltip 2s infinite;
+        }
+        .help-tooltip span { display: block; font-size: 11px; color: #ffcc00; margin-top: 4px; font-weight: normal; }
+        
+        /* 닫기 (X) 버튼 */
+        .btn-close-help {
+            position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+            background: #ff4444; color: white; border: none; padding: 12px 30px; border-radius: 30px;
+            font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5001;
+        }
+        .btn-close-help:hover { background: #ff6666; }
 
 
         /* =========================================
@@ -51,8 +78,6 @@
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
         #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
         #zone-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%); z-index: 999; }
-
-        /* ★ PC 명함 & 톱니 (서랍(999)보다 높은 1000으로 배치) */
         #zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(36.89% 74.03%, 41.09% 72.03%, 41.87% 76.02%, 37.62% 78.19%); z-index: 1000; }
         #zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(41.28% 67.87%, 42.16% 74.29%, 45.82% 71.95%, 44.99% 66.40%); z-index: 1000; }
 
@@ -60,11 +85,7 @@
         /* =========================================
            [모바일 세상]
            ========================================= */
-        #mobile-stage { 
-            position: relative; background-color: #ffffff; display: none; 
-            width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); 
-            box-shadow: none; transition: background-color 0.3s ease; 
-        }
+        #mobile-stage { position: relative; background-color: #ffffff; display: none; width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); box-shadow: none; transition: background-color 0.3s ease; }
         .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         #m-bg { z-index: 1; } #m-poster, #m-schedule, #m-box { z-index: 2; }
         #m-drawer-default { z-index: 5; } #m-drawer-open { z-index: 6; }
@@ -80,8 +101,6 @@
         #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
         #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%); }
         #zone-m-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(57.47% 56.75%, 87.04% 57.17%, 84.98% 61.93%, 58.62% 61.61%); z-index: 999; }
-
-        /* ★ 모바일 명함 & 톱니 (z-index 1000) */
         #zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(35.46% 63.51%, 38.69% 68.08%, 50.99% 65.75%, 46.96% 61.75%); z-index: 1000; }
         #zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(46.55% 60.16%, 50.99% 64.91%, 60.27% 62.49%, 57.24% 58.21%); z-index: 1000; }
 
@@ -111,11 +130,9 @@
         </div>
     </div>
 
-<div id="cog-popup" class="d-none popup-overlay">
+    <div id="cog-popup" class="d-none popup-overlay">
         <div class="popup-content">
-            <h2>⚙️ 시 스 템 설 정</h2>
-            
-            <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h2>⚙️ 시스템 설정</h2> <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <p style="margin-top: 0; font-weight: normal; font-size: 14px;">
                     <b>버전:</b> v1.0.0 (Beta)<br>
                     <b>업데이트:</b> 2026.02.20
@@ -133,8 +150,7 @@
                 </select>
             </div>
 
-            <button onclick="clickHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
-            
+            <button onclick="openHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
             <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
         </div>
     </div>
@@ -158,9 +174,16 @@
         <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
         <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
         <div class="click-zone d-none" id="zone-sticker" onclick="clickSticker(event)"></div>
-        
         <div class="click-zone d-none" id="zone-card" onclick="clickCard(event)"></div>
         <div class="click-zone d-none" id="zone-cog" onclick="clickCog(event)"></div>
+
+        <div id="help-layer-pc" class="help-layer d-none">
+            <div class="help-tooltip" style="top: 10%; left: 43%;">💡 스위치<span>배경이 전환됩니다</span></div>
+            <div class="help-tooltip" style="top: 45%; left: 50%;">🚪 캐비닛<span>작품관 (다크모드 시 입장)</span></div>
+            <div class="help-tooltip" style="top: 73%; left: 38%;">🗄️ 서랍장<span>명함 및 시스템 설정</span></div>
+            <div class="help-tooltip" style="top: 60%; left: 87%;">📦 통신판매<span>굿즈 구매 페이지로 이동</span></div>
+            <button class="btn-close-help" onclick="closeHelp()">✖ 도움말 닫기</button>
+        </div>
     </div>
 
     <div id="mobile-stage">
@@ -186,9 +209,18 @@
         <div class="click-zone" id="zone-m-schedule" onclick="clickSchedule()"></div>
         <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
         <div class="click-zone d-none" id="zone-m-sticker" onclick="clickSticker(event)"></div>
-
         <div class="click-zone d-none" id="zone-m-card" onclick="clickCard(event)"></div>
         <div class="click-zone d-none" id="zone-m-cog" onclick="clickCog(event)"></div>
+
+        <div id="help-layer-mobile" class="help-layer d-none">
+            <div class="help-tooltip" style="top: 15%; left: 51%;">💡 스위치<span>다크모드 전환</span></div>
+            <div class="help-tooltip" style="top: 45%; left: 72%;">🚪 캐비닛<span>19금 전용관</span></div>
+            <div class="help-tooltip" style="top: 60%; left: 40%;">🗄️ 서랍장<span>시스템 설정</span></div>
+            <div class="help-tooltip" style="top: 26%; left: 28%;">🖼️ 포스터<span>행사 안내</span></div>
+            <div class="help-tooltip" style="top: 19%; left: 81%;">🗓️ 일정표<span>업데이트 일정</span></div>
+            <div class="help-tooltip" style="top: 85%; left: 63%;">📦 통신판매<span>굿즈 구매</span></div>
+            <button class="btn-close-help" onclick="closeHelp()">✖ 닫기</button>
+        </div>
     </div>
 
     <script>
@@ -208,27 +240,31 @@
             updateView();
         }
 
-        // === 팝업 컨트롤 통합 함수 (미스터치 방지 마법 적용!) ===
-        function clickSticker(e) { 
-            if(e) e.stopPropagation(); 
-            document.getElementById('secret-popup').classList.remove('d-none'); 
-        }
-        function clickCard(e) { 
-            if(e) e.stopPropagation(); // 아래 깔린 서랍이 눌리는 걸 막아줍니다!
-            document.getElementById('card-popup').classList.remove('d-none'); 
-        }
-        function clickCog(e) { 
-            if(e) e.stopPropagation(); // 아래 깔린 서랍이 눌리는 걸 막아줍니다!
-            document.getElementById('cog-popup').classList.remove('d-none'); 
-        }
+        function clickSticker(e) { if(e) e.stopPropagation(); document.getElementById('secret-popup').classList.remove('d-none'); }
+        function clickCard(e) { if(e) e.stopPropagation(); document.getElementById('card-popup').classList.remove('d-none'); }
+        function clickCog(e) { if(e) e.stopPropagation(); document.getElementById('cog-popup').classList.remove('d-none'); }
         
-        function closePopup(popupId) {
-            document.getElementById(popupId).classList.add('d-none');
-        }
+        function closePopup(popupId) { document.getElementById(popupId).classList.add('d-none'); }
 
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
         function clickBox() { alert("통신판매 페이지로 이동합니다."); }
+
+        // ★ 도움말(튜토리얼) 열고 닫기 함수
+        function openHelp() {
+            // 설정창은 닫아주고
+            closePopup('cog-popup');
+            
+            // PC와 모바일 각각 도움말 레이어를 켜줍니다.
+            document.getElementById('help-layer-pc').classList.remove('d-none');
+            document.getElementById('help-layer-mobile').classList.remove('d-none');
+        }
+        
+        function closeHelp() {
+            // X 버튼 누르면 숨기기
+            document.getElementById('help-layer-pc').classList.add('d-none');
+            document.getElementById('help-layer-mobile').classList.add('d-none');
+        }
 
         function updateView() {
             const pc_stage = document.getElementById('pc-stage');
@@ -241,7 +277,6 @@
             const dark_bg = document.getElementById('dark-bg');
             const dark_sticker_img = document.getElementById('dark-sticker-img');
             const zone_sticker = document.getElementById('zone-sticker');
-            
             const zone_card = document.getElementById('zone-card');
             const zone_cog = document.getElementById('zone-cog');
 
@@ -255,11 +290,9 @@
             const m_dark_bg = document.getElementById('m-dark-bg');
             const m_dark_sticker_img = document.getElementById('m-dark-sticker-img');
             const zone_m_sticker = document.getElementById('zone-m-sticker');
-            
             const zone_m_card = document.getElementById('zone-m-card');
             const zone_m_cog = document.getElementById('zone-m-cog');
 
-            // 1. 다크모드
             if (state.dark) {
                 s_on.classList.add('d-none'); s_off.classList.remove('d-none');
                 dark_bg.classList.remove('d-none'); zone_sticker.classList.remove('d-none'); 
@@ -282,10 +315,8 @@
                 document.body.style.backgroundColor = "#ffffff"; 
             }
 
-            // 2. 왼쪽 서랍
             if (state.drawer) {
                 d_open.classList.remove('d-none'); m_d_open.classList.remove('d-none');
-                
                 if(!state.dark) {
                     zone_card.classList.remove('d-none'); zone_cog.classList.remove('d-none');
                     zone_m_card.classList.remove('d-none'); zone_m_cog.classList.remove('d-none');
@@ -299,7 +330,6 @@
                 zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
             }
 
-            // 3. 캐비닛
             c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
             m_c_default.classList.add('d-none'); m_c_cutout.classList.add('d-none'); m_c_open.classList.add('d-none');
 
@@ -316,15 +346,6 @@
         }
         
         updateView();
-
-        // 도움말 버튼 눌렀을 때 실행될 함수
-        function clickHelp() {
-            // 일단 팝업은 닫고
-            closePopup('cog-popup');
-            
-            // 여기에 나중에 "도움말 오버레이"를 띄우는 기능을 넣을 겁니다!
-            alert("도움말 기능이 실행됩니다! (어디를 누를 수 있는지 깜빡거리는 힌트 등 준비 중)");
-        }
 
     </script>
 </body>
