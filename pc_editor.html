@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB - PC POLYGON MAKER</title>
+    <style>
+        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: sans-serif; }
+        
+        /* 왼쪽 컨트롤 패널 */
+        #panel {
+            width: 300px; background: #111; color: #eee; padding: 20px; border-right: 1px solid #444;
+            display: flex; flex-direction: column; gap: 10px; z-index: 100;
+        }
+        h3 { margin: 0 0 10px 0; color: cyan; }
+        button { padding: 10px; cursor: pointer; border: 1px solid #555; background: #333; color: white; text-align: left; }
+        button.active { background: cyan; color: black; font-weight: bold; border-color: cyan; pointer-events: none;}
+        
+        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #555; font-size: 12px; margin-top: auto; }
+
+        /* 오른쪽 무대 (PC 비율 16:9) */
+        #stage-wrap { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; position: relative; padding: 20px;}
+        
+        #pc-stage {
+            position: relative;
+            width: 100%; height: 100%; 
+            max-width: 177.78vh; aspect-ratio: 16 / 9; /* PC 비율 고정 */
+            background-color: #000; 
+            box-shadow: 0 0 20px black;
+            cursor: crosshair; 
+            user-select: none;
+        }
+
+        /* 이미지 */
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        
+        /* 클릭 포인트 (점) */
+        .dot {
+            position: absolute; width: 6px; height: 6px; background: red; border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 9999; border: 1px solid white;
+        }
+
+        /* 완성된 영역 (폴리곤) */
+        .polygon-zone {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 255, 255, 0.4); /* 형광 하늘색 */
+            border: 1px solid rgba(0, 255, 255, 0.8);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="panel">
+        <h3>📍 PC 야광 스티커 에디터</h3>
+        <p>화면에 보이는 <strong>dark_main.png</strong>에서 야광 스티커의 <strong>꼭짓점 4개</strong>를 순서대로 클릭하세요.</p>
+        
+        <button class="active">비밀의 문 (야광 스티커)</button>
+
+        <button onclick="resetCurrent()" style="background: #552222; margin-top: 20px;">↺ 다시 찍기 (Reset)</button>
+        <button onclick="generateCode()" style="background: #225522; margin-top:10px;">💾 코드 생성 (Generate)</button>
+        
+        <textarea id="output" readonly>좌표 4개를 다 찍고 [코드 생성]을 누르세요.</textarea>
+    </div>
+
+    <div id="stage-wrap">
+        <div id="pc-stage" onclick="handleStageClick(event)">
+            <img src="dark_main.png" class="layer" id="bg">
+            
+            <div id="polygon-layer"></div>
+        </div>
+    </div>
+
+    <script>
+        let points = [];
+
+        function handleStageClick(e) {
+            if (points.length >= 4) {
+                alert("이미 4개를 다 찍었습니다! 맘에 안 들면 [다시 찍기]를 눌러주세요.");
+                return;
+            }
+
+            const stage = document.getElementById('pc-stage');
+            const rect = stage.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 백분율 좌표 변환
+            const perX = ((x / rect.width) * 100).toFixed(2);
+            const perY = ((y / rect.height) * 100).toFixed(2);
+
+            points.push({ x: perX, y: perY });
+            updateDots();
+
+            if (points.length === 4) {
+                savePolygon();
+            }
+        }
+
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach(d => d.remove());
+            const stage = document.getElementById('pc-stage');
+            points.forEach(p => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.style.left = p.x + '%';
+                dot.style.top = p.y + '%';
+                stage.appendChild(dot);
+            });
+        }
+
+        function savePolygon() {
+            const polyStr = `polygon(${points[0].x}% ${points[0].y}%, ${points[1].x}% ${points[1].y}%, ${points[2].x}% ${points[2].y}%, ${points[3].x}% ${points[3].y}%)`;
+            
+            const oldZone = document.getElementById(`poly-sticker`);
+            if (oldZone) oldZone.remove();
+
+            const zone = document.createElement('div');
+            zone.id = `poly-sticker`;
+            zone.className = 'polygon-zone';
+            zone.style.clipPath = polyStr;
+            zone.innerHTML = `<span style="background:black; color:cyan; font-size:12px; font-weight:bold;">야광 스티커 영역</span>`;
+            
+            document.getElementById('polygon-layer').appendChild(zone);
+        }
+
+        function resetCurrent() {
+            points = [];
+            updateDots();
+            const oldZone = document.getElementById(`poly-sticker`);
+            if (oldZone) oldZone.remove();
+        }
+
+        function generateCode() {
+            if(points.length < 4) {
+                alert("아직 꼭짓점 4개를 다 안 찍으셨어요!");
+                return;
+            }
+
+            const polyStr = `polygon(${points[0].x}% ${points[0].y}%, ${points[1].x}% ${points[1].y}%, ${points[2].x}% ${points[2].y}%, ${points[3].x}% ${points[3].y}%)`;
+            
+            let css = "/* PC 야광 스티커 좌표 */\n";
+            css += `#zone-sticker {\n`;
+            css += `    width: 100%; height: 100%; top: 0; left: 0;\n`;
+            css += `    clip-path: ${polyStr};\n`;
+            css += `}\n`;
+
+            const txt = document.getElementById('output');
+            txt.value = css;
+            txt.select();
+        }
+    </script>
+</body>
+</html>
