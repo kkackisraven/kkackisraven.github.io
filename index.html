@@ -6,7 +6,7 @@
     <title>SEORAB</title>
     <style>
         /* 1. 기본 설정 (배경색 흰색으로 변경) */
-        body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif;}
+        body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif;transition: background-color 0.3s ease;}
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         .d-none { display: none !important; }
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
@@ -248,6 +248,10 @@
                 m_s_on.classList.add('d-none'); m_s_off.classList.remove('d-none');
                 m_dark_bg.classList.remove('d-none'); zone_m_sticker.classList.remove('d-none');
                 mobile_stage.style.backgroundColor = "#444444"; m_dark_sticker_img.classList.add('glow-on');
+                
+                // ★ 추가: 화면 바깥쪽(레터박스)도 까맣게!
+                document.body.style.backgroundColor = "#000000"
+                
             } else {
                 s_off.classList.add('d-none'); s_on.classList.remove('d-none');
                 dark_bg.classList.add('d-none'); zone_sticker.classList.add('d-none'); 
@@ -256,6 +260,9 @@
                 m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
                 m_dark_bg.classList.add('d-none'); zone_m_sticker.classList.add('d-none');
                 mobile_stage.style.backgroundColor = "#ffffff"; m_dark_sticker_img.classList.remove('glow-on');
+
+                // ★ 추가: 화면 바깥쪽(레터박스) 다시 하얗게!
+                document.body.style.backgroundColor = "#ffffff";
             }
 
             // 2. 왼쪽 서랍 (★ 서랍이 열렸을 때만 명함/톱니 클릭 활성화 ★)
