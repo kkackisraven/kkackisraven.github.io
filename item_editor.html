@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB - ITEM EDITOR</title>
+    <style>
+        body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: sans-serif; }
+        
+        #panel { width: 320px; background: #111; color: #eee; padding: 20px; border-right: 1px solid #444; display: flex; flex-direction: column; gap: 10px; z-index: 100; overflow-y: auto; }
+        h3 { margin: 0 0 10px 0; color: #44aa44; }
+        
+        .mode-btns { display: flex; gap: 5px; margin-bottom: 10px; }
+        .mode-btns button { flex: 1; padding: 10px; background: #444; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .mode-btns button.active { background: #44aa44; color: black; }
+
+        .target-btns { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+        .target-btns button { padding: 10px; background: #333; color: white; border: 1px solid #555; cursor: pointer; text-align: left; }
+        .target-btns button.active { background: cyan; color: black; font-weight: bold; border-color: cyan; }
+
+        textarea { width: 100%; height: 200px; background: #000; color: #0f0; border: 1px solid #555; font-size: 11px; margin-top: auto; }
+
+        #stage-wrap { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #333; position: relative; padding: 20px; }
+        
+        /* PC 무대 */
+        #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; box-shadow: 0 0 20px black; cursor: crosshair; user-select: none; }
+        
+        /* 모바일 무대 */
+        #mobile-stage { position: relative; height: 90vh; aspect-ratio: 9 / 19.5; background-color: #ffffff; box-shadow: 0 0 20px black; cursor: crosshair; user-select: none; display: none; }
+
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .dot { position: absolute; width: 6px; height: 6px; background: red; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 9999; border: 1px solid white; }
+        
+        .polygon-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(68, 170, 68, 0.4); border: 1px solid rgba(68, 170, 68, 0.8); pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="panel">
+        <h3>📍 명함 / 톱니바퀴 에디터</h3>
+        
+        <div class="mode-btns">
+            <button id="btn-pc" class="active" onclick="switchMode('PC')">💻 PC 화면</button>
+            <button id="btn-mobile" onclick="switchMode('MOBILE')">📱 모바일 화면</button>
+        </div>
+
+        <p style="font-size: 12px; color: #aaa;">※ 팁: 미스터치 방지를 위해 그림보다 <strong>살짝 더 크게(넉넉하게)</strong> 점 4개를 찍어주세요!</p>
+
+        <div class="target-btns" id="pc-targets">
+            <button onclick="selectTarget('pc-card', this)">1. [PC] 명함 (Card)</button>
+            <button onclick="selectTarget('pc-cog', this)">2. [PC] 톱니바퀴 (Cog)</button>
+        </div>
+
+        <div class="target-btns" id="mobile-targets" style="display:none;">
+            <button onclick="selectTarget('m-card', this)">3. [모바일] 명함 (Card)</button>
+            <button onclick="selectTarget('m-cog', this)">4. [모바일] 톱니바퀴 (Cog)</button>
+        </div>
+
+        <button onclick="resetCurrent()" style="background: #552222;">↺ 현재 좌표 다시 찍기</button>
+        <button onclick="generateCode()" style="background: #225522; margin-top:10px;">💾 최종 코드 생성</button>
+        
+        <textarea id="output" readonly>PC/모바일 총 4개의 좌표를 다 찍고 생성 버튼을 누르세요.</textarea>
+    </div>
+
+    <div id="stage-wrap">
+        <div id="pc-stage" onclick="handleStageClick(event, 'pc-stage')">
+            <img src="main.png" class="layer">
+            <img src="left_drawer_open.png" class="layer">
+            <div id="polygon-layer-pc"></div>
+        </div>
+
+        <div id="mobile-stage" onclick="handleStageClick(event, 'mobile-stage')">
+            <img src="m_bg.png" class="layer">
+            <img src="m_drawer_open.png" class="layer">
+            <div id="polygon-layer-mobile"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'PC';
+        let currentTarget = null;
+        let points = [];
+        let allPolygons = {};
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-pc').classList.toggle('active', mode === 'PC');
+            document.getElementById('btn-mobile').classList.toggle('active', mode === 'MOBILE');
+            
+            document.getElementById('pc-stage').style.display = mode === 'PC' ? 'block' : 'none';
+            document.getElementById('mobile-stage').style.display = mode === 'MOBILE' ? 'block' : 'none';
+            
+            document.getElementById('pc-targets').style.display = mode === 'PC' ? 'flex' : 'none';
+            document.getElementById('mobile-targets').style.display = mode === 'MOBILE' ? 'flex' : 'none';
+
+            // 모드 전환 시 타겟 초기화
+            currentTarget = null;
+            points = [];
+            document.querySelectorAll('.target-btns button').forEach(b => b.classList.remove('active'));
+            updateDots();
+        }
+
+        function selectTarget(name, btn) {
+            document.querySelectorAll('.target-btns button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTarget = name;
+            points = [];
+            updateDots();
+        }
+
+        function handleStageClick(e, stageId) {
+            if (!currentTarget) return alert("왼쪽에서 먼저 [대상]을 선택해주세요!");
+            if (points.length >= 4) return alert("이미 4개를 다 찍었습니다. [다시 찍기]를 누르세요.");
+
+            const stage = document.getElementById(stageId);
+            const rect = stage.getBoundingClientRect();
+            const perX = (((e.clientX - rect.left) / rect.width) * 100).toFixed(2);
+            const perY = (((e.clientY - rect.top) / rect.height) * 100).toFixed(2);
+
+            points.push({ x: perX, y: perY });
+            updateDots(stageId);
+
+            if (points.length === 4) savePolygon(stageId);
+        }
+
+        function updateDots(stageId = currentMode === 'PC' ? 'pc-stage' : 'mobile-stage') {
+            document.querySelectorAll('.dot').forEach(d => d.remove());
+            const stage = document.getElementById(stageId);
+            points.forEach(p => {
+                const dot = document.createElement('div');
+                dot.className = 'dot'; dot.style.left = p.x + '%'; dot.style.top = p.y + '%';
+                stage.appendChild(dot);
+            });
+        }
+
+        function savePolygon(stageId) {
+            const polyStr = `polygon(${points[0].x}% ${points[0].y}%, ${points[1].x}% ${points[1].y}%, ${points[2].x}% ${points[2].y}%, ${points[3].x}% ${points[3].y}%)`;
+            allPolygons[currentTarget] = polyStr;
+
+            const oldZone = document.getElementById(`poly-${currentTarget}`);
+            if (oldZone) oldZone.remove();
+
+            const zone = document.createElement('div');
+            zone.id = `poly-${currentTarget}`; zone.className = 'polygon-zone'; zone.style.clipPath = polyStr;
+            zone.innerHTML = `<span style="background:black; color:#44aa44; font-size:10px;">${currentTarget}</span>`;
+            
+            const layerId = currentMode === 'PC' ? 'polygon-layer-pc' : 'polygon-layer-mobile';
+            document.getElementById(layerId).appendChild(zone);
+        }
+
+        function resetCurrent() {
+            if (!currentTarget) return;
+            points = []; updateDots();
+            delete allPolygons[currentTarget];
+            const oldZone = document.getElementById(`poly-${currentTarget}`);
+            if (oldZone) oldZone.remove();
+        }
+
+        function generateCode() {
+            let css = "/* PC 명함 & 톱니 좌표 */\n";
+            if(allPolygons['pc-card']) css += `#zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-card']}; z-index: 999; }\n`;
+            if(allPolygons['pc-cog']) css += `#zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-cog']}; z-index: 999; }\n\n`;
+            
+            css += "/* 모바일 명함 & 톱니 좌표 */\n";
+            if(allPolygons['m-card']) css += `#zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-card']}; z-index: 999; }\n`;
+            if(allPolygons['m-cog']) css += `#zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-cog']}; z-index: 999; }\n`;
+
+            document.getElementById('output').value = css;
+        }
+    </script>
+</body>
+</html>
