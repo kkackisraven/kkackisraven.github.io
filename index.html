@@ -5,41 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEORAB</title>
     <style>
-        /* 1. 기본 설정 */
-        body { margin: 0; padding: 0; background-color: #111; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif;}
+        /* 1. 기본 설정 (배경색 흰색으로 변경) */
+        body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif;}
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         .d-none { display: none !important; }
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
 
         /* =========================================
-           [팝업창 디자인 (PC/모바일 공통)]
+           [팝업창 공통 디자인]
            ========================================= */
-        #secret-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
-        .popup-content { background: #1a1a1a; border: 2px solid #ff4444; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; max-width: 400px; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
-        .popup-content h2 { color: #ff4444; margin-top: 0; margin-bottom: 20px; }
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
+        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; max-width: 400px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); border: 2px solid #555; }
+        .popup-content h2 { margin-top: 0; margin-bottom: 20px; }
         .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; font-weight: bold;}
-        .btn-sns { display: inline-block; background: #ff4444; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; }
-        .btn-sns:hover { background: #ff6666; }
         .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; font-size: 14px; }
         .btn-close:hover { color: white; }
+
+        /* 개별 팝업 포인트 컬러 */
+        #secret-popup .popup-content { border-color: #ff4444; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
+        #secret-popup h2 { color: #ff4444; }
+        .btn-sns { display: inline-block; background: #ff4444; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-sns:hover { background: #ff6666; }
+
+        #card-popup .popup-content { border-color: #44aa44; box-shadow: 0 0 30px rgba(68, 170, 68, 0.4); }
+        #card-popup h2 { color: #44aa44; }
+
+        #cog-popup .popup-content { border-color: #aaaaaa; box-shadow: 0 0 30px rgba(170, 170, 170, 0.4); }
+        #cog-popup h2 { color: #aaaaaa; }
 
 
         /* =========================================
            [PC 세상]
            ========================================= */
-        #pc-stage { 
-            position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; 
-            background-color: #ffffff; display: block; transition: background-color 0.3s ease; 
-        }
-
+        #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; display: block; transition: background-color 0.3s ease; }
         #bg { z-index: 1; } 
         #drawer-closed { z-index: 5; } #drawer-open { z-index: 6; } 
         #cabinet-default { z-index: 10; } #cabinet-cutout { z-index: 10; } #cabinet-open { z-index: 11; }
-        
         #dark-bg { z-index: 50; } 
         #dark-sticker-img { z-index: 51; opacity: 0; transition: opacity 1.5s ease-in-out; }
         #dark-sticker-img.glow-on { opacity: 1; }
-
         #switch-on, #switch-off { z-index: 100; } 
         
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
@@ -48,93 +52,118 @@
         #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
         #zone-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%); z-index: 999; }
 
+        /* ★ PC 명함 & 톱니바퀴 (임시 좌표) */
+        #zone-card { width: 10%; height: 10%; top: 60%; left: 35%; z-index: 99; }
+        #zone-cog { width: 10%; height: 10%; top: 60%; left: 40%; z-index: 99; }
+
+
         /* =========================================
            [모바일 세상]
            ========================================= */
         #mobile-stage { 
             position: relative; background-color: #ffffff; display: none; 
             width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); 
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
-            /* 모바일도 PC처럼 배경색이 부드럽게 바뀌도록 수정 */
+            /* box-shadow를 제거하여 흰색 배경과 이어지게 함 */
+            box-shadow: none; 
             transition: background-color 0.3s ease; 
         }
         .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
-        
-        #m-bg { z-index: 1; } 
-        #m-poster, #m-schedule, #m-box { z-index: 2; }
+        #m-bg { z-index: 1; } #m-poster, #m-schedule, #m-box { z-index: 2; }
         #m-drawer-default { z-index: 5; } #m-drawer-open { z-index: 6; }
         #m-cabinet-default { z-index: 10; } #m-cabinet-cutout { z-index: 10; } #m-cabinet-open { z-index: 11; }
-        
-        /* ★ 모바일 다크 모드 레이어 설정 ★ */
-        #m-dark-bg { z-index: 50; }
-        #m-dark-sticker-img { z-index: 51; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        #m-dark-bg { z-index: 50; } #m-dark-sticker-img { z-index: 51; opacity: 0; transition: opacity 1.5s ease-in-out; }
         #m-dark-sticker-img.glow-on { opacity: 1; }
-        
         #m-switch-on, #m-switch-off { z-index: 100; }
 
-        /* 모바일 클릭 좌표 */
         #zone-m-switch { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%); }
         #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
         #zone-m-cabinet { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%); }
         #zone-m-poster { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(6.82% 20.14%, 23.97% 35.59%, 49.58% 36.15%, 33.44% 16.23%); }
         #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
         #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%); }
-        
-        /* ★ 방금 주신 모바일 스티커 좌표 적용 */
         #zone-m-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(57.47% 56.75%, 87.04% 57.17%, 84.98% 61.93%, 58.62% 61.61%); z-index: 999; }
+
+        /* ★ 모바일 명함 & 톱니바퀴 (임시 좌표) */
+        #zone-m-card { width: 15%; height: 10%; top: 60%; left: 30%; z-index: 99; }
+        #zone-m-cog { width: 15%; height: 10%; top: 60%; left: 45%; z-index: 99; }
 
         @media (max-width: 768px) { #pc-stage { display: none !important; } #mobile-stage { display: block !important; } }
     </style>
 </head>
 <body>
 
-    <div id="secret-popup" class="d-none">
+    <div id="secret-popup" class="d-none popup-overlay">
         <div class="popup-content">
             <h2>⚠️ 열 람 주 의 ⚠️</h2>
             <p>R-18 이상 전용 작품관.<br>입장에 주의 요망</p>
             <a href="https://twitter.com/" target="_blank" class="btn-sns">다락 SNS로 이동하기</a>
-            <button onclick="closePopup()" class="btn-close">닫기</button>
+            <button onclick="closePopup('secret-popup')" class="btn-close">닫기</button>
         </div>
     </div>
 
-    <div id="pc-stage">
-        <img src="main.png?v=mobileglow" class="layer" id="bg">
-        <img src="left_drawer_default.png?v=mobileglow" class="layer" id="drawer-closed">
-        <img src="left_drawer_open.png?v=mobileglow" class="layer d-none" id="drawer-open">
-        <img src="center_cabinet_default.png?v=mobileglow" class="layer" id="cabinet-default">
-        <img src="center_cabinet_cutout.png?v=mobileglow" class="layer d-none" id="cabinet-cutout">
-        <img src="center_cabinet_open.png?v=mobileglow" class="layer d-none" id="cabinet-open">
-        
-        <img src="dark_main.png?v=mobileglow" class="layer d-none" id="dark-bg">
-        <img src="dark_sticker.png?v=mobileglow" class="layer" id="dark-sticker-img">
+    <div id="card-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2>📇 서랍(SEORAB) 정보</h2>
+            <p>
+                설립 연도: 2026년<br>
+                크리에이티브 크루 서랍입니다.<br>
+                연락처: seorab@example.com
+            </p>
+            <button onclick="closePopup('card-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
 
-        <img src="switch_on.png?v=mobileglow" class="layer" id="switch-on">
-        <img src="switch_off.png?v=mobileglow" class="layer d-none" id="switch-off">
+    <div id="cog-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2>⚙️ 시 스 템 설 정</h2>
+            <p>
+                버전: v1.0.0 (Beta)<br>
+                언어: 한국어 (Korean)<br>
+                업데이트 날짜: 2026.02.20
+            </p>
+            <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
+
+
+    <div id="pc-stage">
+        <img src="main.png" class="layer" id="bg">
+        <img src="left_drawer_default.png" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png" class="layer d-none" id="drawer-open">
+        <img src="center_cabinet_default.png" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png" class="layer d-none" id="cabinet-open">
+        
+        <img src="dark_main.png" class="layer d-none" id="dark-bg">
+        <img src="dark_sticker.png" class="layer" id="dark-sticker-img">
+        <img src="switch_on.png" class="layer" id="switch-on">
+        <img src="switch_off.png" class="layer d-none" id="switch-off">
 
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
         <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
         <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
         <div class="click-zone d-none" id="zone-sticker" onclick="clickSticker()"></div>
+        
+        <div class="click-zone d-none" id="zone-card" onclick="clickCard()"></div>
+        <div class="click-zone d-none" id="zone-cog" onclick="clickCog()"></div>
     </div>
 
     <div id="mobile-stage">
-        <img src="m_bg.png?v=mobileglow" class="m-layer" id="m-bg">
-        <img src="m_poster.png?v=mobileglow" class="m-layer" id="m-poster">
-        <img src="m_schedule.png?v=mobileglow" class="m-layer" id="m-schedule">
-        <img src="m_box.png?v=mobileglow" class="m-layer d-none" id="m-box">
+        <img src="m_bg.png" class="m-layer" id="m-bg">
+        <img src="m_poster.png" class="m-layer" id="m-poster">
+        <img src="m_schedule.png" class="m-layer" id="m-schedule">
+        <img src="m_box.png" class="m-layer d-none" id="m-box">
+        <img src="m_drawer_default.png" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_cabinet_default.png" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png" class="m-layer d-none" id="m-cabinet-open">
         
-        <img src="m_drawer_default.png?v=mobileglow" class="m-layer" id="m-drawer-default">
-        <img src="m_drawer_open.png?v=mobileglow" class="m-layer d-none" id="m-drawer-open">
-        <img src="m_cabinet_default.png?v=mobileglow" class="m-layer" id="m-cabinet-default">
-        <img src="m_cabinet_cutout.png?v=mobileglow" class="m-layer d-none" id="m-cabinet-cutout">
-        <img src="m_cabinet_open.png?v=mobileglow" class="m-layer d-none" id="m-cabinet-open">
-        
-        <img src="m_dark_main.png?v=mobileglow" class="m-layer d-none" id="m-dark-bg">
-        <img src="m_dark_sticker.png?v=mobileglow" class="m-layer" id="m-dark-sticker-img">
-
-        <img src="m_switch_on.png?v=mobileglow" class="m-layer" id="m-switch-on">
-        <img src="m_switch_off.png?v=mobileglow" class="m-layer d-none" id="m-switch-off">
+        <img src="m_dark_main.png" class="m-layer d-none" id="m-dark-bg">
+        <img src="m_dark_sticker.png" class="m-layer" id="m-dark-sticker-img">
+        <img src="m_switch_on.png" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png" class="m-layer d-none" id="m-switch-off">
 
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
@@ -142,23 +171,22 @@
         <div class="click-zone" id="zone-m-poster" onclick="clickPoster()"></div>
         <div class="click-zone" id="zone-m-schedule" onclick="clickSchedule()"></div>
         <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
-        
         <div class="click-zone d-none" id="zone-m-sticker" onclick="clickSticker()"></div>
-    </div>
 
+        <div class="click-zone d-none" id="zone-m-card" onclick="clickCard()"></div>
+        <div class="click-zone d-none" id="zone-m-cog" onclick="clickCog()"></div>
+    </div>
 
     <script>
         let state = { dark: false, drawer: false, cabinet: false };
 
         function clickSwitch() { state.dark = !state.dark; updateView(); }
-
         function clickDrawer() {
             if (state.dark) return; 
             if (state.drawer) state.drawer = false;
             else { state.drawer = true; state.cabinet = false; }
             updateView();
         }
-
         function clickCabinet() {
             if (state.dark) return; 
             if (state.cabinet) state.cabinet = false;
@@ -166,14 +194,21 @@
             updateView();
         }
 
+        // === 팝업 컨트롤 통합 함수 ===
         function clickSticker() { document.getElementById('secret-popup').classList.remove('d-none'); }
-        function closePopup() { document.getElementById('secret-popup').classList.add('d-none'); }
+        function clickCard() { document.getElementById('card-popup').classList.remove('d-none'); }
+        function clickCog() { document.getElementById('cog-popup').classList.remove('d-none'); }
+        
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.add('d-none');
+        }
+
+        // 링크 이동
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
         function clickBox() { alert("통신판매 페이지로 이동합니다."); }
 
         function updateView() {
-            // [PC 요소]
             const pc_stage = document.getElementById('pc-stage');
             const d_open = document.getElementById('drawer-open');
             const c_default = document.getElementById('cabinet-default');
@@ -181,12 +216,14 @@
             const c_open = document.getElementById('cabinet-open');
             const s_on = document.getElementById('switch-on');
             const s_off = document.getElementById('switch-off');
-            
             const dark_bg = document.getElementById('dark-bg');
             const dark_sticker_img = document.getElementById('dark-sticker-img');
             const zone_sticker = document.getElementById('zone-sticker');
+            
+            // 명함 & 톱니 PC 영역
+            const zone_card = document.getElementById('zone-card');
+            const zone_cog = document.getElementById('zone-cog');
 
-            // [Mobile 요소]
             const mobile_stage = document.getElementById('mobile-stage');
             const m_d_open = document.getElementById('m-drawer-open');
             const m_c_default = document.getElementById('m-cabinet-default');
@@ -194,48 +231,53 @@
             const m_c_open = document.getElementById('m-cabinet-open');
             const m_s_on = document.getElementById('m-switch-on');
             const m_s_off = document.getElementById('m-switch-off');
-            
             const m_dark_bg = document.getElementById('m-dark-bg');
             const m_dark_sticker_img = document.getElementById('m-dark-sticker-img');
             const zone_m_sticker = document.getElementById('zone-m-sticker');
+            
+            // 명함 & 톱니 모바일 영역
+            const zone_m_card = document.getElementById('zone-m-card');
+            const zone_m_cog = document.getElementById('zone-m-cog');
 
+            // 1. 다크모드
             if (state.dark) {
-                // PC 처리
                 s_on.classList.add('d-none'); s_off.classList.remove('d-none');
-                dark_bg.classList.remove('d-none');
-                zone_sticker.classList.remove('d-none'); 
-                pc_stage.style.backgroundColor = "#444444"; 
-                dark_sticker_img.classList.add('glow-on'); 
+                dark_bg.classList.remove('d-none'); zone_sticker.classList.remove('d-none'); 
+                pc_stage.style.backgroundColor = "#444444"; dark_sticker_img.classList.add('glow-on'); 
                 
-                // Mobile 처리 (기존 filter 제거하고 직접 이미지 + 디밍 적용)
                 m_s_on.classList.add('d-none'); m_s_off.classList.remove('d-none');
-                m_dark_bg.classList.remove('d-none');
-                zone_m_sticker.classList.remove('d-none');
-                mobile_stage.style.backgroundColor = "#444444";
-                m_dark_sticker_img.classList.add('glow-on');
-                
+                m_dark_bg.classList.remove('d-none'); zone_m_sticker.classList.remove('d-none');
+                mobile_stage.style.backgroundColor = "#444444"; m_dark_sticker_img.classList.add('glow-on');
             } else {
-                // PC 복구
                 s_off.classList.add('d-none'); s_on.classList.remove('d-none');
-                dark_bg.classList.add('d-none'); 
-                zone_sticker.classList.add('d-none'); 
-                pc_stage.style.backgroundColor = "#ffffff"; 
-                dark_sticker_img.classList.remove('glow-on'); 
+                dark_bg.classList.add('d-none'); zone_sticker.classList.add('d-none'); 
+                pc_stage.style.backgroundColor = "#ffffff"; dark_sticker_img.classList.remove('glow-on'); 
                 
-                // Mobile 복구
                 m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
-                m_dark_bg.classList.add('d-none');
-                zone_m_sticker.classList.add('d-none');
-                mobile_stage.style.backgroundColor = "#ffffff";
-                m_dark_sticker_img.classList.remove('glow-on');
+                m_dark_bg.classList.add('d-none'); zone_m_sticker.classList.add('d-none');
+                mobile_stage.style.backgroundColor = "#ffffff"; m_dark_sticker_img.classList.remove('glow-on');
             }
 
+            // 2. 왼쪽 서랍 (★ 서랍이 열렸을 때만 명함/톱니 클릭 활성화 ★)
             if (state.drawer) {
                 d_open.classList.remove('d-none'); m_d_open.classList.remove('d-none');
+                
+                // 다크모드가 아닐 때만 내용물 클릭 가능하게 켜줌
+                if(!state.dark) {
+                    zone_card.classList.remove('d-none'); zone_cog.classList.remove('d-none');
+                    zone_m_card.classList.remove('d-none'); zone_m_cog.classList.remove('d-none');
+                } else {
+                    zone_card.classList.add('d-none'); zone_cog.classList.add('d-none');
+                    zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
+                }
             } else {
                 d_open.classList.add('d-none'); m_d_open.classList.add('d-none');
+                // 서랍 닫히면 무조건 내용물 클릭 불가
+                zone_card.classList.add('d-none'); zone_cog.classList.add('d-none');
+                zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
             }
 
+            // 3. 캐비닛
             c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
             m_c_default.classList.add('d-none'); m_c_cutout.classList.add('d-none'); m_c_open.classList.add('d-none');
 
