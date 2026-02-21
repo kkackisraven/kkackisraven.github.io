@@ -12,10 +12,10 @@
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
 
         /* =========================================
-           [팝업창 공통 디자인]
+           [팝업창 & UI 공통 디자인]
            ========================================= */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
-        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; max-width: 400px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); border: 2px solid #555; }
+        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; width: 80%; max-width: 320px; min-width: 250px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); border: 2px solid #555; }
         .popup-content h2 { margin-top: 0; margin-bottom: 20px; }
         .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; font-weight: bold;}
         .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; font-size: 14px; }
@@ -31,18 +31,13 @@
         #cog-popup .popup-content { border-color: #aaaaaa; box-shadow: 0 0 30px rgba(170, 170, 170, 0.4); }
         #cog-popup h2 { color: #aaaaaa; }
 
-        /* =========================================
-           [★ 게임 도움말 (튜토리얼) UI 디자인 ★]
-           ========================================= */
+        /* 도움말 툴팁 애니메이션 */
         .help-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 5000; }
-        
-        /* 툴팁 애니메이션 (숨쉬듯 반짝임) */
         @keyframes pulse-tooltip {
             0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
-        
         .help-tooltip {
             position: absolute; transform: translate(-50%, -50%);
             background: rgba(30, 30, 30, 0.9); border: 2px solid #aaa; color: #fff;
@@ -51,8 +46,6 @@
             animation: pulse-tooltip 2s infinite;
         }
         .help-tooltip span { display: block; font-size: 11px; color: #ffcc00; margin-top: 4px; font-weight: normal; }
-        
-        /* 닫기 (X) 버튼 */
         .btn-close-help {
             position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
             background: #ff4444; color: white; border: none; padding: 12px 30px; border-radius: 30px;
@@ -76,10 +69,14 @@
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
         #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
         #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
-        #zone-box { width: 15%; height: 25%; top: 50%; right: 0; } 
         #zone-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%); z-index: 999; }
         #zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(36.89% 74.03%, 41.09% 72.03%, 41.87% 76.02%, 37.62% 78.19%); z-index: 1000; }
         #zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(41.28% 67.87%, 42.16% 74.29%, 45.82% 71.95%, 44.99% 66.40%); z-index: 1000; }
+        
+        /* ★ PC 추가 사물 좌표 적용 */
+        #zone-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(83.51% 0.35%, 74.00% 36.23%, 99.84% 48.89%, 99.79% 0.00%); z-index: 999; }
+        #zone-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(16.95% 7.71%, 24.56% 32.77%, 36.60% 32.94%, 29.77% 0.78%); z-index: 999; }
+        #zone-mirror { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(68.93% 3.21%, 61.13% 48.72%, 68.39% 53.66%, 81.07% 7.71%); z-index: 999; }
 
 
         /* =========================================
@@ -97,12 +94,14 @@
         #zone-m-switch { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%); }
         #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
         #zone-m-cabinet { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%); }
-        #zone-m-poster { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(6.82% 20.14%, 23.97% 35.59%, 49.58% 36.15%, 33.44% 16.23%); }
         #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
-        #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(63.50% 67.98%, 29.41% 86.88%, 68.74% 99.07%, 98.59% 73.47%); }
         #zone-m-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(57.47% 56.75%, 87.04% 57.17%, 84.98% 61.93%, 58.62% 61.61%); z-index: 999; }
         #zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(35.46% 63.51%, 38.69% 68.08%, 50.99% 65.75%, 46.96% 61.75%); z-index: 1000; }
         #zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(46.55% 60.16%, 50.99% 64.91%, 60.27% 62.49%, 57.24% 58.21%); z-index: 1000; }
+        
+        /* ★ 모바일 추가 사물 좌표 적용 (거울 제외) */
+        #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(61.68% 66.31%, 25.38% 89.77%, 74.19% 99.07%, 98.59% 73.57%); z-index: 999; }
+        #zone-m-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(1.98% 19.11%, 20.94% 35.31%, 51.60% 35.40%, 35.06% 14.64%); z-index: 999; }
 
         @media (max-width: 768px) { #pc-stage { display: none !important; } #mobile-stage { display: block !important; } }
     </style>
@@ -132,7 +131,9 @@
 
     <div id="cog-popup" class="d-none popup-overlay">
         <div class="popup-content">
-            <h2>⚙️ 시스템 설정</h2> <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h2>⚙️ 시스템 설정</h2>
+            
+            <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <p style="margin-top: 0; font-weight: normal; font-size: 14px;">
                     <b>버전:</b> v1.0.0 (Beta)<br>
                     <b>업데이트:</b> 2026.02.20
@@ -150,17 +151,14 @@
                 </select>
             </div>
 
-            <div id="cog-popup" class="d-none popup-overlay">
-         </div>
+            <button onclick="openHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
+            <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
 
     <div id="loading-overlay" class="d-none popup-overlay" style="z-index: 999999; flex-direction: column;">
         <h2 style="color: white; margin-bottom: 20px;">통신판매 페이지로 이동합니다...</h2>
         <div id="countdown-text" style="color: #ffcc00; font-size: 80px; font-weight: bold; text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);">3</div>
-    </div>
-
-            <button onclick="openHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
-            <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
-        </div>
     </div>
 
 
@@ -180,12 +178,16 @@
         <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
         <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
-        <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
+        
         <div class="click-zone d-none" id="zone-sticker" onclick="clickSticker(event)"></div>
         <div class="click-zone d-none" id="zone-card" onclick="clickCard(event)"></div>
         <div class="click-zone d-none" id="zone-cog" onclick="clickCog(event)"></div>
 
-<div id="help-layer-pc" class="help-layer d-none">
+        <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
+        <div class="click-zone" id="zone-frame" onclick="clickFrame()"></div>
+        <div class="click-zone" id="zone-mirror" onclick="clickMirror()"></div>
+
+        <div id="help-layer-pc" class="help-layer d-none">
             <div class="help-tooltip" style="top: 8.58%; left: 40.50%;">스위치<span>방 전등 ON / OFF</span></div>
             <div class="help-tooltip" style="top: 75.24%; left: 29.09%;">서랍<span>크루 서랍 연혁 / 환경설정</span></div>
             <div class="help-tooltip" style="top: 35.97%; left: 56.20%;">캐비닛<span>서랍 소속 작가진 정보</span></div>
@@ -193,7 +195,6 @@
             <div class="help-tooltip" style="top: 70.30%; left: 54.45%;">???<span>Warning</span></div>
             <div class="help-tooltip" style="top: 7.71%; left: 17.29%;">액자<span>현재 참여중인 행사</span></div>
             <div class="help-tooltip" style="top: 6.93%; left: 69.32%;">전신 거울<span>다른 모습의 방을 보고싶다면..?</span></div>
-            
             <button class="btn-close-help" onclick="closeHelp()">✖ 도움말 닫기</button>
         </div>
     </div>
@@ -217,20 +218,21 @@
         <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
         <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
         <div class="click-zone" id="zone-m-cabinet" onclick="clickCabinet()"></div>
-        <div class="click-zone" id="zone-m-poster" onclick="clickPoster()"></div>
         <div class="click-zone" id="zone-m-schedule" onclick="clickSchedule()"></div>
-        <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
+        
         <div class="click-zone d-none" id="zone-m-sticker" onclick="clickSticker(event)"></div>
         <div class="click-zone d-none" id="zone-m-card" onclick="clickCard(event)"></div>
         <div class="click-zone d-none" id="zone-m-cog" onclick="clickCog(event)"></div>
 
-     <div id="help-layer-mobile" class="help-layer d-none">
+        <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
+        <div class="click-zone" id="zone-m-frame" onclick="clickFrame()"></div>
+
+        <div id="help-layer-mobile" class="help-layer d-none">
             <div class="help-tooltip" style="top: 18.74%; left: 46.76%;">스위치<span>방 전등 ON / OFF</span></div>
             <div class="help-tooltip" style="top: 24.98%; left: 17.91%;">액자<span>현재 참여중인 행사</span></div>
             <div class="help-tooltip" style="top: 64.45%; left: 22.55%;">서랍<span>크루 서랍 연혁 / 환경설정</span></div>
             <div class="help-tooltip" style="top: 39.87%; left: 84.47%;">캐비닛<span>서랍 소속 작가진 정보</span></div>
             <div class="help-tooltip" style="top: 77.11%; left: 63.90%;">창고<span>온라인 통신판매 페이지</span></div>
-            
             <button class="btn-close-help" onclick="closeHelp()">✖ 닫기</button>
         </div>
     </div>
@@ -257,50 +259,58 @@
         function clickCog(e) { if(e) e.stopPropagation(); document.getElementById('cog-popup').classList.remove('d-none'); }
         
         function closePopup(popupId) { document.getElementById(popupId).classList.add('d-none'); }
-
-        function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
+
+        // ★ 도움말 컨트롤
+        function openHelp() {
+            closePopup('cog-popup');
+            document.getElementById('help-layer-pc').classList.remove('d-none');
+            document.getElementById('help-layer-mobile').classList.remove('d-none');
+        }
+        function closeHelp() {
+            document.getElementById('help-layer-pc').classList.add('d-none');
+            document.getElementById('help-layer-mobile').classList.add('d-none');
+        }
+
+        // ==========================================
+        // ★ 새로운 기믹 함수들 (창고, 액자, 거울) ★
+        // ==========================================
         function clickBox() {
-            // 1. 로딩창 띄우기
+            if (state.dark) return; // 다크모드에서는 클릭 막기
+            
             const loadingOverlay = document.getElementById('loading-overlay');
             const countdownText = document.getElementById('countdown-text');
             
-            loadingOverlay.classList.remove('d-none');
+            loadingOverlay.classList.remove('d-none'); // 로딩창 등장
             
             let count = 3;
             countdownText.innerText = count;
 
-            // 2. 1초마다 숫자 줄이기
+            // 1초마다 카운트다운
             const timer = setInterval(() => {
                 count--;
                 if (count > 0) {
                     countdownText.innerText = count;
                 } else {
-                    // 3. 0초가 되면 타이머 멈추고 링크 이동!
                     clearInterval(timer);
-                    loadingOverlay.classList.add('d-none'); // 로딩창 다시 숨김
+                    loadingOverlay.classList.add('d-none'); // 0초 되면 숨기기
                     
-                    // 새 창으로 윗치폼 열기 (현재 방탈출 화면은 유지!)
+                    // 새 탭으로 윗치폼 연결!
                     window.open('https://witchform.com/p/ad6EnuBiQk', '_blank'); 
                 }
-            }, 1000); // 1000ms = 1초
+            }, 1000);
         }
 
-        // ★ 도움말(튜토리얼) 열고 닫기 함수
-        function openHelp() {
-            // 설정창은 닫아주고
-            closePopup('cog-popup');
-            
-            // PC와 모바일 각각 도움말 레이어를 켜줍니다.
-            document.getElementById('help-layer-pc').classList.remove('d-none');
-            document.getElementById('help-layer-mobile').classList.remove('d-none');
+        function clickFrame() {
+            if (state.dark) return;
+            alert("액자 팝업(행사 안내)이 준비 중입니다!"); 
         }
-        
-        function closeHelp() {
-            // X 버튼 누르면 숨기기
-            document.getElementById('help-layer-pc').classList.add('d-none');
-            document.getElementById('help-layer-mobile').classList.add('d-none');
+
+        function clickMirror() {
+            if (state.dark) return;
+            alert("전신 거울 기믹(다른 방으로 이동?)이 준비 중입니다!"); 
         }
+        // ==========================================
 
         function updateView() {
             const pc_stage = document.getElementById('pc-stage');
