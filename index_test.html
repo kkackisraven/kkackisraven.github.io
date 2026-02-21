@@ -22,18 +22,13 @@
             pointer-events: none;
         }
 
-        /* 팝업 UI 생략 (테스트 목적이므로 애니메이션에 집중) */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
-        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; width: 80%; max-width: 320px; border: 2px solid #555; }
-        .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; }
-        #card-popup .popup-content { border-color: #44aa44; } #cog-popup .popup-content { border-color: #aaaaaa; }
-
         /* PC 화면 */
         #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; display: block; transition: background-color 0.3s ease; }
         #bg { z-index: 1; } 
         
-        /* ★ 서랍 관련 레이어에 anim-layer 적용 */
+        /* ★ 본체(default)는 애니메이션 없이 항상 그 자리에 고정! */
         #drawer-closed { z-index: 5; } 
+        /* ★ 튀어나오는 서랍(open)만 애니메이션 적용! */
         #drawer-open { z-index: 6; } 
         
         #cabinet-default { z-index: 10; } 
@@ -69,7 +64,7 @@
     <div id="pc-stage">
         <img src="main.png" class="layer" id="bg">
         
-        <img src="left_drawer_default.png" class="layer anim-layer" id="drawer-closed">
+        <img src="left_drawer_default.png" class="layer" id="drawer-closed">
         <img src="left_drawer_open.png" class="layer anim-layer anim-hide" id="drawer-open">
         
         <img src="center_cabinet_default.png" class="layer anim-layer" id="cabinet-default">
@@ -88,7 +83,7 @@
     <div id="mobile-stage">
         <img src="m_bg.png" class="m-layer" id="m-bg">
         
-        <img src="m_drawer_default.png" class="m-layer anim-layer" id="m-drawer-default">
+        <img src="m_drawer_default.png" class="m-layer" id="m-drawer-default">
         <img src="m_drawer_open.png" class="m-layer anim-layer anim-hide" id="m-drawer-open">
         
         <img src="m_cabinet_default.png" class="m-layer anim-layer" id="m-cabinet-default">
@@ -112,7 +107,6 @@
 
         function updateView() {
             // PC
-            const d_closed = document.getElementById('drawer-closed');
             const d_open = document.getElementById('drawer-open');
             const c_default = document.getElementById('cabinet-default');
             const c_cutout = document.getElementById('cabinet-cutout');
@@ -121,7 +115,6 @@
             const zone_cog = document.getElementById('zone-cog');
 
             // Mobile
-            const m_d_closed = document.getElementById('m-drawer-default');
             const m_d_open = document.getElementById('m-drawer-open');
             const m_c_default = document.getElementById('m-cabinet-default');
             const m_c_cutout = document.getElementById('m-cabinet-cutout');
@@ -130,13 +123,11 @@
             const zone_m_cog = document.getElementById('zone-m-cog');
 
             if (state.drawer) {
-                // 서랍 열기 (부드럽게 페이드인/아웃)
-                d_closed.classList.add('anim-hide');
+                // 서랍 열기 (본체는 가만히 있고, 내용물 레이어만 페이드인)
                 d_open.classList.remove('anim-hide');
                 c_default.classList.add('anim-hide');
                 c_cutout.classList.remove('anim-hide');
 
-                m_d_closed.classList.add('anim-hide');
                 m_d_open.classList.remove('anim-hide');
                 m_c_default.classList.add('anim-hide');
                 m_c_cutout.classList.remove('anim-hide');
@@ -145,13 +136,11 @@
                 zone_card.classList.remove('d-none'); zone_cog.classList.remove('d-none');
                 zone_m_card.classList.remove('d-none'); zone_m_cog.classList.remove('d-none');
             } else {
-                // 서랍 닫기 (부드럽게 페이드인/아웃)
-                d_closed.classList.remove('anim-hide');
+                // 서랍 닫기 (내용물 레이어만 페이드아웃)
                 d_open.classList.add('anim-hide');
                 c_default.classList.remove('anim-hide');
                 c_cutout.classList.add('anim-hide');
 
-                m_d_closed.classList.remove('anim-hide');
                 m_d_open.classList.add('anim-hide');
                 m_c_default.classList.remove('anim-hide');
                 m_c_cutout.classList.add('anim-hide');
