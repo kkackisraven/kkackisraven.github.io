@@ -150,6 +150,14 @@
                 </select>
             </div>
 
+            <div id="cog-popup" class="d-none popup-overlay">
+         </div>
+
+    <div id="loading-overlay" class="d-none popup-overlay" style="z-index: 999999; flex-direction: column;">
+        <h2 style="color: white; margin-bottom: 20px;">통신판매 페이지로 이동합니다...</h2>
+        <div id="countdown-text" style="color: #ffcc00; font-size: 80px; font-weight: bold; text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);">3</div>
+    </div>
+
             <button onclick="openHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
             <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
         </div>
@@ -252,7 +260,31 @@
 
         function clickPoster() { alert("행사 포스터입니다. (링크 연결 예정)"); }
         function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
-        function clickBox() { alert("통신판매 페이지로 이동합니다."); }
+        function clickBox() {
+            // 1. 로딩창 띄우기
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const countdownText = document.getElementById('countdown-text');
+            
+            loadingOverlay.classList.remove('d-none');
+            
+            let count = 3;
+            countdownText.innerText = count;
+
+            // 2. 1초마다 숫자 줄이기
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownText.innerText = count;
+                } else {
+                    // 3. 0초가 되면 타이머 멈추고 링크 이동!
+                    clearInterval(timer);
+                    loadingOverlay.classList.add('d-none'); // 로딩창 다시 숨김
+                    
+                    // 새 창으로 윗치폼 열기 (현재 방탈출 화면은 유지!)
+                    window.open('https://witchform.com/p/ad6EnuBiQk', '_blank'); 
+                }
+            }, 1000); // 1000ms = 1초
+        }
 
         // ★ 도움말(튜토리얼) 열고 닫기 함수
         function openHelp() {
