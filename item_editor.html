@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB - ITEM EDITOR</title>
+    <title>SEORAB - ITEM EDITOR (NEW)</title>
     <style>
         body { background-color: #222; margin: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; font-family: sans-serif; }
         
@@ -37,7 +37,7 @@
 <body>
 
     <div id="panel">
-        <h3>📍 명함 / 톱니바퀴 에디터</h3>
+        <h3>📍 창고 / 액자 / 거울 에디터</h3>
         
         <div class="mode-btns">
             <button id="btn-pc" class="active" onclick="switchMode('PC')">💻 PC 화면</button>
@@ -47,31 +47,37 @@
         <p style="font-size: 12px; color: #aaa;">※ 팁: 미스터치 방지를 위해 그림보다 <strong>살짝 더 크게(넉넉하게)</strong> 점 4개를 찍어주세요!</p>
 
         <div class="target-btns" id="pc-targets">
-            <button onclick="selectTarget('pc-card', this)">1. [PC] 명함 (Card)</button>
-            <button onclick="selectTarget('pc-cog', this)">2. [PC] 톱니바퀴 (Cog)</button>
+            <button onclick="selectTarget('pc-box', this)">1. [PC] 창고 (Box)</button>
+            <button onclick="selectTarget('pc-frame', this)">2. [PC] 액자 (Frame)</button>
+            <button onclick="selectTarget('pc-mirror', this)">3. [PC] 전신 거울 (Mirror)</button>
         </div>
 
         <div class="target-btns" id="mobile-targets" style="display:none;">
-            <button onclick="selectTarget('m-card', this)">3. [모바일] 명함 (Card)</button>
-            <button onclick="selectTarget('m-cog', this)">4. [모바일] 톱니바퀴 (Cog)</button>
+            <button onclick="selectTarget('m-box', this)">4. [모바일] 창고 (Box)</button>
+            <button onclick="selectTarget('m-frame', this)">5. [모바일] 액자 (Frame)</button>
+            <button onclick="selectTarget('m-mirror', this)">6. [모바일] 전신 거울 (Mirror)</button>
         </div>
 
         <button onclick="resetCurrent()" style="background: #552222;">↺ 현재 좌표 다시 찍기</button>
         <button onclick="generateCode()" style="background: #225522; margin-top:10px;">💾 최종 코드 생성</button>
         
-        <textarea id="output" readonly>PC/모바일 총 4개의 좌표를 다 찍고 생성 버튼을 누르세요.</textarea>
+        <textarea id="output" readonly>PC/모바일 좌표를 다 찍고 생성 버튼을 누르세요.</textarea>
     </div>
 
     <div id="stage-wrap">
         <div id="pc-stage" onclick="handleStageClick(event, 'pc-stage')">
             <img src="main.png" class="layer">
-            <img src="left_drawer_open.png" class="layer">
+            <img src="left_drawer_default.png" class="layer">
+            <img src="center_cabinet_default.png" class="layer">
             <div id="polygon-layer-pc"></div>
         </div>
 
         <div id="mobile-stage" onclick="handleStageClick(event, 'mobile-stage')">
             <img src="m_bg.png" class="layer">
-            <img src="m_drawer_open.png" class="layer">
+            <img src="m_poster.png" class="layer">
+            <img src="m_schedule.png" class="layer">
+            <img src="m_drawer_default.png" class="layer">
+            <img src="m_cabinet_default.png" class="layer">
             <div id="polygon-layer-mobile"></div>
         </div>
     </div>
@@ -93,7 +99,6 @@
             document.getElementById('pc-targets').style.display = mode === 'PC' ? 'flex' : 'none';
             document.getElementById('mobile-targets').style.display = mode === 'MOBILE' ? 'flex' : 'none';
 
-            // 모드 전환 시 타겟 초기화
             currentTarget = null;
             points = [];
             document.querySelectorAll('.target-btns button').forEach(b => b.classList.remove('active'));
@@ -157,13 +162,15 @@
         }
 
         function generateCode() {
-            let css = "/* PC 명함 & 톱니 좌표 */\n";
-            if(allPolygons['pc-card']) css += `#zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-card']}; z-index: 999; }\n`;
-            if(allPolygons['pc-cog']) css += `#zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-cog']}; z-index: 999; }\n\n`;
+            let css = "/* PC 추가 사물 좌표 */\n";
+            if(allPolygons['pc-box']) css += `#zone-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-box']}; z-index: 999; }\n`;
+            if(allPolygons['pc-frame']) css += `#zone-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-frame']}; z-index: 999; }\n`;
+            if(allPolygons['pc-mirror']) css += `#zone-mirror { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['pc-mirror']}; z-index: 999; }\n\n`;
             
-            css += "/* 모바일 명함 & 톱니 좌표 */\n";
-            if(allPolygons['m-card']) css += `#zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-card']}; z-index: 999; }\n`;
-            if(allPolygons['m-cog']) css += `#zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-cog']}; z-index: 999; }\n`;
+            css += "/* 모바일 추가 사물 좌표 */\n";
+            if(allPolygons['m-box']) css += `#zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-box']}; z-index: 999; }\n`;
+            if(allPolygons['m-frame']) css += `#zone-m-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-frame']}; z-index: 999; }\n`;
+            if(allPolygons['m-mirror']) css += `#zone-m-mirror { width: 100%; height: 100%; top: 0; left: 0; clip-path: ${allPolygons['m-mirror']}; z-index: 999; }\n`;
 
             document.getElementById('output').value = css;
         }
