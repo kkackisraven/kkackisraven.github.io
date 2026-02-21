@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEORAB (TEST VERSION)</title>
+    <style>
+        /* 기본 설정 */
+        body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.3s ease; }
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+        .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+        .d-none { display: none !important; }
+        .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
+
+        /* ★ 애니메이션 테스트용 CSS 추가 ★ */
+        .anim-layer {
+            transition: opacity 0.3s ease-in-out; /* 0.3초 동안 부드럽게 전환 */
+            opacity: 1;
+        }
+        .anim-hide {
+            opacity: 0 !important; /* 투명하게 숨김 */
+            pointer-events: none;
+        }
+
+        /* 팝업 UI 생략 (테스트 목적이므로 애니메이션에 집중) */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
+        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; width: 80%; max-width: 320px; border: 2px solid #555; }
+        .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; }
+        #card-popup .popup-content { border-color: #44aa44; } #cog-popup .popup-content { border-color: #aaaaaa; }
+
+        /* PC 화면 */
+        #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; display: block; transition: background-color 0.3s ease; }
+        #bg { z-index: 1; } 
+        
+        /* ★ 서랍 관련 레이어에 anim-layer 적용 */
+        #drawer-closed { z-index: 5; } 
+        #drawer-open { z-index: 6; } 
+        
+        #cabinet-default { z-index: 10; } 
+        #cabinet-cutout { z-index: 10; } 
+        #cabinet-open { z-index: 11; }
+        #dark-bg { z-index: 50; } 
+        #switch-on, #switch-off { z-index: 100; } 
+
+        #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
+        #zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(36.89% 74.03%, 41.09% 72.03%, 41.87% 76.02%, 37.62% 78.19%); z-index: 1000; }
+        #zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(41.28% 67.87%, 42.16% 74.29%, 45.82% 71.95%, 44.99% 66.40%); z-index: 1000; }
+
+        /* 모바일 화면 */
+        #mobile-stage { position: relative; background-color: #ffffff; display: none; width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); box-shadow: none; transition: background-color 0.3s ease; }
+        @media (max-width: 768px) { #pc-stage { display: none !important; } #mobile-stage { display: block !important; } }
+        
+        #m-bg { z-index: 1; } 
+        #m-drawer-default { z-index: 5; } 
+        #m-drawer-open { z-index: 6; }
+        #m-cabinet-default { z-index: 10; } 
+        #m-cabinet-cutout { z-index: 10; } 
+        #m-cabinet-open { z-index: 11; }
+        #m-dark-bg { z-index: 50; }
+        #m-switch-on, #m-switch-off { z-index: 100; }
+
+        #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
+        #zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(35.46% 63.51%, 38.69% 68.08%, 50.99% 65.75%, 46.96% 61.75%); z-index: 1000; }
+        #zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(46.55% 60.16%, 50.99% 64.91%, 60.27% 62.49%, 57.24% 58.21%); z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <div id="pc-stage">
+        <img src="main.png" class="layer" id="bg">
+        
+        <img src="left_drawer_default.png" class="layer anim-layer" id="drawer-closed">
+        <img src="left_drawer_open.png" class="layer anim-layer anim-hide" id="drawer-open">
+        
+        <img src="center_cabinet_default.png" class="layer anim-layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png" class="layer anim-layer anim-hide" id="cabinet-cutout">
+        <img src="center_cabinet_open.png" class="layer d-none" id="cabinet-open">
+        
+        <img src="dark_main.png" class="layer d-none" id="dark-bg">
+        <img src="switch_on.png" class="layer" id="switch-on">
+        <img src="switch_off.png" class="layer d-none" id="switch-off">
+
+        <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
+        <div class="click-zone d-none" id="zone-card" onclick="alert('명함 클릭')"></div>
+        <div class="click-zone d-none" id="zone-cog" onclick="alert('설정 클릭')"></div>
+    </div>
+
+    <div id="mobile-stage">
+        <img src="m_bg.png" class="m-layer" id="m-bg">
+        
+        <img src="m_drawer_default.png" class="m-layer anim-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png" class="m-layer anim-layer anim-hide" id="m-drawer-open">
+        
+        <img src="m_cabinet_default.png" class="m-layer anim-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png" class="m-layer anim-layer anim-hide" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png" class="m-layer d-none" id="m-cabinet-open">
+        
+        <img src="m_dark_main.png" class="m-layer d-none" id="m-dark-bg">
+
+        <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
+        <div class="click-zone d-none" id="zone-m-card" onclick="alert('명함 클릭')"></div>
+        <div class="click-zone d-none" id="zone-m-cog" onclick="alert('설정 클릭')"></div>
+    </div>
+
+    <script>
+        let state = { drawer: false };
+
+        function clickDrawer() {
+            state.drawer = !state.drawer;
+            updateView();
+        }
+
+        function updateView() {
+            // PC
+            const d_closed = document.getElementById('drawer-closed');
+            const d_open = document.getElementById('drawer-open');
+            const c_default = document.getElementById('cabinet-default');
+            const c_cutout = document.getElementById('cabinet-cutout');
+            
+            const zone_card = document.getElementById('zone-card');
+            const zone_cog = document.getElementById('zone-cog');
+
+            // Mobile
+            const m_d_closed = document.getElementById('m-drawer-default');
+            const m_d_open = document.getElementById('m-drawer-open');
+            const m_c_default = document.getElementById('m-cabinet-default');
+            const m_c_cutout = document.getElementById('m-cabinet-cutout');
+            
+            const zone_m_card = document.getElementById('zone-m-card');
+            const zone_m_cog = document.getElementById('zone-m-cog');
+
+            if (state.drawer) {
+                // 서랍 열기 (부드럽게 페이드인/아웃)
+                d_closed.classList.add('anim-hide');
+                d_open.classList.remove('anim-hide');
+                c_default.classList.add('anim-hide');
+                c_cutout.classList.remove('anim-hide');
+
+                m_d_closed.classList.add('anim-hide');
+                m_d_open.classList.remove('anim-hide');
+                m_c_default.classList.add('anim-hide');
+                m_c_cutout.classList.remove('anim-hide');
+                
+                // 클릭 영역 활성화
+                zone_card.classList.remove('d-none'); zone_cog.classList.remove('d-none');
+                zone_m_card.classList.remove('d-none'); zone_m_cog.classList.remove('d-none');
+            } else {
+                // 서랍 닫기 (부드럽게 페이드인/아웃)
+                d_closed.classList.remove('anim-hide');
+                d_open.classList.add('anim-hide');
+                c_default.classList.remove('anim-hide');
+                c_cutout.classList.add('anim-hide');
+
+                m_d_closed.classList.remove('anim-hide');
+                m_d_open.classList.add('anim-hide');
+                m_c_default.classList.remove('anim-hide');
+                m_c_cutout.classList.add('anim-hide');
+                
+                // 클릭 영역 비활성화
+                zone_card.classList.add('d-none'); zone_cog.classList.add('d-none');
+                zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
+            }
+        }
+    </script>
+</body>
+</html>
