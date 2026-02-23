@@ -159,6 +159,7 @@
     <div id="loading-overlay" class="d-none popup-overlay" style="z-index: 999999; flex-direction: column;">
         <h2 style="color: white; margin-bottom: 20px;">통신판매 페이지로 이동합니다...</h2>
         <div id="countdown-text" style="color: #ffcc00; font-size: 80px; font-weight: bold; text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);">3</div>
+        <button onclick="cancelRedirect()" class="btn-sns" style="background: #555; font-size: 20px; padding: 12px 20px;">✖</button>
     </div>
 
 
@@ -299,6 +300,11 @@
                     window.open('https://witchform.com/p/ad6EnuBiQk', '_blank'); 
                 }
             }, 1000);
+        }
+        // ★ [이동 취소] 버튼 기능 (추가됨)
+        function cancelRedirect() {
+            if (redirectTimer) clearInterval(redirectTimer); // 째깍거리던 타이머 폭탄 해체!
+            document.getElementById('loading-overlay').classList.add('d-none'); // 로딩창 끄기
         }
 
         function clickFrame() {
