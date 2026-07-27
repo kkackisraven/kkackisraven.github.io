@@ -6,7 +6,9 @@
     <title>SEORAB - FINAL FIXED</title>
     <style>
         /* 1. 기본 설정 */
-        body { margin: 0; padding: 0; background-color: #111; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        body { margin: 0; padding: 0; background-color: #111; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 하이라이트 제거 */
+        }
         
         /* 2. 무대 (흰색 종이 역할) */
         #stage { 
@@ -42,7 +44,13 @@
         #switch-off { z-index: 100; }
 
         /* 6. 클릭 영역 */
-        .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
+        .click-zone {
+            position: absolute; z-index: 999; cursor: pointer; background: transparent;
+            -webkit-tap-highlight-color: transparent; /* 파란 탭 하이라이트 제거 */
+            -webkit-touch-callout: none;               /* 길게 눌렀을 때 콜아웃 방지 */
+            -webkit-user-select: none; user-select: none; /* 텍스트 선택 블록 방지 */
+            outline: none;                             /* 포커스 외곽선 제거 */
+        }
         
         /* 좌표 */
         #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
