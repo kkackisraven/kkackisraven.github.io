@@ -3,12 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEORAB</title>
+    <title>서랍 SEORAB | 크리에이터 크루</title>
+
+    <!-- ✍️ TODO: 아래 SITE_URL 을 도메인 구입 후 실제 주소로 바꾸세요 (예: https://seorab.com/) -->
+    <link rel="canonical" href="https://kkackisraven.github.io/">
+    <meta name="description" content="서랍 속 잡동사니들 사이, 각자의 이야기를 꺼내고 싶어 하는 작은 동물들의 모임. 크리에이터 크루 <서랍> 인사드립니다.">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#111111">
+
+    <!-- 공유 카드 (카톡 / 트위터 / 디스코드) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="서랍 SEORAB">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:url" content="https://kkackisraven.github.io/">
+    <meta property="og:title" content="서랍 SEORAB — 크리에이터 크루">
+    <meta property="og:description" content="사무실 안의 물건을 눌러 작가진과 작업물을 둘러보세요.">
+    <meta property="og:image" content="https://kkackisraven.github.io/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="흑백 선화로 그린 서랍 크루의 사무실 내부">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="서랍 SEORAB — 크리에이터 크루">
+    <meta name="twitter:description" content="사무실 안의 물건을 눌러 작가진과 작업물을 둘러보세요.">
+    <meta name="twitter:image" content="https://kkackisraven.github.io/assets/og-image.jpg">
+
+    <!-- 파비콘 -->
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="assets/favicon-16.png" sizes="16x16">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+    <!-- 첫 화면 이미지 우선 로딩 -->
+    <link rel="preload" as="image" href="main.png">
     <style>
         /* 1. 기본 설정 */
-        body { margin: 0; padding: 0; background-color: #ffffff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.3s ease; }
+        body { margin: 0; padding: 0; background-color: #ffffff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.3s ease; }
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
         .d-none { display: none !important; }
+        /* 검색엔진 / 스크린리더용 실제 텍스트 (화면에는 안 보임) */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        #notready-popup .popup-content { border-color: #888; box-shadow: 0 0 30px rgba(255,255,255,0.12); }
+        #notready-popup h2 { color: #ddd; }
         .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
 
         /* =========================================
@@ -108,11 +142,18 @@
 </head>
 <body>
 
+    <div id="notready-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2 id="notready-title">준비 중</h2>
+            <p id="notready-body">아직 준비 중인 공간입니다.</p>
+            <button onclick="closePopup('notready-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
     <div id="secret-popup" class="d-none popup-overlay">
         <div class="popup-content">
             <h2>⚠️ 열 람 주 의 ⚠️</h2>
             <p>R-18 이상 전용 작품관.<br>입장에 주의 요망</p>
-            <a href="https://twitter.com/" target="_blank" class="btn-sns">다락 SNS로 이동하기</a>
+            <a id="secret-sns-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-sns">다락 SNS로 이동하기</a>
             <button onclick="closePopup('secret-popup')" class="btn-close">닫기</button>
         </div>
     </div>
@@ -120,11 +161,7 @@
     <div id="card-popup" class="d-none popup-overlay">
         <div class="popup-content">
             <h2>📇 서랍(SEORAB) 정보</h2>
-            <p>
-                설립 연도: 2026년<br>
-                크리에이티브 크루 서랍입니다.<br>
-                연락처: seorab@example.com
-            </p>
+            <p id="card-body"></p>
             <button onclick="closePopup('card-popup')" class="btn-close">닫기</button>
         </div>
     </div>
@@ -162,6 +199,20 @@
         <div id="countdown-text" style="color: #ffcc00; font-size: 80px; font-weight: bold; text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);">3</div>
     </div>
 
+
+    <!-- ✍️ TODO: 아래 소개 문구와 작가 이름을 실제 내용으로 채우세요. 화면에는 보이지 않지만 검색엔진과 스크린리더가 읽습니다. -->
+    <div class="sr-only">
+        <h1>서랍 SEORAB</h1>
+        <p>서랍(SEORAB)은 ⟨무엇을 하는 팀인지 한 줄 ✍️⟩ 크리에이터 크루입니다.</p>
+        <h2>소속 작가</h2>
+        <ul>
+            <li>⟨작가 이름 ✍️⟩</li>
+        </ul>
+        <h2>문의</h2>
+        <p id="sr-contact"></p>
+        <h2>안내</h2>
+        <p>이 페이지는 사무실 그림 속 물건을 눌러 둘러보는 방식으로 만들어졌습니다. 스위치를 누르면 조명이 꺼지고, 왼쪽 서랍에는 크루 정보가, 가운데 캐비닛에는 작가진 정보가 들어 있습니다.</p>
+    </div>
 
     <div id="pc-stage">
         <img src="main.png" class="layer" id="bg">
@@ -204,7 +255,8 @@
         <img src="m_bg.png" class="m-layer" id="m-bg">
         <img src="m_poster.png" class="m-layer" id="m-poster">
         <img src="m_schedule.png" class="m-layer" id="m-schedule">
-        <img src="m_box.png" class="m-layer d-none" id="m-box">
+        <!-- ⚠️ m_box.png 파일이 저장소에 없어 404가 납니다. 그림이 생기면 주석을 푸세요.
+        <img src="m_box.png" class="m-layer d-none" id="m-box"> -->
         <img src="m_drawer_default.png" class="m-layer" id="m-drawer-default">
         <img src="m_drawer_open.png" class="m-layer d-none" id="m-drawer-open">
         <img src="m_cabinet_default.png" class="m-layer" id="m-cabinet-default">
@@ -239,6 +291,43 @@
     </div>
 
     <script>
+        /* =========================================================
+           ✍️  여기만 고치면 됩니다 — 아래 세 줄이 사이트 전체에 반영됩니다
+           ========================================================= */
+        const SEORAB = {
+            email:   "wjsrltn@proton.me",              // ✍️ 명함 팝업과 문의처에 표시됩니다
+            snsUrl:  "https://x.com/Cabinet_animals",        // ✍️ 야광 스티커(R-18) 팝업의 이동 버튼
+            founded: "2026년",                              // ✍️ 설립 연도
+            intro:   "한 잔의 술과 지난한 세상사"           // ✍️ 명함에 들어갈 한 줄 소개
+        };
+
+        function applyConfig() {
+            const mailLink = '<a href="mailto:' + SEORAB.email + '" style="color:#8ecfff">' + SEORAB.email + '</a>';
+            document.getElementById('card-body').innerHTML =
+                '설립 연도: ' + SEORAB.founded + '<br>' + SEORAB.intro + '<br>연락처: ' + mailLink;
+            document.getElementById('sr-contact').textContent = '문의: ' + SEORAB.email;
+            document.getElementById('secret-sns-link').href = SEORAB.snsUrl;
+        }
+
+        function showNotReady(title, message) {
+            document.getElementById('notready-title').textContent = title;
+            document.getElementById('notready-body').innerHTML = message;
+            document.getElementById('notready-popup').classList.remove('d-none');
+        }
+
+        /* 팝업: 바깥 클릭 / ESC 로 닫기 */
+        document.addEventListener('click', function (e) {
+            if (e.target.classList && e.target.classList.contains('popup-overlay') && e.target.id !== 'loading-overlay') {
+                e.target.classList.add('d-none');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            document.querySelectorAll('.popup-overlay:not(.d-none)').forEach(function (el) { el.classList.add('d-none'); });
+            if (typeof redirectTimer !== 'undefined' && redirectTimer) clearInterval(redirectTimer);
+            closeHelp();
+        });
+
         let state = { dark: false, drawer: false, cabinet: false };
 
         function clickSwitch() { state.dark = !state.dark; updateView(); }
@@ -260,7 +349,7 @@
         function clickCog(e) { if(e) e.stopPropagation(); document.getElementById('cog-popup').classList.remove('d-none'); }
         
         function closePopup(popupId) { document.getElementById(popupId).classList.add('d-none'); }
-        function clickSchedule() { alert("일정표 페이지로 이동합니다."); }
+        function clickSchedule() { showNotReady("일정표", "행사·마감 일정표는 준비 중입니다.<br>업데이트되면 이 자리에 표시됩니다."); }
 
         // ★ 도움말 컨트롤
         function openHelp() {
@@ -313,12 +402,12 @@
 
         function clickFrame() {
             if (state.dark) return;
-            alert("액자 팝업(행사 안내)이 준비 중입니다!"); 
+            showNotReady("액자 — 참여 행사", "현재 참여 중인 행사 안내는 준비 중입니다.<br>소식은 SNS에서 먼저 전해드립니다.");
         }
 
         function clickMirror() {
             if (state.dark) return;
-            alert("전신 거울 기믹(다른 방으로 이동?)이 준비 중입니다!"); 
+            showNotReady("전신 거울", "다른 모습의 방으로 가는 문은 아직 잠겨 있습니다.<br>다음 업데이트에서 열립니다.");
         }
         // ==========================================
         // ==========================================
@@ -402,6 +491,7 @@
             }
         }
         
+        applyConfig();
         updateView();
 
     </script>
