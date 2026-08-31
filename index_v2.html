@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서랍 SEORAB | 크리에이터 크루</title>
+
+    <!-- ✍️ TODO: 아래 SITE_URL 을 도메인 구입 후 실제 주소로 바꾸세요 (예: https://seorab.com/) -->
+    <link rel="canonical" href="https://kkackisraven.github.io/">
+    <meta name="description" content="서랍(SEORAB)은 ⟨무엇을 하는 팀인지 한 줄 ✍️⟩ 크리에이터 크루입니다. 사무실 안의 물건을 눌러 작가진과 작업물을 둘러보세요.">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#111111">
+
+    <!-- 공유 카드 (카톡 / 트위터 / 디스코드) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="서랍 SEORAB">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:url" content="https://kkackisraven.github.io/">
+    <meta property="og:title" content="서랍 SEORAB — 크리에이터 크루">
+    <meta property="og:description" content="사무실 안의 물건을 눌러 작가진과 작업물을 둘러보세요.">
+    <meta property="og:image" content="https://kkackisraven.github.io/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="흑백 선화로 그린 서랍 크루의 사무실 내부">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="서랍 SEORAB — 크리에이터 크루">
+    <meta name="twitter:description" content="사무실 안의 물건을 눌러 작가진과 작업물을 둘러보세요.">
+    <meta name="twitter:image" content="https://kkackisraven.github.io/assets/og-image.jpg">
+
+    <!-- 파비콘 -->
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="assets/favicon-16.png" sizes="16x16">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+    <!-- 첫 화면 이미지 우선 로딩 -->
+    <link rel="preload" as="image" href="main.png">
+    <style>
+        /* 1. 기본 설정 */
+        body { margin: 0; padding: 0; background-color: #ffffff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: 'Malgun Gothic', sans-serif; transition: background-color 0.3s ease; }
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+        .d-none { display: none !important; }
+        /* 검색엔진 / 스크린리더용 실제 텍스트 (화면에는 안 보임) */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        #notready-popup .popup-content { border-color: #888; box-shadow: 0 0 30px rgba(255,255,255,0.12); }
+        #notready-popup h2 { color: #ddd; }
+        .click-zone { position: absolute; z-index: 999; cursor: pointer; background: transparent; }
+
+        /* =========================================
+           [팝업창 & UI 공통 디자인]
+           ========================================= */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; justify-content: center; align-items: center; }
+        .popup-content { background: #1a1a1a; padding: 40px 30px; text-align: center; color: white; border-radius: 10px; width: 80%; max-width: 320px; min-width: 250px; box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); border: 2px solid #555; }
+        .popup-content h2 { margin-top: 0; margin-bottom: 20px; }
+        .popup-content p { line-height: 1.6; color: #ccc; margin-bottom: 30px; word-break: keep-all; font-weight: bold;}
+        .btn-close { display: block; margin: 20px auto 0; background: none; color: #888; border: none; text-decoration: underline; cursor: pointer; font-size: 14px; }
+        .btn-close:hover { color: white; }
+
+        #secret-popup .popup-content { border-color: #ff4444; box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
+        #secret-popup h2 { color: #ff4444; }
+        .btn-sns { display: inline-block; background: #ff4444; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; }
+        .btn-sns:hover { background: #ff6666; }
+
+        #card-popup .popup-content { border-color: #44aa44; box-shadow: 0 0 30px rgba(68, 170, 68, 0.4); }
+        #card-popup h2 { color: #44aa44; }
+        #cog-popup .popup-content { border-color: #aaaaaa; box-shadow: 0 0 30px rgba(170, 170, 170, 0.4); }
+        #cog-popup h2 { color: #aaaaaa; }
+
+        /* 도움말 툴팁 애니메이션 */
+        .help-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 5000; }
+        @keyframes pulse-tooltip {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        .help-tooltip {
+            position: absolute; transform: translate(-50%, -50%);
+            background: rgba(30, 30, 30, 0.9); border: 2px solid #aaa; color: #fff;
+            padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
+            white-space: nowrap; pointer-events: auto; cursor: default;
+            animation: pulse-tooltip 2s infinite;
+        }
+        .help-tooltip span { display: block; font-size: 11px; color: #ffcc00; margin-top: 4px; font-weight: normal; }
+        .btn-close-help {
+            position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+            background: #ff4444; color: white; border: none; padding: 12px 30px; border-radius: 30px;
+            font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5001;
+        }
+        .btn-close-help:hover { background: #ff6666; }
+
+
+        /* =========================================
+           [PC 세상]
+           ========================================= */
+        #pc-stage { position: relative; width: 100%; height: 100%; max-width: 177.78vh; aspect-ratio: 16 / 9; background-color: #ffffff; display: block; transition: background-color 0.3s ease; }
+        #bg { z-index: 1; } 
+        #drawer-closed { z-index: 5; } #drawer-open { z-index: 6; } 
+        #cabinet-default { z-index: 10; } #cabinet-cutout { z-index: 10; } #cabinet-open { z-index: 11; }
+        #dark-bg { z-index: 50; } 
+        #dark-sticker-img { z-index: 51; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        #dark-sticker-img.glow-on { opacity: 1; }
+        #switch-on, #switch-off { z-index: 100; } 
+        
+        #zone-switch { top: 2.59%; left: 42.68%; width: 1.60%; height: 5.61%; }
+        #zone-cabinet { top: 39.67%; left: 44.00%; width: 13.65%; height: 11.80%; }
+        #zone-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(32.32% 76.56%, 44.01% 60.96%, 44.29% 65.55%, 33.21% 80.14%); }
+        #zone-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(44.99% 63.02%, 56.54% 63.28%, 55.86% 70.65%, 45.28% 70.13%); z-index: 999; }
+        #zone-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(36.89% 74.03%, 41.09% 72.03%, 41.87% 76.02%, 37.62% 78.19%); z-index: 1000; }
+        #zone-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(41.28% 67.87%, 42.16% 74.29%, 45.82% 71.95%, 44.99% 66.40%); z-index: 1000; }
+        
+        /* ★ PC 추가 사물 좌표 적용 */
+        #zone-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(83.51% 0.35%, 74.00% 36.23%, 99.84% 48.89%, 99.79% 0.00%); z-index: 999; }
+        #zone-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(16.95% 7.71%, 24.56% 32.77%, 36.60% 32.94%, 29.77% 0.78%); z-index: 999; }
+        #zone-mirror { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(68.93% 3.21%, 61.13% 48.72%, 68.39% 53.66%, 81.07% 7.71%); z-index: 999; }
+
+
+        /* =========================================
+           [모바일 세상]
+           ========================================= */
+        #mobile-stage { position: relative; background-color: #ffffff; display: none; width: min(100vw, calc(100dvh * (9 / 19.5))); height: min(100dvh, calc(100vw * (19.5 / 9))); box-shadow: none; transition: background-color 0.3s ease; }
+        .m-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+        #m-bg { z-index: 1; } #m-poster, #m-schedule, #m-box { z-index: 2; }
+        #m-drawer-default { z-index: 5; } #m-drawer-open { z-index: 6; }
+        #m-cabinet-default { z-index: 10; } #m-cabinet-cutout { z-index: 10; } #m-cabinet-open { z-index: 11; }
+        #m-dark-bg { z-index: 50; transform: scale(1.005); } #m-dark-sticker-img { z-index: 51; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        #m-dark-sticker-img.glow-on { opacity: 1; }
+        #m-switch-on, #m-switch-off { z-index: 100; }
+
+        #zone-m-switch { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(49.38% 20.60%, 49.98% 24.23%, 53.41% 24.23%, 53.21% 21.07%); }
+        #zone-m-drawer { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(25.38% 66.03%, 27.80% 68.63%, 55.43% 58.86%, 55.23% 55.97%); }
+        #zone-m-cabinet { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(54.22% 42.48%, 55.23% 49.37%, 89.51% 49.46%, 91.73% 42.48%); }
+        #zone-m-schedule { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(62.49% 9.34%, 63.29% 24.98%, 99.60% 28.89%, 99.60% 10.18%); }
+        #zone-m-sticker { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(57.47% 56.75%, 87.04% 57.17%, 84.98% 61.93%, 58.62% 61.61%); z-index: 999; }
+        #zone-m-card { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(35.46% 63.51%, 38.69% 68.08%, 50.99% 65.75%, 46.96% 61.75%); z-index: 1000; }
+        #zone-m-cog { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(46.55% 60.16%, 50.99% 64.91%, 60.27% 62.49%, 57.24% 58.21%); z-index: 1000; }
+        
+        /* ★ 모바일 추가 사물 좌표 적용 (거울 제외) */
+        #zone-m-box { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(61.68% 66.31%, 25.38% 89.77%, 74.19% 99.07%, 98.59% 73.57%); z-index: 999; }
+        #zone-m-frame { width: 100%; height: 100%; top: 0; left: 0; clip-path: polygon(1.98% 19.11%, 20.94% 35.31%, 51.60% 35.40%, 35.06% 14.64%); z-index: 999; }
+
+        @media (max-width: 768px) { #pc-stage { display: none !important; } #mobile-stage { display: block !important; } }
+    </style>
+</head>
+<body>
+
+    <div id="notready-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2 id="notready-title">준비 중</h2>
+            <p id="notready-body">아직 준비 중인 공간입니다.</p>
+            <button onclick="closePopup('notready-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
+    <div id="secret-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2>⚠️ 열 람 주 의 ⚠️</h2>
+            <p>R-18 이상 전용 작품관.<br>입장에 주의 요망</p>
+            <a id="secret-sns-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-sns">다락 SNS로 이동하기</a>
+            <button onclick="closePopup('secret-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
+
+    <div id="card-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2>📇 서랍(SEORAB) 정보</h2>
+            <p id="card-body"></p>
+            <button onclick="closePopup('card-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
+
+    <div id="cog-popup" class="d-none popup-overlay">
+        <div class="popup-content">
+            <h2>⚙️ 시스템 설정</h2>
+            
+            <div style="text-align: left; background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin-top: 0; font-weight: normal; font-size: 14px;">
+                    <b>버전:</b> v1.0.0 (Beta)<br>
+                    <b>업데이트:</b> 2026.02.20
+                </p>
+                
+                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+                
+                <div style="margin-bottom: 5px;">
+                    <b>🌐 언어 설정 (Language)</b>
+                </div>
+                <select id="lang-select" style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #666; border-radius: 5px; font-family: 'Malgun Gothic', sans-serif; cursor: pointer;">
+                    <option value="ko">한국어 (Korean)</option>
+                    <option value="en">English (준비중)</option>
+                    <option value="ja">日本語 (준비중)</option>
+                </select>
+            </div>
+
+            <button onclick="openHelp()" class="btn-sns" style="width: 100%; background: #555; margin-bottom: 10px;">💡 도움말 보기</button>
+            <button onclick="closePopup('cog-popup')" class="btn-close">닫기</button>
+        </div>
+    </div>
+        <div id="loading-overlay" class="d-none popup-overlay" style="z-index: 999999; flex-direction: column;">
+        <button onclick="cancelRedirect()" style="position: absolute; top: 30px; right: 30px; background: transparent; border: none; color: white; font-size: 40px; cursor: pointer; padding: 10px; transition: 0.2s;" onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='white'">✖</button>
+
+        <h2 style="color: white; margin-bottom: 20px;">통신판매 페이지로 이동합니다...</h2>
+        <div id="countdown-text" style="color: #ffcc00; font-size: 80px; font-weight: bold; text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);">3</div>
+    </div>
+
+
+    <!-- 화면에는 보이지 않지만 검색엔진과 스크린리더가 읽는 영역입니다. -->
+    <div class="sr-only">
+        <h1>서랍 SEORAB</h1>
+        <p>서랍(SEORAB)은 ⟨무엇을 하는 팀인지 한 줄 ✍️⟩ 크리에이터 크루입니다.</p>
+        <h2>소속 작가</h2>
+        <ul>
+            <li><a href="https://instagram.com/hwasu2025">호반화수</a></li>
+            <li><a href="https://instagram.com/till_i_drunk_">화린</a></li>
+            <li><a href="https://instagram.com/gray_day365">Grayday</a></li>
+            <li><a href="https://instagram.com/krenberry16">KREN</a></li>
+            <li><a href="https://x.com/71aPetlife">과민</a></li>
+        </ul>
+        <h2>서랍 공식 계정</h2>
+        <ul>
+            <li><a href="https://instagram.com/cabinet_animals">Instagram @cabinet_animals</a></li>
+            <li><a href="https://x.com/cabinet_animals">X @cabinet_animals</a></li>
+        </ul>
+        <h2>문의</h2>
+        <p id="sr-contact"></p>
+        <h2>안내</h2>
+        <p>이 페이지는 사무실 그림 속 물건을 눌러 둘러보는 방식으로 만들어졌습니다. 스위치를 누르면 조명이 꺼지고, 왼쪽 서랍에는 크루 정보가, 가운데 캐비닛에는 작가진 정보가 들어 있습니다.</p>
+    </div>
+
+    <div id="pc-stage">
+        <img src="main.png" class="layer" id="bg">
+        <img src="left_drawer_default.png" class="layer" id="drawer-closed">
+        <img src="left_drawer_open.png" class="layer d-none" id="drawer-open">
+        <img src="center_cabinet_default.png" class="layer" id="cabinet-default">
+        <img src="center_cabinet_cutout.png" class="layer d-none" id="cabinet-cutout">
+        <img src="center_cabinet_open.png" class="layer d-none" id="cabinet-open">
+        
+        <img src="dark_main.png" class="layer d-none" id="dark-bg">
+        <img src="dark_sticker.png" class="layer" id="dark-sticker-img">
+        <img src="switch_on.png" class="layer" id="switch-on">
+        <img src="switch_off.png" class="layer d-none" id="switch-off">
+
+        <div class="click-zone" id="zone-switch" onclick="clickSwitch()"></div>
+        <div class="click-zone" id="zone-drawer" onclick="clickDrawer()"></div>
+        <div class="click-zone" id="zone-cabinet" onclick="clickCabinet()"></div>
+        
+        <div class="click-zone d-none" id="zone-sticker" onclick="clickSticker(event)"></div>
+        <div class="click-zone d-none" id="zone-card" onclick="clickCard(event)"></div>
+        <div class="click-zone d-none" id="zone-cog" onclick="clickCog(event)"></div>
+
+        <div class="click-zone" id="zone-box" onclick="clickBox()"></div>
+        <div class="click-zone" id="zone-frame" onclick="clickFrame()"></div>
+        <div class="click-zone" id="zone-mirror" onclick="clickMirror()"></div>
+
+        <div id="help-layer-pc" class="help-layer d-none">
+            <div class="help-tooltip" style="top: 8.58%; left: 40.50%;">스위치<span>방 전등 ON / OFF</span></div>
+            <div class="help-tooltip" style="top: 75.24%; left: 29.09%;">서랍<span>크루 서랍 연혁 / 환경설정</span></div>
+            <div class="help-tooltip" style="top: 35.97%; left: 56.20%;">캐비닛<span>서랍 소속 작가진 정보</span></div>
+            <div class="help-tooltip" style="top: 7.80%; left: 86.92%;">창고<span>온라인 통신판매 페이지</span></div>
+            <div class="help-tooltip" style="top: 70.30%; left: 54.45%;">???<span>Warning</span></div>
+            <div class="help-tooltip" style="top: 7.71%; left: 17.29%;">액자<span>현재 참여중인 행사</span></div>
+            <div class="help-tooltip" style="top: 6.93%; left: 69.32%;">전신 거울<span>다른 모습의 방을 보고싶다면..?</span></div>
+            <button class="btn-close-help" onclick="closeHelp()">✖ 도움말 닫기</button>
+        </div>
+    </div>
+
+    <div id="mobile-stage">
+        <img src="m_bg.png" class="m-layer" id="m-bg">
+        <img src="m_poster.png" class="m-layer" id="m-poster">
+        <img src="m_schedule.png" class="m-layer" id="m-schedule">
+        <!-- ⚠️ m_box.png 파일이 저장소에 없어 404가 납니다. 그림이 생기면 주석을 푸세요.
+        <img src="m_box.png" class="m-layer d-none" id="m-box"> -->
+        <img src="m_drawer_default.png" class="m-layer" id="m-drawer-default">
+        <img src="m_drawer_open.png" class="m-layer d-none" id="m-drawer-open">
+        <img src="m_cabinet_default.png" class="m-layer" id="m-cabinet-default">
+        <img src="m_cabinet_cutout.png" class="m-layer d-none" id="m-cabinet-cutout">
+        <img src="m_cabinet_open.png" class="m-layer d-none" id="m-cabinet-open">
+        
+        <img src="m_dark_main.png" class="m-layer d-none" id="m-dark-bg">
+        <img src="m_dark_sticker.png" class="m-layer" id="m-dark-sticker-img">
+        <img src="m_switch_on.png" class="m-layer" id="m-switch-on">
+        <img src="m_switch_off.png" class="m-layer d-none" id="m-switch-off">
+
+        <div class="click-zone" id="zone-m-switch" onclick="clickSwitch()"></div>
+        <div class="click-zone" id="zone-m-drawer" onclick="clickDrawer()"></div>
+        <div class="click-zone" id="zone-m-cabinet" onclick="clickCabinet()"></div>
+        <div class="click-zone" id="zone-m-schedule" onclick="clickSchedule()"></div>
+        
+        <div class="click-zone d-none" id="zone-m-sticker" onclick="clickSticker(event)"></div>
+        <div class="click-zone d-none" id="zone-m-card" onclick="clickCard(event)"></div>
+        <div class="click-zone d-none" id="zone-m-cog" onclick="clickCog(event)"></div>
+
+        <div class="click-zone" id="zone-m-box" onclick="clickBox()"></div>
+        <div class="click-zone" id="zone-m-frame" onclick="clickFrame()"></div>
+
+        <div id="help-layer-mobile" class="help-layer d-none">
+            <div class="help-tooltip" style="top: 18.74%; left: 46.76%;">스위치<span>방 전등 ON / OFF</span></div>
+            <div class="help-tooltip" style="top: 24.98%; left: 17.91%;">액자<span>현재 참여중인 행사</span></div>
+            <div class="help-tooltip" style="top: 64.45%; left: 22.55%;">서랍<span>크루 서랍 연혁 / 환경설정</span></div>
+            <div class="help-tooltip" style="top: 39.87%; left: 84.47%;">캐비닛<span>서랍 소속 작가진 정보</span></div>
+            <div class="help-tooltip" style="top: 77.11%; left: 63.90%;">창고<span>온라인 통신판매 페이지</span></div>
+            <button class="btn-close-help" onclick="closeHelp()">✖ 닫기</button>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           ✍️  여기만 고치면 됩니다 — 아래 세 줄이 사이트 전체에 반영됩니다
+           ========================================================= */
+        const SEORAB = {
+            email:    "wjsrltn@proton.me",
+            snsUrl:   "https://x.com/cabinet_animals",     // 크루 공식 X
+            instaUrl: "https://instagram.com/cabinet_animals",
+            darakUrl: "",                                  // ✍️ 다락 전용 계정이 생기면 여기에. 비어 있으면 "준비 중"으로 표시됩니다
+            founded:  "2026년",
+            intro:    "크리에이티브 크루 서랍입니다."         // ✍️ 한 줄 소개가 정해지면 교체
+        };
+
+        function applyConfig() {
+            const mailLink = '<a href="mailto:' + SEORAB.email + '" style="color:#8ecfff">' + SEORAB.email + '</a>';
+            document.getElementById('card-body').innerHTML =
+                '설립 연도: ' + SEORAB.founded + '<br>' + SEORAB.intro + '<br>연락처: ' + mailLink;
+            document.getElementById('sr-contact').textContent = '문의: ' + SEORAB.email;
+            applyDarakLink();
+        }
+
+        /* 다락은 아직 준비 중이라, 전용 계정이 없으면 버튼을 안내 문구로 바꾼다. */
+        function applyDarakLink() {
+            const link = document.getElementById('secret-sns-link');
+            if (SEORAB.darakUrl) {
+                link.href = SEORAB.darakUrl;
+                return;
+            }
+            const notice = document.createElement('span');
+            notice.className = 'btn-sns';
+            notice.style.background = '#555';
+            notice.style.cursor = 'default';
+            notice.textContent = '다락은 준비 중입니다';
+            link.replaceWith(notice);
+        }
+
+        function showNotReady(title, message) {
+            document.getElementById('notready-title').textContent = title;
+            document.getElementById('notready-body').innerHTML = message;
+            document.getElementById('notready-popup').classList.remove('d-none');
+        }
+
+        /* 팝업: 바깥 클릭 / ESC 로 닫기 */
+        document.addEventListener('click', function (e) {
+            if (e.target.classList && e.target.classList.contains('popup-overlay') && e.target.id !== 'loading-overlay') {
+                e.target.classList.add('d-none');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            document.querySelectorAll('.popup-overlay:not(.d-none)').forEach(function (el) { el.classList.add('d-none'); });
+            if (typeof redirectTimer !== 'undefined' && redirectTimer) clearInterval(redirectTimer);
+            closeHelp();
+        });
+
+        let state = { dark: false, drawer: false, cabinet: false };
+
+        function clickSwitch() { state.dark = !state.dark; updateView(); }
+        function clickDrawer() {
+            if (state.dark) return; 
+            if (state.drawer) state.drawer = false;
+            else { state.drawer = true; state.cabinet = false; }
+            updateView();
+        }
+        function clickCabinet() {
+            if (state.dark) return; 
+            if (state.cabinet) state.cabinet = false;
+            else { state.cabinet = true; state.drawer = false; }
+            updateView();
+        }
+
+        function clickSticker(e) { if(e) e.stopPropagation(); document.getElementById('secret-popup').classList.remove('d-none'); }
+        function clickCard(e) { if(e) e.stopPropagation(); document.getElementById('card-popup').classList.remove('d-none'); }
+        function clickCog(e) { if(e) e.stopPropagation(); document.getElementById('cog-popup').classList.remove('d-none'); }
+        
+        function closePopup(popupId) { document.getElementById(popupId).classList.add('d-none'); }
+        function clickSchedule() { showNotReady("일정표", "행사·마감 일정표는 준비 중입니다.<br>업데이트되면 이 자리에 표시됩니다."); }
+
+        // ★ 도움말 컨트롤
+        function openHelp() {
+            closePopup('cog-popup');
+            document.getElementById('help-layer-pc').classList.remove('d-none');
+            document.getElementById('help-layer-mobile').classList.remove('d-none');
+        }
+        function closeHelp() {
+            document.getElementById('help-layer-pc').classList.add('d-none');
+            document.getElementById('help-layer-mobile').classList.add('d-none');
+        }
+
+        // ==========================================
+        // ★ 새로운 기믹 함수들 (창고, 액자, 거울) ★
+        // ==========================================
+        
+        let redirectTimer = null; // ★ 핵심: 취소 버튼이 찾을 수 있게 타이머를 바깥에 선언!
+
+        function clickBox() {
+            if (state.dark) return; // 다크모드에서는 클릭 막기
+            
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const countdownText = document.getElementById('countdown-text');
+            
+            loadingOverlay.classList.remove('d-none'); // 로딩창 등장
+            
+            let count = 3;
+            countdownText.innerText = count;
+
+            if (redirectTimer) clearInterval(redirectTimer); // 기존 타이머 청소
+
+            // 1초마다 카운트다운 (timer 대신 redirectTimer 에 저장!)
+            redirectTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownText.innerText = count;
+                } else {
+                    clearInterval(redirectTimer);
+                    loadingOverlay.classList.add('d-none'); // 0초 되면 숨기기
+                    window.open('https://witchform.com/p/ad6EnuBiQk', '_blank'); 
+                }
+            }, 1000);
+        }
+
+        // ★ [이동 취소] 버튼 기능 (이제 정상 작동!)
+        function cancelRedirect() {
+            if (redirectTimer) clearInterval(redirectTimer); // 타이머 폭탄 해체!
+            document.getElementById('loading-overlay').classList.add('d-none'); // 로딩창 끄기
+        }
+
+        function clickFrame() {
+            if (state.dark) return;
+            showNotReady("액자 — 참여 행사", "현재 참여 중인 행사 안내는 준비 중입니다.<br>소식은 SNS에서 먼저 전해드립니다.");
+        }
+
+        function clickMirror() {
+            if (state.dark) return;
+            showNotReady("전신 거울", "다른 모습의 방으로 가는 문은 아직 잠겨 있습니다.<br>다음 업데이트에서 열립니다.");
+        }
+        // ==========================================
+        // ==========================================
+
+        function updateView() {
+            const pc_stage = document.getElementById('pc-stage');
+            const d_open = document.getElementById('drawer-open');
+            const c_default = document.getElementById('cabinet-default');
+            const c_cutout = document.getElementById('cabinet-cutout');
+            const c_open = document.getElementById('cabinet-open');
+            const s_on = document.getElementById('switch-on');
+            const s_off = document.getElementById('switch-off');
+            const dark_bg = document.getElementById('dark-bg');
+            const dark_sticker_img = document.getElementById('dark-sticker-img');
+            const zone_sticker = document.getElementById('zone-sticker');
+            const zone_card = document.getElementById('zone-card');
+            const zone_cog = document.getElementById('zone-cog');
+
+            const mobile_stage = document.getElementById('mobile-stage');
+            const m_d_open = document.getElementById('m-drawer-open');
+            const m_c_default = document.getElementById('m-cabinet-default');
+            const m_c_cutout = document.getElementById('m-cabinet-cutout');
+            const m_c_open = document.getElementById('m-cabinet-open');
+            const m_s_on = document.getElementById('m-switch-on');
+            const m_s_off = document.getElementById('m-switch-off');
+            const m_dark_bg = document.getElementById('m-dark-bg');
+            const m_dark_sticker_img = document.getElementById('m-dark-sticker-img');
+            const zone_m_sticker = document.getElementById('zone-m-sticker');
+            const zone_m_card = document.getElementById('zone-m-card');
+            const zone_m_cog = document.getElementById('zone-m-cog');
+
+            if (state.dark) {
+                s_on.classList.add('d-none'); s_off.classList.remove('d-none');
+                dark_bg.classList.remove('d-none'); zone_sticker.classList.remove('d-none'); 
+                pc_stage.style.backgroundColor = "#444444"; dark_sticker_img.classList.add('glow-on'); 
+                
+                m_s_on.classList.add('d-none'); m_s_off.classList.remove('d-none');
+                m_dark_bg.classList.remove('d-none'); zone_m_sticker.classList.remove('d-none');
+                mobile_stage.style.backgroundColor = "#444444"; m_dark_sticker_img.classList.add('glow-on');
+
+                document.body.style.backgroundColor = "#000000"; 
+            } else {
+                s_off.classList.add('d-none'); s_on.classList.remove('d-none');
+                dark_bg.classList.add('d-none'); zone_sticker.classList.add('d-none'); 
+                pc_stage.style.backgroundColor = "#ffffff"; dark_sticker_img.classList.remove('glow-on'); 
+                
+                m_s_off.classList.add('d-none'); m_s_on.classList.remove('d-none');
+                m_dark_bg.classList.add('d-none'); zone_m_sticker.classList.add('d-none');
+                mobile_stage.style.backgroundColor = "#ffffff"; m_dark_sticker_img.classList.remove('glow-on');
+
+                document.body.style.backgroundColor = "#ffffff"; 
+            }
+
+            if (state.drawer) {
+                d_open.classList.remove('d-none'); m_d_open.classList.remove('d-none');
+                if(!state.dark) {
+                    zone_card.classList.remove('d-none'); zone_cog.classList.remove('d-none');
+                    zone_m_card.classList.remove('d-none'); zone_m_cog.classList.remove('d-none');
+                } else {
+                    zone_card.classList.add('d-none'); zone_cog.classList.add('d-none');
+                    zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
+                }
+            } else {
+                d_open.classList.add('d-none'); m_d_open.classList.add('d-none');
+                zone_card.classList.add('d-none'); zone_cog.classList.add('d-none');
+                zone_m_card.classList.add('d-none'); zone_m_cog.classList.add('d-none');
+            }
+
+            c_default.classList.add('d-none'); c_cutout.classList.add('d-none'); c_open.classList.add('d-none');
+            m_c_default.classList.add('d-none'); m_c_cutout.classList.add('d-none'); m_c_open.classList.add('d-none');
+
+            if (state.cabinet) {
+                c_default.classList.remove('d-none'); c_open.classList.remove('d-none');
+                m_c_default.classList.remove('d-none'); m_c_open.classList.remove('d-none');
+            } else {
+                if (state.drawer) {
+                    c_cutout.classList.remove('d-none'); m_c_cutout.classList.remove('d-none');
+                } else {
+                    c_default.classList.remove('d-none'); m_c_default.classList.remove('d-none');
+                }
+            }
+        }
+        
+        applyConfig();
+        updateView();
+
+    </script>
+</body>
+</html>
